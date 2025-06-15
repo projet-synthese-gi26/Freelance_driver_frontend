@@ -1,0 +1,16 @@
+build:
+  stage: build
+  tags: [yowyob-cmd]
+  script:
+    - echo "Build for $ENVIRONMENT environment..."
+    - rm .env
+    - curl --header "PRIVATE-TOKEN:$CI_SYS_ACCESS_TOKEN" -o .env $CI_JS_ENVIRONMENT_URL
+    - docker build --no-cache -t $DOCKER_IMAGE -f docker/Dockerfile .
+    - docker login -u "$CI_INC_GROUP_DEPLOY_USER" -p "$CI_INC_GROUP_DEPLOY_TOKEN" "$CI_REGISTRY"
+    - docker push $DOCKER_IMAGE
+    - docker image prune --force
+    - echo "Build complete"
+  rules:
+    - if: '$CI_COMMIT_REF_SLUG == "master"'
+      variables:
+        ENVIRONMENT: "production"

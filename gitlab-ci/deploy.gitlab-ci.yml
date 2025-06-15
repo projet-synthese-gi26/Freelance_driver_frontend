@@ -1,0 +1,20 @@
+deploy:
+  stage: deploy
+  tags: [yowyob-cmd]
+  dependencies:
+    - build
+  script:
+    - docker login -u "$CI_INC_GROUP_DEPLOY_USER" -p "$CI_INC_GROUP_DEPLOY_TOKEN" "$CI_REGISTRY"
+    - docker rmi $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME
+    - docker pull $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME || true
+    - docker tag $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME letsgo/driver:$CI_COMMIT_REF_NAME
+    - curl --header "PRIVATE-TOKEN:$CI_SYS_ACCESS_TOKEN" -o docker-compose.yml $DOCKER_COMPOSE_SERVICE_URL
+    - curl --header "PRIVATE-TOKEN:$CI_SYS_ACCESS_TOKEN" -o docker-compose.yml $DOCKER_COMPOSE_SERVICE_URL
+    - docker stack deploy -c docker-compose.yml ${ENVIRONMENT} --with-registry-auth
+  rules:
+    - if: '$CI_COMMIT_REF_SLUG != "master"'
+      when: never
+    - if: '$CI_COMMIT_REF_SLUG == "master"'
+      variables:
+        ENVIRONMENT: "production"
+      when: always

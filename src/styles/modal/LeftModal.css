@@ -1,0 +1,36 @@
+/* LeftModal.css */
+.left-modal {
+    position: fixed;
+    left: -100%;
+    top: 0;
+    width: 80%;
+    height: 100%;
+    background-color: white;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.3);
+    transition: left 0.3s ease-out;
+    z-index: 1000;
+}
+
+.left-modal.slide-in {
+    left: 0;
+}
+
+.left-modal.slide-out {
+    left: -100%;
+}
+
+.close-button {
+    position: absolute;
+    right: 20px;
+    top: 20px;
+    font-size: 24px;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.modal-content {
+    padding: 20px;
+    overflow-y: auto;
+    height: 100%;
+}

@@ -1,0 +1,18 @@
+.nav-item {
+    flex: 1; /* Pour que chaque élément prenne autant d'espace que possible */
+    margin-right: 20px; /* Espacement entre chaque élément */
+  }
+  
+  .nav-item:last-child {
+    margin-right: 0; /* Pas de marge à droite pour le dernier élément */
+  }
+  
+  .icon {
+    width: 5px; /* Taille de l'icône à ajuster selon votre besoin */
+    height: 5px;
+    transition: transform 0.3s ease; /* Animation de rotation */
+  }
+  
+  .rotate-180 {
+    transform: rotate(180deg); /* Rotation de l'icône lorsque active */
+  }

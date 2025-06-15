@@ -1,0 +1,302 @@
+{
+    "Freelance":{
+        "header":{
+            "headerlogin":"Sign In",
+            "headersign":"Sign Up",
+            "headermarketplace":"Marketplace",
+            "Travel Agency":"Travel Agency",
+            "Rental Agency":"Rental Agency",
+            "Car Pooling":"Car Pooling",
+            "Blog":"Blog",
+            "Podcast":"Podcast",
+            "Chatbot":"Chatbot",
+            "Driving School":"Driving School",
+            "Syndicate":"Syndicate",
+            "Educator":"Educator",
+            "Administration":"Adminstration",
+            "Sponsor":"Sponsor",
+            "Referral":"Referral",
+            "pricing":"Pricing",
+            "about":"About",
+            "Driver":"Driver",
+            "Passenger":"Passenger",
+            "Agency":"Agency",
+            "marketplace":"Marketplace",
+            "partner":"Partner",
+            "education":"Education"
+        },
+        "hero":{
+            "etiquette":"Freelance Driver",
+            "P1title":"Drive Your Way,",
+            "P1title2":"Boost Your Income",
+            "P1description":"Whether you have your own vehicle or not, Lets Go offers flexible earning opportunities for every driver.",
+            "P1search_placeholder":"looking for a driver...",
+            "P1join_button":"Join us Now",
+            "P1join_alternative":"Already have an account?",
+            "P1join_link":"Sign In",
+            "P2title":"OUR DRIVER BENEFITS",
+            "P2section1title":"Minimum earnings guaranteed",
+            "P2section2title":"Flexibity",
+            "P2section3title":"24/7 Support",
+            "P2section1desc":"Our fare structure is designed to maximise your income, and you can boost your earnings with additional bonuses for high performance and tips from satisfied passengers. A small mandatory earning fee ensures that you always have a stable income, even during less busy times.",
+            "P2section2desc":"Craft the work life you deserve with the flexibility and freedom to be your own boss. Set your own schedule and drive when it suits you best, whether you prefer full-time hours or a part-time hustle. No mandatory shifts here - you have complete control over your workweek.",
+            "P2section3desc":"Support is available around the clock with our dedicated 24/7 driver support team. Whether it’s a technical problem or a passenger concern, we're here to assist you at any time. If you're driving a vehicle provided by us, you can focus on driving without worrying about maintenance costs, as we take care of all vehicle upkeep.",
+            "P3title":"DRIVER OPTIONS",
+            "P3section1title":"Do you have your own car?",
+            "P3section2title":"No car? No Problem!",
+            "P3section1desc":"Do you have your own car? Joining Lets Go is simple and straightforward. Start by signing up and completing our verification process, which includes a vehicle inspection to ensure it meets our standards. Once approved, you can hit the road and start earning immediately.",
+            "P3section2desc":"Don’t have a car? No worries! Lets Go offers vehicle solutions to get you on the road. We provide well-maintained cars to ensure you can start earning without delay. After signing up, you’ll be assigned a vehicle, complete the verification process, and you’re ready to drive.",
+            "P3section1link":"Verification Process",
+            "P3section2link":"Sign Up for a Car",
+            "P4title":"The Lets Go Drivers Mobile Application",
+            "P4subtitle":"Designed for Drivers, Built by Drivers",
+            "P4desc":"Experience simplicity and reliability. Our app empowers drivers to take their journeys to new heights. Download now and transform your everyday drives into extraordinary adventures!"
+        },
+        "footer":{
+            "Contact": "Contact",
+            "Newsletter": "Newsletter",
+            "Offers": "Offers",
+            "blog": "blog",
+            "marketplace": "Marketplace",
+            "Our Vision": "Our Vision",
+            "Terms & Conditions": "Terms & Conditions",
+            "Company":"Our Company",
+            "Our Mission":"Our Mission",
+            "Our Objectives":"Our Objectives",
+            "Our Originality":"Our Originality",
+            "hiring":"We Are Hiring",
+            "contact":"Contact Information",
+            "rental":"Rental Agency",
+            "travel":"Travel Agency",
+            "pooling":"Carpooling Service",
+            "pick":"Pick me up",
+            "Blog": "Our system for connecting travel service customers and travel service provider",
+            "About_us":"About Us",
+            "FAQ":"Support",
+            "legal":"Legal Information",
+            "Terms":"General terms of user",
+            "Terms of Service":"Terms of Service",
+            "Privacy Policy":"Privacy Policy",
+            "cookies":"Cookies",
+            "personal":"Your Personal Information",
+            "Services":"Services",
+            "Mobile_App":"Mobile App",
+            "language":"English",
+            "languageDark":"EN",
+            "CopyRight":"All rights reserved",
+            "Newsletter Text":"Subscribe our newsletter to get our latest update & news"
+        }
+    },
+    "About":{
+        "section1":{
+            "pageTitle": "About Us",
+            "sectionTitle": {
+                "part1": "We are a",
+                "part2": "Socially Responsible Company"
+            },
+            "description": {
+                "paragraph1": {
+                    "text1": "Through our platform ",
+                    "text2": "LetsGO Driver App",
+                    "text3": ", a portion of our revenue is returned to our partners to ensure continuous training of our drivers in road safety, responsible driving, the importance of human life and economic profitability."
+                },
+                "paragraph2": "By using our transportation services,"
+            },
+            "contributions": {
+                "t1":"you help our company grow,",
+                "t2":"You contribute to the joy found in every family after each trip,",
+                "t3":"you are an agent of change,",
+                "t4":"life is priceless, living your happiness as you wish is the essence of happiness",
+                "t5":"we consider life a gift; we are interested in the issue of holistic human development, everything depends on us, on our love for ourselves."
+            },
+            "ourValues": {
+                "title": "Our Values",
+                "mainText": "Yowyob Driver App is a service for professional drivers for whom human life matters, for whom a life counts. Key players in motorized vehicle mobility who have a high sense of responsibility and duty, of detail and well-done service. Those who are, like ship captains or aircraft commanders, responsible for lives on a daily basis, for the productivity of the economic operators they accompany daily, making families happy who reunite each time after every trip.",
+                "secondaryText": "Professional VTP/C owners must arrive at work psychologically stable and focused. People who look for independent drivers are generally conscious professionals, results-oriented, productivity-focused, profitable, and efficient. They want to leave their homes and return to their families with confidence after having a productive and profitable day. Professional drivers must bring this psychological stability and selg:space-x-8curity. Our collaborative web-responsive and mobile digital platform Yowyob Letsgo Driver App will allow to:"
+            },
+            "benefits": [
+                {
+                    "title": "Improve the performance of economic actors:",
+                    "description": "a well-trained, referenced, and expert driver immediately puts you at ease. You feel comfortable in your vehicle and on the road, at your workplace, or at home in your private office; you let yourself go, and you focus on the essentials."
+                },
+                {
+                    "title": "Relieve VTP/C owners from the stress of chaotic and opportunistic driving."
+                },
+                {
+                    "title": "Increase productivity and profitability for VTP owners."
+                },
+                {
+                    "title": "Fight against accidents, reduce the number of accidents - well-trained drivers save lives."
+                },
+                {
+                    "title": "Offer freelance drivers visibility and the ability to signal their availability in real-time",
+                    "description": "and thus allow VTP owners to request their offers on a contractual basis."
+                },
+                {
+                    "title": "Improve vehicle performance and revenue (turnover) of independent drivers:",
+                    "description": "good organization and planning allow control of stops, tracking of routes, reducing fuel consumption, and maximizing the turnover of independent drivers."
+                },
+                {
+                    "title": "Improve interactions between independent drivers and travel service requesters;",
+                    "description": "it's a means of distributing the continuous flow of information. The goal is to create and restore a climate of trust and good relationships between drivers and travel service requesters."
+                }
+            ]
+        },
+        "section2":{
+            "section1": {
+                "title": "Why a Web and Mobile Platform for Independent Drivers?",
+                "content": [
+                    "We strive for an ideal:",
+                    {
+                        "text": " making digital transformation tangible and concrete by building socially responsible projects that benefit a large number of people, especially in developing countries.",
+                        "format": "bold"
+                    },
+                    " Specifically, this means ",
+                    {
+                        "text": "connecting independent drivers with people in need of transportation services",
+                        "format": "bold"
+                    },
+                    " through ",
+                    {
+                        "text": "our collaborative digital platform, Yowyob LetsGo Driver App.",
+                        "format": "bold"
+                    },
+                    " We are fully convinced of the necessity of a digital presence on the web for the professional sector in general and for the transportation of people in particular. Specifically, ",
+                    {
+                        "text": "the disintermediation of services in all professions is now an opportunity for local development.",
+                        "format": "bold"
+                    }
+                ]
+            },
+            "section2": {
+                "title": "Our Mission",
+                "content": [
+                    "Through Yowyob Driver App, we offer and enhance the professional digital presence of independent drivers. Whether you are a ",
+                    {
+                        "text": "company, organization, individual client, or worker in the informal economy",
+                        "format": "bold"
+                    },
+                    ", our mission is to connect professional drivers with you, clients seeking transportation services, through our digital assistance platform, LetsGo."
+                ],
+                "learnMoreText": "Learn more"
+            }
+        },
+        "section3":{
+            "ourObjectives": {
+                "title": "Our Objectives",
+                "introduction": "Allowing you to effectively manage and control your travels is essential for your productivity. This includes:",
+                "objectives": [
+                    "Making it easier for people to travel and making their journey a useful and unique experience to renew;",
+                    "Relieving any traveler from the stress of travel planning;",
+                    "Helping to know exactly when to travel, with which vehicle and which driver;",
+                    "Having control over financial projections: travel budgets and revenue;",
+                    "Helping a driver to signal their availability for driving services;",
+                    "Optimizing the cost of travel or per kilometer traveled."
+                ]
+            },
+            "ourVision": {
+                "title": "Our Vision",
+                "introduction": "Increasing the potential of economic actors by allowing them to stay focused on their main activities."
+            },
+            "toolsForDrivers": {
+                "title": "Our Tools for Drivers and Their Promotion",
+                "introduction": "We provide freelance drivers with:",
+                "tools": [
+                    "Intuitive, ergonomic, secure web and mobile applications, adaptable to mobiles, laptops, tablets, and PCs, optimized for auto-referencing to facilitate contact and collaboration with travel service seekers.",
+                    "Public pages to present, highlight, and promote themselves.",
+                    "To present their portfolio, their added value, what makes them more competitive and better compared to the competition, their preferences: music, coffee, sweets, friendliness, GPS tracking, bottled water, access to the press, Wifi, TV, Video, etc.",
+                    "Customizable web and mobile pages where drivers can insert their best smiling photos or various illustrations.",
+                    "An integrated Chat application allowing drivers to communicate safely with their clients."
+                ]
+            },
+            "loyaltyTool": {
+                "title": "Our Independent Driver Platform is a Loyalty Tool",
+                "introduction": "Yowyob Driver App is designed to be a loyalty tool for independent drivers.",
+                "features": [
+                    "It allows finding a professional driver and positioning them according to an automatic notification and evaluation system.",
+                    "Clients can express their opinions through comments, satisfaction level on the services rendered, likes, etc. on the services requested from various drivers.",
+                    "Clients should want to take rides with you again through your web page/mobile form whenever needed."
+                ]
+            },
+            "partnerAdvantages": {
+                "title": "Advantages of Being Our Freelance Driver Partner: Improving Service Quality",
+                "introduction": "Our web and mobile application platform for independent drivers is designed to reach more travel service seekers.",
+                "advantages": [
+                    "It allows them to improve the quality of their services through reservations, confirmations, and payments online and via the web and mobile at any time.",
+                    "Clients can subscribe or register on the driver's page as a member, allowing them to build communities.",
+                    "The Letsgo Driver application is a means of improving interactions between freelance drivers and travel service seekers, particularly the continuous flow of information distribution.",
+                    "The Letsgo Driver App is used for communication and mobility service distribution."
+                ]
+            },
+            "platformAdvantages": {
+                "title": "Advantages of Using Our Platform to Contact and Book Our Freelance Drivers",
+                "introduction": "Our drivers are unionized and sponsored by our local Syndicates and Driving Schools partners.",
+                "advantages": [
+                    "You can access information from our Syndicates and Driving Schools partners who respectively offer responsibility and training guarantees for responsible driving.",
+                    "Our platforms are secure, they integrate HTTPS/TLS/SSL protocols to ensure the protection and confidentiality of data and information during banking and mobile transactions on our sites. Thanks to our backup strategies and regular updates, our partners can access their histories and various analyses.",
+                    "Our satisfaction level evaluation system allows us to consider your every desire for better service quality."
+                ]
+            },
+            "ourUniqueness": {
+                "title": "Our Uniqueness Compared to the Competition",
+                "content": [
+                    "How do we reassure our travel service seekers about the quality of our professional drivers' training?",
+                    {
+                        "text": "We are support actors.",
+                        "format": "bold"
+                    },
+                    " LetsGo is the very first digital platform to work in direct partnership with Transport Syndicates. We agree that the sponsorship of drivers by their respective syndicate or the driving school where the training took place is a useful and important trust capital to reassure travel service seekers. Indeed, who better than transport sector syndicates and driving schools are best suited to train and sponsor drivers?",
+                    "We believe that the self-organization of each sector of activity in general and that of transport, in particular, has its professional rules whose expertise must be supported by a vocation. We believe that the mastery of driver training by drivers can only be beneficial to society.",
+                    "We offer ",
+                    {
+                        "text": "an education and awareness service",
+                        "format": "bold"
+                    },
+                    " to optimize assistance to our clients through Podcast, Blog, and Chatbot services."
+                ]
+            }
+        },
+        "team":{
+            "ourTeam": "Our Team",
+            "teamDescription": "Our team consists of business engineers, research engineers, researchers of all levels of proven expertise, and professional consultants specializing in various fields such as anthropology to better understand the societies for which we build technological solutions. We are invested in applied research and involved in research and development. To this end, we work closely with research laboratories at local and foreign universities",
+            "teamMembers": "Team members",
+            "members": {
+                "thomas": {
+                    "title": "Prof, Dr-Ing",
+                    "role": "CEO"
+                },
+                "bernabe": {
+                    "title": "Prof, Dr-Ing",
+                    "role": "Training Department Head"
+                },
+                "jean": {
+                    "title": "Ing. TEO",
+                    "role": "Fullstack Java Software Developer"
+                },
+                "zacharie": {
+                    "title": "Jr. Ing",
+                    "role": "Backend Software Developer, Intern"
+                },
+                "yann": {
+                    "title": "Jr. Ing",
+                    "role": "Front End Software Developer, Intern"
+                },
+                "jason": {
+                    "title": "",
+                    "role": "Junior Web Developer"
+                }
+            }
+        }
+
+    },
+    "LocaleSwitcher": {
+        "label": "Change language",
+        "locale": {
+            "en": "English",
+            "fr": "Français",
+            "es": "Spanish",
+            "de": "Deutsch"
+
+        }
+    }
+}

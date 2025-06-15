@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AnalysisUIOptions">
+    <option name="ANALYZE_INJECTED_CODE" value="false" />
+  </component>
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="7d823c9f-263c-4280-bf02-dfc6193edeb9" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="JSX File" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="yannbiko" />
+      </map>
+    </option>
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="ProjectErrors" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;customColor&quot;: &quot;&quot;,
+  &quot;associatedIndex&quot;: 8
+}</component>
+  <component name="ProjectId" id="2kBlLk3AMLSaopSYQVaQG7UOjnn" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="1" id="Add" />
+  </component>
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/Fogan/Downloads/Telegram Desktop/extraction/LetsgoPproject-master/public&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;run.code.analysis.last.selected.profile&quot;: &quot;pProject Default&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;advanced.settings&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;C:\\Users\\Fogan\\Downloads\\Telegram Desktop\\extraction\\LetsgoPproject-master\\node_modules\\typescript\\lib&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  }
+}</component>
+  <component name="ReactDesignerToolWindowState">
+    <option name="myId2Visible">
+      <map>
+        <entry key="com.intellij.reactbuddy.reactComponents" value="false" />
+        <entry key="com.intellij.reactbuddy.reactInspector" value="false" />
+        <entry key="com.intellij.reactbuddy.storybook" value="false" />
+      </map>
+    </option>
+  </component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\Fogan\Downloads\Telegram Desktop\extraction\LetsgoPproject-master\public" />
+      <recent name="C:\Users\Fogan\Downloads\Telegram Desktop\extraction\LetsgoPproject-master\src\components\booking\freelance" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\Fogan\Downloads\Telegram Desktop\extraction\LetsgoPproject-master\src\app\(dashboard)\customer-dashboard" />
+      <recent name="C:\Users\Fogan\Downloads\Telegram Desktop\extraction\LetsgoPproject-master\src\app\(dashboard)\customer-dashboard\[customerId]" />
+      <recent name="C:\Users\Fogan\Downloads\Telegram Desktop\extraction\LetsgoPproject-master\src\data" />
+      <recent name="C:\Users\Fogan\Downloads\Telegram Desktop\extraction\LetsgoPproject-master\src\components\OnboardingModal\step" />
+      <recent name="C:\Users\Fogan\Downloads\Telegram Desktop\extraction\LetsgoPproject-master\public\img" />
+    </key>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-js-predefined-1d06a55b98c1-0b3e54e931b4-JavaScript-WS-241.18034.50" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="7d823c9f-263c-4280-bf02-dfc6193edeb9" name="Changes" comment="" />
+      <created>1722764803706</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1722764803706</updated>
+      <workItem from="1722764807319" duration="10603000" />
+      <workItem from="1722861062309" duration="32089000" />
+      <workItem from="1722937257158" duration="22701000" />
+      <workItem from="1722962425584" duration="1569000" />
+      <workItem from="1723013775748" duration="8547000" />
+      <workItem from="1723024061798" duration="10369000" />
+      <workItem from="1723035036000" duration="36188000" />
+      <workItem from="1723109669891" duration="21559000" />
+      <workItem from="1723133178907" duration="7928000" />
+      <workItem from="1723141884445" duration="3715000" />
+      <workItem from="1723184235187" duration="15677000" />
+      <workItem from="1723205638420" duration="662000" />
+      <workItem from="1723207895986" duration="1428000" />
+      <workItem from="1723209402892" duration="11140000" />
+      <workItem from="1723266781123" duration="32198000" />
+      <workItem from="1723303531395" duration="9506000" />
+      <workItem from="1723388344888" duration="32037000" />
+      <workItem from="1723450583882" duration="52204000" />
+      <workItem from="1723553716050" duration="15855000" />
+      <workItem from="1723797961373" duration="21683000" />
+      <workItem from="1723827325503" duration="9409000" />
+      <workItem from="1723906944187" duration="46388000" />
+      <workItem from="1724150374462" duration="21510000" />
+      <workItem from="1724231767322" duration="9730000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+</project>

@@ -1,0 +1,113 @@
+/*!* RightModal.css *!*/
+/*.right-modal {*/
+/*    position: fixed;*/
+/*    right: -100%;*/
+/*    top: 0;*/
+/*    width: 50%;*/
+/*    height: 100%;*/
+/*    background-color: white;*/
+/*    box-shadow: -2px 0 5px rgba(0, 0, 0, 0.3);*/
+/*    transition: right 0.3s ease-out;*/
+/*    z-index: 1000;*/
+/*}*/
+
+/*.right-modal.slide-in {*/
+/*    right: 0;*/
+/*}*/
+
+/*.right-modal.slide-out {*/
+/*    right: -100%;*/
+/*}*/
+
+/*.close-arrow {*/
+/*    position: absolute;*/
+/*    left: -40px; !* Position the arrow outside the modal *!*/
+/*    top: 20px;*/
+/*    background: white;*/
+/*    border: none;*/
+/*    cursor: pointer;*/
+/*    padding: 8px;*/
+/*    border-radius: 50% 0 0 50%;*/
+/*    box-shadow: -2px 0 5px rgba(0, 0, 0, 0.3);*/
+/*    transition: background-color 0.3s ease;*/
+/*}*/
+
+/*.close-arrow:hover {*/
+/*    background-color: #f0f0f0;*/
+/*}*/
+
+/*.close-arrow svg {*/
+/*    transform: rotate(180deg); !* Rotate the arrow to point right *!*/
+/*    transition: transform 0.3s ease;*/
+/*}*/
+
+/*.close-arrow:hover svg {*/
+/*    transform: rotate(180deg) scale(1.1); !* Slightly enlarge the arrow on hover *!*/
+/*}*/
+
+/*.modal-content {*/
+/*    padding: 20px;*/
+/*    overflow-y: auto;*/
+/*    height: 100%;*/
+/*}*/
+
+/* RightModal.css */
+.right-modal {
+    position: fixed;
+    right: -100%;
+    top: 5%; /* 10% de la hauteur de la page à partir du haut */
+    height: 90%; /* 80% de la hauteur de la page */
+    width: 50%;
+    background-color: white;
+    box-shadow: -2px 0 5px rgba(0, 0, 0, 0.3);
+    transition: right 0.3s ease-out;
+    z-index: 40;
+}
+
+.right-modal.slide-in {
+    right: 0;
+}
+
+.right-modal.slide-out {
+    right: -100%;
+}
+
+.close-arrow {
+    position: absolute;
+    top: 20px;
+    background: white;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 50% 0 0 50%;
+    box-shadow: -2px 0 5px rgba(0, 0, 0, 0.3);
+    transition: transform 0.3s ease;
+    /* transition: background-color 0.3s ease; */
+}
+
+.close-arrow:hover {
+    background-color: #f0f0f0;
+}
+
+.close-arrow svg {
+    transform: rotate(180deg); /* Rotate the arrow to point right */
+    transition: transform 0.3s ease;
+}
+
+.close-arrow:hover svg {
+    transform: rotate(180deg) scale(1.1); /* Slightly enlarge the arrow on hover */
+}
+
+.modal-content {
+    padding: 20px;
+    overflow-y: auto;
+    height: 100%;
+}
+
+.arrow-open {
+    transform: rotate(180deg); /* flèche vers la gauche (fermer) */
+}
+
+.arrow-closed {
+    transform: rotate(0deg); /* flèche vers la droite (ouvrir) */
+}

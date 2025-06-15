@@ -1,0 +1,300 @@
+{
+    "Freelance":{
+        "header":{
+            "headerlogin":"Iniciar sesión",
+            "headersign":"Registrarse",
+            "headermarketplace":"Mercado",
+            "Travel Agency":"Agencia de viajes",
+            "Rental Agency":"Agencia de alquiler",
+            "Car Pooling":"Compartir coche",
+            "Blog":"Blog",
+            "Podcast":"Podcast",
+            "Chatbot":"Chatbot",
+            "Driving School":"Autoescuela",
+            "Syndicate":"Sindicato",
+            "Educator":"Educador",
+            "Administration":"Administración",
+            "Sponsor":"Patrocinador",
+            "Referral":"Referencia",
+            "pricing":"Precios",
+            "about":"Acerca de",
+            "Driver":"Conductor",
+            "Passenger":"Pasajero",
+            "Agency":"Agencia",
+            "marketplace":"Mercado",
+            "partner":"Socio",
+            "education":"Educación"
+        },
+        "hero":{
+            "etiquette":"Conductor Freelance",
+            "P1title":"Conduce a tu manera,",
+            "P1title2":"Aumenta tus ingresos",
+            "P1description":"Ya sea que tengas tu propio vehículo o no, Lets Go ofrece oportunidades de ingresos flexibles para cada conductor.",
+            "P1search_placeholder":"buscando un conductor...",
+            "P1join_button":"Únete ahora",
+            "P1join_alternative":"¿Ya tienes una cuenta?",
+            "P1join_link":"Iniciar sesión",
+            "P2title":"BENEFICIOS PARA NUESTROS CONDUCTORES",
+            "P2section1title":"Ganancias mínimas garantizadas",
+            "P2section2title":"Flexibilidad",
+            "P2section3title":"Soporte 24/7",
+            "P2section1desc":"Nuestra estructura de tarifas está diseñada para maximizar tus ingresos, y puedes aumentar tus ganancias con bonificaciones adicionales por alto rendimiento y propinas de pasajeros satisfechos. Una pequeña tarifa obligatoria de ganancias garantiza que siempre tengas un ingreso estable, incluso durante los momentos menos ocupados.",
+            "P2section2desc":"Crea la vida laboral que te mereces con la flexibilidad y libertad de ser tu propio jefe. Establece tu propio horario y conduce cuando más te convenga, ya sea que prefieras horarios de tiempo completo o un trabajo a tiempo parcial. No hay turnos obligatorios aquí - tienes control total sobre tu semana laboral.",
+            "P2section3desc":"El soporte está disponible las 24 horas del día con nuestro equipo dedicado de atención al conductor. Ya sea un problema técnico o una preocupación de un pasajero, estamos aquí para ayudarte en cualquier momento. Si estás conduciendo un vehículo proporcionado por nosotros, puedes concentrarte en conducir sin preocuparte por los costos de mantenimiento, ya que nos encargamos de todo el mantenimiento del vehículo.",
+            "P3title":"OPCIONES PARA CONDUCTORES",
+            "P3section1title":"¿Tienes tu propio coche?",
+            "P3section2title":"¿No tienes coche? ¡No hay problema!",
+            "P3section1desc":"¿Tienes tu propio coche? Unirse a Lets Go es simple y directo. Comienza registrándote y completando nuestro proceso de verificación, que incluye una inspección del vehículo para asegurar que cumple con nuestros estándares. Una vez aprobado, puedes salir a la carretera y comenzar a ganar inmediatamente.",
+            "P3section2desc":"¿No tienes coche? ¡No te preocupes! Lets Go ofrece soluciones de vehículos para que puedas empezar a trabajar. Proporcionamos coches bien mantenidos para asegurar que puedas comenzar a ganar sin demora. Después de registrarte, se te asignará un vehículo, completarás el proceso de verificación y estarás listo para conducir.",
+            "P3section1link":"Proceso de verificación",
+            "P3section2link":"Registrarse para un coche",
+            "P4title":"La Aplicación Móvil para Conductores de Lets Go",
+            "P4subtitle":"Diseñada para Conductores, Creada por Conductores",
+            "P4desc":"Experimenta la simplicidad y la fiabilidad. Nuestra aplicación empodera a los conductores para llevar sus viajes a nuevas alturas. ¡Descárgala ahora y transforma tus viajes diarios en aventuras extraordinarias!"
+        },
+        "footer":{
+            "Contact": "Contacto",
+            "Newsletter": "Boletín",
+            "Offers": "Ofertas",
+            "blog": "blog",
+            "marketplace": "Mercado",
+            "Our Vision": "Nuestra Visión",
+            "Terms & Conditions": "Términos y Condiciones",
+            "Company":"Nuestra Empresa",
+            "Our Mission":"Nuestra Misión",
+            "Our Objectives":"Nuestros Objetivos",
+            "Our Originality":"Nuestra Originalidad",
+            "hiring":"Estamos Contratando",
+            "contact":"Información de Contacto",
+            "rental":"Agencia de Alquiler",
+            "travel":"Agencia de Viajes",
+            "pooling":"Servicio de Coche Compartido",
+            "pick":"Recógeme",
+            "Blog": "Nuestro sistema para conectar clientes de servicios de viaje y proveedores de servicios de viaje",
+            "About_us":"Sobre Nosotros",
+            "FAQ":"Apoyo",
+            "legal":"Información Legal",
+            "Terms":"Términos generales de usuario",
+            "Terms of Service":"Términos de Servicio",
+            "Privacy Policy":"Política de Privacidad",
+            "cookies":"Cookies",
+            "personal":"Tu Información Personal",
+            "Services":"Servicios",
+            "Mobile_App":"Aplicación Móvil",
+            "language":"Español",
+            "languageDark":"ES",
+            "CopyRight":"Todos los derechos reservados",
+            "Newsletter Text":"Suscríbete a nuestro boletín para obtener nuestras últimas actualizaciones y noticias"
+        }
+    },
+    "About":{
+        "section1":{
+            "pageTitle": "Sobre Nosotros",
+            "sectionTitle": {
+                "part1": "Somos una",
+                "part2": "Empresa Socialmente Responsable"
+            },
+            "description": {
+                "paragraph1": {
+                    "text1": "A través de nuestra plataforma ",
+                    "text2": "LetsGO Driver App",
+                    "text3": ", una parte de nuestros ingresos se devuelve a nuestros socios para asegurar la formación continua de nuestros conductores en seguridad vial, conducción responsable, la importancia de la vida humana y la rentabilidad económica."
+                },
+                "paragraph2": "Al utilizar nuestros servicios de transporte,"
+            },
+            "contributions": {
+                "t1":"ayudas a crecer a nuestra empresa,",
+                "t2":"Contribuyes a la alegría que se encuentra en cada familia después de cada viaje,",
+                "t3":"eres un agente de cambio,",
+                "t4":"la vida no tiene precio, vivir tu felicidad como deseas es la esencia de la felicidad",
+                "t5":"consideramos la vida un regalo; nos interesa el tema del desarrollo humano integral, todo depende de nosotros, de nuestro amor por nosotros mismos."
+            },
+            "ourValues": {
+                "title": "Nuestros Valores",
+                "mainText": "Yowyob Driver App es un servicio para conductores profesionales para quienes la vida humana importa, para quienes una vida cuenta. Actores clave en la movilidad de vehículos motorizados que tienen un alto sentido de responsabilidad y deber, de detalle y servicio bien hecho. Aquellos que son, como capitanes de barco o comandantes de aeronaves, responsables de vidas a diario, de la productividad de los operadores económicos que acompañan diariamente, haciendo felices a las familias que se reúnen cada vez después de cada viaje.",
+                "secondaryText": "Los propietarios profesionales de VTP/C deben llegar al trabajo psicológicamente estables y concentrados. Las personas que buscan conductores independientes son generalmente profesionales conscientes, orientados a resultados, enfocados en la productividad, rentables y eficientes. Quieren salir de sus casas y volver a sus familias con confianza después de haber tenido un día productivo y rentable. Los conductores profesionales deben aportar esta estabilidad psicológica y seguridad. Nuestra plataforma digital colaborativa web-responsive y móvil Yowyob Letsgo Driver App permitirá:"
+            },
+            "benefits": [
+                {
+                    "title": "Mejorar el rendimiento de los actores económicos:",
+                    "description": "un conductor bien entrenado, referenciado y experto inmediatamente te pone a gusto. Te sientes cómodo en tu vehículo y en la carretera, en tu lugar de trabajo o en casa en tu oficina privada; te dejas llevar y te concentras en lo esencial."
+                },
+                {
+                    "title": "Aliviar a los propietarios de VTP/C del estrés de la conducción caótica y oportunista."
+                },
+                {
+                    "title": "Aumentar la productividad y rentabilidad para los propietarios de VTP."
+                },
+                {
+                    "title": "Luchar contra los accidentes, reducir el número de accidentes - los conductores bien entrenados salvan vidas."
+                },
+                {
+                    "title": "Ofrecer a los conductores freelance visibilidad y la capacidad de señalar su disponibilidad en tiempo real",
+                    "description": "y así permitir a los propietarios de VTP solicitar sus ofertas de forma contractual."
+                },
+                {
+                    "title": "Mejorar el rendimiento del vehículo y los ingresos (facturación) de los conductores independientes:",
+                    "description": "una buena organización y planificación permite controlar las paradas, rastrear las rutas, reducir el consumo de combustible y maximizar la facturación de los conductores independientes."
+                },
+                {
+                    "title": "Mejorar las interacciones entre los conductores independientes y los solicitantes de servicios de viaje;",
+                    "description": "es un medio de distribuir el flujo continuo de información. El objetivo es crear y restaurar un clima de confianza y buenas relaciones entre los conductores y los solicitantes de servicios de viaje."
+                }
+            ]
+        },
+        "section2":{
+            "section1": {
+                "title": "¿Por qué una Plataforma Web y Móvil para Conductores Independientes?",
+                "content": [
+                    "Nos esforzamos por un ideal:",
+                    {
+                        "text": " hacer tangible y concreta la transformación digital construyendo proyectos socialmente responsables que beneficien a un gran número de personas, especialmente en países en desarrollo.",
+                        "format": "bold"
+                    },
+                    " Específicamente, esto significa ",
+                    {
+                        "text": "conectar a conductores independientes con personas que necesitan servicios de transporte",
+                        "format": "bold"
+                    },
+                    " a través de ",
+                    {
+                        "text": "nuestra plataforma digital colaborativa, Yowyob LetsGo Driver App.",
+                        "format": "bold"
+                    },
+                    " Estamos plenamente convencidos de la necesidad de una presencia digital en la web para el sector profesional en general y para el transporte de personas en particular. Específicamente, ",
+                    {
+                        "text": "la desintermediación de servicios en todas las profesiones es ahora una oportunidad para el desarrollo local.",
+                        "format": "bold"
+                    }
+                ]
+            },
+            "section2": {
+                "title": "Nuestra Misión",
+                "content": [
+                    "A través de Yowyob Driver App, ofrecemos y mejoramos la presencia digital profesional de los conductores independientes. Ya sea que usted sea una ",
+                    {
+                        "text": "empresa, organización, cliente individual o trabajador en la economía informal",
+                        "format": "bold"
+                    },
+                    ", nuestra misión es conectar a conductores profesionales con ustedes, clientes que buscan servicios de transporte, a través de nuestra plataforma de asistencia digital, LetsGo."
+                ],
+                "learnMoreText": "Más información"
+            }
+        },
+        "section3":{
+            "ourObjectives": {
+                "title": "Nuestros Objetivos",
+                "introduction": "Permitirle gestionar y controlar eficazmente sus viajes es esencial para su productividad. Esto incluye:",
+                "objectives": [
+                    "Facilitar el viaje de las personas y hacer de su viaje una experiencia útil y única para renovar;",
+                    "Aliviar a cualquier viajero del estrés de la planificación del viaje;",
+                    "Ayudar a saber exactamente cuándo viajar, con qué vehículo y qué conductor;",
+                    "Tener control sobre las proyecciones financieras: presupuestos de viaje e ingresos;",
+                    "Ayudar a un conductor a señalar su disponibilidad para servicios de conducción;",
+                    "Optimizar el costo del viaje o por kilómetro recorrido."
+                ]
+            },
+            "ourVision": {
+                "title": "Nuestra Visión",
+                "introduction": "Aumentar el potencial de los actores económicos permitiéndoles mantenerse enfocados en sus actividades principales."
+            },
+            "toolsForDrivers": {
+                "title": "Nuestras Herramientas para Conductores y su Promoción",
+                "introduction": "Proporcionamos a los conductores freelance:",
+                "tools": [
+                    "Aplicaciones web y móviles intuitivas, ergonómicas, seguras, adaptables a móviles, portátiles, tabletas y PC, optimizadas para auto-referenciación para facilitar el contacto y la colaboración con los buscadores de servicios de viaje.",
+                    "Páginas públicas para presentarse, destacarse y promocionarse.",
+                    "Para presentar su portafolio, su valor añadido, lo que les hace más competitivos y mejores en comparación con la competencia, sus preferencias: música, café, dulces, amabilidad, seguimiento GPS, agua embotellada, acceso a la prensa, Wifi, TV, Video, etc.",
+                    "Páginas web y móviles personalizables donde los conductores pueden insertar sus mejores fotos sonrientes o diversas ilustraciones.",
+                    "Una aplicación de Chat integrada que permite a los conductores comunicarse de forma segura con sus clientes."
+                ]
+            },
+            "loyaltyTool": {
+                "title": "Nuestra Plataforma de Conductores Independientes es una Herramienta de Fidelización",
+                "introduction": "Yowyob Driver App está diseñada para ser una herramienta de fidelización para conductores independientes.",
+                "features": [
+                    "Permite encontrar un conductor profesional y posicionarlo según un sistema automático de notificación y evaluación.",
+                    "Los clientes pueden expresar sus opiniones a través de comentarios, nivel de satisfacción sobre los servicios prestados, me gusta, etc. sobre los servicios solicitados a varios conductores.",
+                    "Los clientes deberían querer volver a viajar contigo a través de tu página web/formulario móvil siempre que lo necesiten."
+                ]
+            },
+            "partnerAdvantages": {
+                "title": "Ventajas de Ser Nuestro Socio Conductor Freelance: Mejorando la Calidad del Servicio",
+                "introduction": "Nuestra plataforma de aplicaciones web y móviles para conductores independientes está diseñada para llegar a más buscadores de servicios de viaje.",
+                "advantages": [
+                    "Les permite mejorar la calidad de sus servicios a través de reservas, confirmaciones y pagos en línea y vía web y móvil en cualquier momento.",
+                    "Los clientes pueden suscribirse o registrarse en la página del conductor como miembro, permitiéndoles construir comunidades.",
+                    "La aplicación Letsgo Driver es un medio para mejorar las interacciones entre los conductores freelance y los buscadores de servicios de viaje, particularmente la distribución continua del flujo de información.",
+                    "La App Letsgo Driver se utiliza para la comunicación y distribución de servicios de movilidad."
+                ]
+            },
+            "platformAdvantages": {
+                "title": "Ventajas de Usar Nuestra Plataforma para Contactar y Reservar Nuestros Conductores Freelance",
+                "introduction": "Nuestros conductores están sindicalizados y patrocinados por nuestros socios locales de Sindicatos y Autoescuelas.",
+                "advantages": [
+                    "Puedes acceder a información de nuestros socios de Sindicatos y Autoescuelas que ofrecen respectivamente garantías de responsabilidad y formación para una conducción responsable.",
+                    "Nuestras plataformas son seguras, integran protocolos HTTPS/TLS/SSL para garantizar la protección y confidencialidad de datos e información durante las transacciones bancarias y móviles en nuestros sitios. Gracias a nuestras estrategias de respaldo y actualizaciones regulares, nuestros socios pueden acceder a sus historiales y diversos análisis.",
+                    "Nuestro sistema de evaluación del nivel de satisfacción nos permite considerar cada uno de tus deseos para una mejor calidad de servicio."
+                ]
+            },
+            "ourUniqueness": {
+                "title": "Nuestra Singularidad Comparada con la Competencia",
+                "content": [
+                    "¿Cómo tranquilizamos a nuestros buscadores de servicios de viaje sobre la calidad de la formación de nuestros conductores profesionales?",
+                    {
+                        "text": "Somos actores de apoyo.",
+                        "format": "bold"
+                    },
+                    " LetsGo es la primera plataforma digital en trabajar en asociación directa con Sindicatos de Transporte. Estamos de acuerdo en que el patrocinio de los conductores por parte de su respectivo sindicato o la autoescuela donde se realizó la formación es un capital de confianza útil e importante para tranquilizar a los buscadores de servicios de viaje. En efecto, ¿quiénes mejor que los sindicatos del sector del transporte y las autoescuelas están mejor preparados para formar y patrocinar a los conductores?",
+                    "Creemos que la autoorganización de cada sector de actividad en general y el del transporte en particular tiene sus reglas profesionales cuya experiencia debe ser apoyada por una vocación. Creemos que el dominio de la formación de conductores por parte de los conductores solo puede ser beneficioso para la sociedad.",
+                    "Ofrecemos ",
+                    {
+                        "text": "un servicio de educación y concienciación",
+                        "format": "bold"
+                    },
+                    " para optimizar la asistencia a nuestros clientes a través de servicios de Podcast, Blog y Chatbot."
+                ]
+            }
+        },
+        "team":{
+            "ourTeam": "Nuestro Equipo",
+            "teamDescription": "Nuestro equipo está formado por ingenieros de negocios, ingenieros de investigación, investigadores de todos los niveles de experiencia probada y consultores profesionales especializados en diversos campos como la antropología para comprender mejor las sociedades para las que construimos soluciones tecnológicas. Estamos invertidos en investigación aplicada e involucrados en investigación y desarrollo. Para ello, trabajamos en estrecha colaboración con laboratorios de investigación de universidades locales y extranjeras",
+            "teamMembers": "Miembros del equipo",
+            "members": {
+                "thomas": {
+                    "title": "Prof, Dr-Ing",
+                    "role": "CEO"
+                },
+                "bernabe": {
+                    "title": "Prof, Dr-Ing",
+                    "role": "Jefe del Departamento de Formación"
+                },
+                "jean": {
+                    "title": "Ing. TEO",
+                    "role": "Desarrollador de Software Fullstack Java"
+                },
+                "zacharie": {
+                    "title": "Jr. Ing",
+                    "role": "Desarrollador de Software Backend, Practicante"
+                },
+                "yann": {
+                    "title": "Jr. Ing",
+                    "role": "Desarrollador de Software Front End, Practicante"
+                },
+                "jason": {
+                    "title": "",
+                    "role": "Desarrollador Web Junior"
+                }
+            }
+        }
+    },
+    "LocaleSwitcher": {
+        "label": "Cambiar idioma",
+        "locale": {
+            "en": "Inglés",
+            "fr": "Francés",
+            "es": "Español",
+            "de": "Alemán"
+        }
+    }
+}

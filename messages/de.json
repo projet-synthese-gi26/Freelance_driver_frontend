@@ -1,0 +1,302 @@
+
+{
+  "Freelance":{
+    "header":{
+      "headerlogin":"Anmelden",
+      "headersign":"Registrieren",
+      "headermarketplace":"Marktplatz",
+      "Travel Agency":"Reisebüro",
+      "Rental Agency":"Mietagentur",
+      "Car Pooling":"Fahrgemeinschaft",
+      "Blog":"Blog",
+      "Podcast":"Podcast",
+      "Chatbot":"Chatbot",
+      "Driving School":"Fahrschule",
+      "Syndicate":"Gewerkschaft",
+      "Educator":"Pädagoge",
+      "Administration":"Adminstration",
+      "Sponsor":"Sponsor",
+      "Referral":"Empfehlung",
+      "pricing":"Preisgestaltung",
+      "about":"Über uns",
+      "Driver":"Fahrer",
+      "Passenger":"Passagier",
+      "Agency":"Agentur",
+      "marketplace":"Marktplatz",
+      "partner":"Partner",
+      "education":"Bildung"
+    },
+    "hero":{
+      "etiquette":"Freiberuflicher Fahrer",
+      "P1title":"Fahren Sie Ihren Weg,",
+      "P1title2":"Steigern Sie Ihr Einkommen",
+      "P1description":"Ob Sie ein eigenes Fahrzeug haben oder nicht, Lets Go bietet flexible Verdienstmöglichkeiten für jeden Fahrer.",
+      "P1search_placeholder":"Suche nach einem Fahrer...",
+      "P1join_button":"Jetzt beitreten",
+      "P1join_alternative":"Haben Sie bereits ein Konto?",
+      "P1join_link":"Anmelden",
+      "P2title":"UNSERE FAHRERVORTEILE",
+      "P2section1title":"Garantiertes Mindesteinkommen",
+      "P2section2title":"Flexibilität",
+      "P2section3title":"24/7 Support",
+      "P2section1desc":"Unsere Tarifstruktur ist darauf ausgelegt, Ihr Einkommen zu maximieren, und Sie können Ihre Einnahmen durch zusätzliche Boni für hohe Leistung und Trinkgelder von zufriedenen Passagieren steigern. Eine kleine obligatorische Verdienstgebühr stellt sicher, dass Sie auch in weniger geschäftigen Zeiten immer ein stabiles Einkommen haben.",
+      "P2section2desc":"Gestalten Sie das Arbeitsleben, das Sie verdienen, mit der Flexibilität und Freiheit, Ihr eigener Chef zu sein. Legen Sie Ihren eigenen Zeitplan fest und fahren Sie, wann es Ihnen am besten passt, egal ob Sie Vollzeit oder Teilzeit arbeiten möchten. Hier gibt es keine obligatorischen Schichten - Sie haben die volle Kontrolle über Ihre Arbeitswoche.",
+      "P2section3desc":"Unterstützung ist rund um die Uhr durch unser engagiertes 24/7-Fahrer-Support-Team verfügbar. Ob es sich um ein technisches Problem oder ein Anliegen eines Passagiers handelt, wir sind jederzeit für Sie da. Wenn Sie ein von uns zur Verfügung gestelltes Fahrzeug fahren, können Sie sich auf das Fahren konzentrieren, ohne sich um Wartungskosten zu sorgen, da wir uns um die gesamte Fahrzeugwartung kümmern.",
+      "P3title":"FAHREROPTIONEN",
+      "P3section1title":"Haben Sie ein eigenes Auto?",
+      "P3section2title":"Kein Auto? Kein Problem!",
+      "P3section1desc":"Haben Sie ein eigenes Auto? Der Beitritt zu Lets Go ist einfach und unkompliziert. Beginnen Sie mit der Anmeldung und durchlaufen Sie unseren Verifizierungsprozess, der eine Fahrzeuginspektion beinhaltet, um sicherzustellen, dass es unseren Standards entspricht. Sobald Sie genehmigt sind, können Sie sofort losfahren und verdienen.",
+      "P3section2desc":"Sie haben kein Auto? Kein Problem! Lets Go bietet Fahrzeuglösungen, damit Sie auf die Straße kommen können. Wir stellen gut gewartete Autos zur Verfügung, damit Sie ohne Verzögerung mit dem Verdienen beginnen können. Nach der Anmeldung wird Ihnen ein Fahrzeug zugewiesen, Sie durchlaufen den Verifizierungsprozess und sind bereit zum Fahren.",
+      "P3section1link":"Verifizierungsprozess",
+      "P3section2link":"Für ein Auto anmelden",
+      "P4title":"Die Lets Go Fahrer Mobile App",
+      "P4subtitle":"Entwickelt für Fahrer, gebaut von Fahrern",
+      "P4desc":"Erleben Sie Einfachheit und Zuverlässigkeit. Unsere App ermöglicht es Fahrern, ihre Fahrten auf ein neues Niveau zu heben. Laden Sie sie jetzt herunter und verwandeln Sie Ihre alltäglichen Fahrten in außergewöhnliche Abenteuer!"
+    },
+    "footer":{
+      "Contact": "Kontakt",
+      "Newsletter": "Newsletter",
+      "Offers": "Angebote",
+      "blog": "Blog",
+      "marketplace": "Marktplatz",
+      "Our Vision": "Unsere Vision",
+      "Terms & Conditions": "Allgemeine Geschäftsbedingungen",
+      "Company":"Unser Unternehmen",
+      "Our Mission":"Unsere Mission",
+      "Our Objectives":"Unsere Ziele",
+      "Our Originality":"Unsere Originalität",
+      "hiring":"Wir stellen ein",
+      "contact":"Kontaktinformationen",
+      "rental":"Unsere Mietagentur-Plattform",
+      "travel":"Unsere Reisebüro-Plattform",
+      "pooling":"Unsere Fahrgemeinschafts-Plattform",
+      "pick":"Pick me up, unsere Abhol- und Abgabe-Plattform",
+      "Blog": "Unser System zur Verbindung von Reisedienstkunden und Reisedienstanbietern",
+      "About_us":"Über uns",
+      "FAQ":"Unterstützen",
+      "legal":"Rechtliche Informationen",
+      "Terms":"Allgemeine Nutzungsbedingungen",
+      "Terms of Service":"Nutzungsbedingungen",
+      "Privacy Policy":"Datenschutzrichtlinie",
+      "cookies":"Cookies",
+      "personal":"Ihre persönlichen Informationen",
+      "Services":"Dienstleistungen",
+      "Mobile_App":"Mobile App",
+      "language":"Deutsch",
+      "languageDark":"DE",
+      "CopyRight":"Alle Rechte vorbehalten",
+      "Newsletter Text":"Abonnieren Sie unseren Newsletter, um unsere neuesten Updates & Nachrichten zu erhalten"
+    }
+  },
+  "About":{
+    "section1":{
+      "pageTitle": "Über Uns",
+      "sectionTitle": {
+        "part1": "Wir sind ein",
+        "part2": "Sozial verantwortungsvolles Unternehmen"
+      },
+      "description": {
+        "paragraph1": {
+          "text1": "Durch unsere Plattform ",
+          "text2": "LetsGO Fahrer-App",
+          "text3": ", fließt ein Teil unserer Einnahmen an unsere Partner zurück, um die kontinuierliche Schulung unserer Fahrer in Straßenverkehrssicherheit, verantwortungsvollem Fahren, der Bedeutung menschlichen Lebens und wirtschaftlicher Rentabilität sicherzustellen."
+        },
+        "paragraph2": "Indem Sie unsere Transportdienstleistungen nutzen,"
+      },
+      "contributions": {
+        "t1":"helfen Sie unserem Unternehmen zu wachsen,",
+        "t2":"Sie tragen zur Freude jeder Familie nach jeder Fahrt bei,",
+        "t3":"Sie sind Akteur des Wandels,",
+        "t4":"das Leben ist kostbar, das Glück so zu leben, wie Sie es wünschen, ist das Wesen des Glücks",
+        "t5":"wir betrachten das Leben als Geschenk; wir sind an der Frage der ganzheitlichen Entwicklung des Menschen interessiert, alles hängt von uns ab, von unserer Liebe zu uns selbst."
+      },
+      "ourValues": {
+        "title": "Unsere Werte",
+        "mainText": "Die Yowyob-Fahrer-App ist ein Dienst für professionelle Fahrer, für die menschliches Leben zählt, für die ein Leben zählt. Schlüsselspieler in der motorisierten Fahrzeugmobilität, die ein ausgeprägtes Verantwortungsbewusstsein und Pflichtgefühl haben, auf Details und einen gut gemachten Service achten. Diejenigen, die wie Kapitäne von Schiffen oder Flugzeugkommandanten täglich für Menschenleben und die Produktivität der Wirtschaftsbetreiber, die sie täglich begleiten, verantwortlich sind, Familien glücklich machen, die sich nach jeder Fahrt wieder vereinen.",
+        "secondaryText": "Professionelle VTP/C-Inhaber müssen psychologisch stabil und konzentriert zur Arbeit kommen. Menschen, die nach unabhängigen Fahrern suchen, sind in der Regel bewusste Fachleute, ergebnisorientiert, produktivitätsorientiert, profitabel und effizient. Sie wollen mit Vertrauen von zu Hause aufbrechen und zu ihren Familien zurückkehren, nachdem sie einen produktiven und profitablen Tag hatten. Professionelle Fahrer müssen diese psychologische Stabilität und Selbstsicherheit mitbringen. Unsere kollaborative, webresponsive und mobile digitale Plattform Yowyob Letsgo Driver App wird es ermöglichen:"
+      },
+      "benefits": [
+        {
+          "title": "Die Leistung der Wirtschaftsakteure verbessern:",
+          "description": "ein gut ausgebildeter, referenzierter und erfahrener Fahrer versetzt Sie sofort in Sicherheit. Sie fühlen sich in Ihrem Fahrzeug und auf der Straße, an Ihrem Arbeitsplatz oder in Ihrem privaten Büro zu Hause wohl; Sie lassen sich gehen und konzentrieren sich auf das Wesentliche."
+        },
+        {
+          "title": "VTP/C-Inhaber von der Belastung chaotischen und opportunistischen Fahrens entlasten."
+        },
+        {
+          "title": "Die Produktivität und Profitabilität für VTP-Inhaber steigern."
+        },
+        {
+          "title": "Unfälle bekämpfen, die Zahl der Unfälle senken - gut ausgebildete Fahrer retten Leben."
+        },
+        {
+          "title": "Freiberuflichen Fahrern Sichtbarkeit und die Möglichkeit bieten, ihre Verfügbarkeit in Echtzeit zu signalisieren",
+          "description": "und so VTP-Inhaber in die Lage versetzen, ihre Angebote vertraglich anzufragen."
+        },
+        {
+          "title": "Die Fahrzeugleistung und den Umsatz (Umsatz) unabhängiger Fahrer verbessern:",
+          "description": "gute Organisation und Planung ermöglichen die Kontrolle von Stopps, die Verfolgung von Routen, die Reduzierung des Kraftstoffverbrauchs und die Maximierung des Umsatzes unabhängiger Fahrer."
+        },
+        {
+          "title": "Die Interaktion zwischen unabhängigen Fahrern und Reisedienstanfragenden verbessern;",
+          "description": "es ist ein Mittel zur Verteilung des kontinuierlichen Informationsflusses. Ziel ist es, ein Klima des Vertrauens und guter Beziehungen zwischen Fahrern und Reisedienstanfragenden zu schaffen und wiederherzustellen."
+        }
+      ]
+    },
+    "section2":{
+      "section1": {
+        "title": "Warum eine Web- und Mobile-Plattform für unabhängige Fahrer?",
+        "content": [
+          "Wir streben nach einem Ideal:",
+          {
+            "text": "die digitale Transformation greifbar und konkret zu machen, indem wir sozial verantwortliche Projekte aufbauen, die vielen Menschen, insbesondere in Entwicklungsländern, zugute kommen.",
+            "format": "bold"
+          },
+          " Das bedeutet konkret ",
+          {
+            "text": "unabhängige Fahrer mit Menschen zu verbinden, die Transportdienstleistungen benötigen",
+            "format": "bold"
+          },
+          " durch ",
+          {
+            "text": "unsere kollaborative digitale Plattform, Yowyob LetsGo Driver App.",
+            "format": "bold"
+          },
+          " Wir sind fest davon überzeugt, dass eine digitale Präsenz im Internet für den Berufsstand im Allgemeinen und den Personentransport im Besonderen unerlässlich ist. Insbesondere ",
+          {
+            "text": "die Entmittlung von Dienstleistungen in allen Berufen ist jetzt eine Chance für die lokale Entwicklung.",
+            "format": "bold"
+          }
+        ]
+      },
+      "section2": {
+        "title": "Unsere Mission",
+        "content": [
+          "Mit der Yowyob Driver App bieten und verbessern wir die professionelle digitale Präsenz unabhängiger Fahrer. Egal ob Sie ein ",
+          {
+            "text": "Unternehmen, eine Organisation, ein individueller Kunde oder ein Arbeitnehmer in der informellen Wirtschaft sind",
+            "format": "bold"
+          },
+          ", unsere Mission ist es, professionelle Fahrer mit Ihnen, Kunden, die Transportdienstleistungen suchen, über unsere digitale Unterstützungsplattform LetsGo zu verbinden."
+        ],
+        "learnMoreText": "Weitere Informationen"
+      }
+    },
+    "section3": {
+      "ourObjectives": {
+        "title": "Unsere Ziele",
+        "introduction": "Es ist entscheidend für Ihre Produktivität, Ihre Reisen effektiv zu verwalten und zu kontrollieren. Dies umfasst:",
+        "objectives": [
+          "Es den Menschen einfacher machen zu reisen und ihre Reise zu einem nützlichen und einzigartigen Erlebnis zur Erneuerung zu machen;",
+          "Reisende von dem Stress der Reiseplanung zu befreien;",
+          "Helfen, genau zu wissen, wann man reisen sollte, mit welchem Fahrzeug und welchem Fahrer;",
+          "Kontrolle über finanzielle Projektionen: Reisebudgets und Einnahmen;",
+          "Einem Fahrer zu helfen, seine Verfügbarkeit für Fahrdienste anzuzeigen;",
+          "Die Kosten für Reisen oder pro Kilometer zurückgelegte Strecke zu optimieren."
+        ]
+      },
+      "ourVision": {
+        "title": "Unsere Vision",
+        "content": "Die Potenziale wirtschaftlicher Akteure zu erhöhen, indem wir ihnen ermöglichen, sich auf ihre Hauptaktivitäten zu konzentrieren."
+      },
+      "toolsForDrivers": {
+        "title": "Unsere Werkzeuge für Fahrer und deren Förderung",
+        "introduction": "Wir bieten freiberuflichen Fahrern:",
+        "tools": [
+          "Intuitive, ergonomische, sichere Web- und mobile Anwendungen, die an Mobiltelefone, Laptops, Tablets und PCs angepasst sind und für die automatische Referenzierung optimiert sind, um Kontakt und Zusammenarbeit mit Reisepreisern zu erleichtern.",
+          "Öffentliche Seiten, um sich selbst darzustellen, hervorzuheben und zu fördern.",
+          "Präsentation ihres Portfolios, ihres Mehrwerts, was sie im Vergleich zur Konkurrenz wettbewerbsfähiger macht, ihre Vorlieben: Musik, Kaffee, Süßigkeiten, Freundlichkeit, GPS-Tracking, Flaschenwasser, Zugang zur Presse, Wifi, TV, Video usw.",
+          "Anpassbare Web- und Mobilseiten, auf denen Fahrer ihre besten lächelnden Fotos oder verschiedene Illustrationen einfügen können.",
+          "Eine integrierte Chat-Anwendung, die es Fahrern ermöglicht, sicher mit ihren Kunden zu kommunizieren."
+        ]
+      },
+      "loyaltyTool": {
+        "title": "Unsere unabhängige Fahrerplattform als Loyalitätsinstrument",
+        "introduction": "Die Yowyob Fahrer-App ist als Loyalitätsinstrument für unabhängige Fahrer konzipiert.",
+        "features": [
+          "Sie ermöglicht es, einen professionellen Fahrer zu finden und diesen anhand eines automatischen Benachrichtigungs- und Bewertungssystems zu positionieren.",
+          "Kunden können ihre Meinungen durch Kommentare, Zufriedenheitsstufen zu den erbrachten Dienstleistungen, Likes usw. zu den angeforderten Dienstleistungen verschiedener Fahrer äußern.",
+          "Kunden sollten es bevorzugen, Sie wieder über Ihre Webseite/Mobilformular zu buchen, wann immer sie es benötigen."
+        ]
+      },
+      "partnerAdvantages": {
+        "title": "Vorteile, unser freiberuflicher Fahrpartner zu sein: Verbesserung der Servicequalität",
+        "introduction": "Unsere Web- und Mobilanwendungsplattform für unabhängige Fahrer ist darauf ausgelegt, mehr Reisepreise zu erreichen.",
+        "advantages": [
+          "Sie ermöglicht es ihnen, die Qualität ihrer Dienstleistungen durch Online-Reservierungen, Bestätigungen und Zahlungen zu verbessern, jederzeit über Web und Mobil.",
+          "Kunden können sich auf der Seite des Fahrers als Mitglied anmelden oder registrieren, wodurch sie Gemeinschaften aufbauen können.",
+          "Die Letsgo Fahrer-App verbessert die Interaktionen zwischen freiberuflichen Fahrern und Reisepreisern, insbesondere den kontinuierlichen Informationsfluss.",
+          "Die Letsgo Fahrer-App wird für Kommunikation und Verteilung von Mobilitätsdiensten verwendet."
+        ]
+      },
+      "platformAdvantages": {
+        "title": "Vorteile der Nutzung unserer Plattform zur Kontaktaufnahme und Buchung unserer freiberuflichen Fahrer",
+        "introduction": "Unsere Fahrer sind gewerkschaftlich organisiert und werden von unseren lokalen Syndikaten und Fahrschulenpartnern unterstützt.",
+        "advantages": [
+          "Sie können Informationen von unseren Syndikaten und Fahrschulenpartnern erhalten, die jeweils Verantwortung und Schulungsgarantien für verantwortungsbewusstes Fahren bieten.",
+          "Unsere Plattformen sind sicher, sie integrieren HTTPS/TLS/SSL-Protokolle, um den Schutz und die Vertraulichkeit von Daten und Informationen während Bank- und mobilen Transaktionen auf unseren Websites zu gewährleisten. Dank unserer Backup-Strategien und regelmäßigen Updates können unsere Partner auf ihre Historien und verschiedene Analysen zugreifen.",
+          "Unser Bewertungssystem für die Zufriedenheit ermöglicht es uns, jede Ihrer Wünsche für eine bessere Servicequalität zu berücksichtigen."
+        ]
+      },
+      "ourUniqueness": {
+        "title": "Unsere Einzigartigkeit im Vergleich zur Konkurrenz",
+        "content": [
+          "Wie sichern wir unsere Reisepreisern hinsichtlich der Qualität der Ausbildung unserer professionellen Fahrer?",
+          {
+            "text": "Wir sind Unterstützer.",
+            "format": "bold"
+          },
+          " LetsGo ist die allererste digitale Plattform, die direkt mit Transport-Syndikaten zusammenarbeitet. Wir sind uns einig, dass das Sponsoring von Fahrern durch ihr jeweiliges Syndikat oder die Fahrschule, in der die Ausbildung stattgefunden hat, ein nützliches und wichtiges Vertrauenskapital ist, um Reisepreisern Sicherheit zu geben. Tatsächlich sind Transportsektoren und Fahrschulen am besten geeignet, Fahrer auszubilden und zu sponsern.",
+          "Wir glauben, dass die Selbstorganisation jeder Branche im Allgemeinen und des Transportsektors im Besonderen ihre beruflichen Regeln hat, deren Expertise durch Berufung unterstützt werden muss. Wir sind der Meinung, dass die Beherrschung der Fahrerausbildung durch Fahrer nur der Gesellschaft zugutekommen kann.",
+          "Wir bieten ",
+          {
+            "text": "einen Bildungs- und Aufklärungsdienst",
+            "format": "bold"
+          },
+          " an, um die Unterstützung unserer Kunden durch Podcasts, Blogs und Chatbot-Dienste zu optimieren."
+        ]
+      }
+    },
+    "team": {
+      "ourTeam": "Unser Team",
+      "teamDescription": "Unser Team besteht aus Wirtschaftsingenieuren, Forschungsingenieuren, Forschern aller Ebenen mit nachgewiesener Expertise und professionellen Beratern, die sich in verschiedenen Bereichen wie Anthropologie spezialisieren, um die Gesellschaften besser zu verstehen, für die wir technologische Lösungen entwickeln. Wir sind in angewandter Forschung engagiert und in Forschung und Entwicklung involviert. Zu diesem Zweck arbeiten wir eng mit Forschungslaboren an lokalen und ausländischen Universitäten zusammen.",
+      "teamMembers": "Teammitglieder",
+      "members": {
+        "thomas": {
+          "title": "Prof, Dr.-Ing.",
+          "role": "CEO"
+        },
+        "bernabe": {
+          "title": "Prof, Dr.-Ing.",
+          "role": "Leiter der Ausbildungsabteilung"
+        },
+        "jean": {
+          "title": "Ing. TEO",
+          "role": "Fullstack Java Softwareentwickler"
+        },
+        "zacharie": {
+          "title": "Jr. Ing.",
+          "role": "Backend-Softwareentwickler, Praktikant"
+        },
+        "yann": {
+          "title": "Jr. Ing.",
+          "role": "Frontend-Softwareentwickler, Praktikant"
+        },
+        "jason": {
+          "title": "",
+          "role": "Junior Webentwickler"
+        }
+      }
+    }
+
+  },
+  "LocaleSwitcher": {
+    "label": "Sprache ändern",
+    "locale": {
+      "en": "Englisch",
+      "fr": "Französisch",
+      "es": "Spanisch",
+      "de": "Deutsch"
+    }
+  }
+}

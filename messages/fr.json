@@ -1,0 +1,302 @@
+
+
+{
+"Freelance":{
+"header":{
+"headerlogin":"Se connecter",
+"headersign":"S'inscrire",
+"headermarketplace":"Place de marché",
+"Travel Agency":"Agence de voyage",
+"Rental Agency":"Agence de location",
+"Car Pooling":"Covoiturage",
+"Blog":"Blog",
+"Podcast":"Podcast",
+"Chatbot":"Agent conversationnel",
+"Driving School":"Auto-école",
+"Syndicate":"Syndicat",
+"Educator":"Éducateur",
+"Administration":"Administration",
+"Sponsor":"Sponsor",
+"Referral":"Parrainage",
+"pricing":"Tarification",
+"about":"À propos",
+"Driver":"Conducteur",
+"Passenger":"Passager",
+"Agency":"Agence",
+"marketplace":"Place de marché",
+"partner":"Partenaire",
+"education":"Éducation"
+},
+"hero":{
+"etiquette":"Conducteur Freelance",
+"P1title":"Conduisez à votre façon,",
+"P1title2":"Augmentez vos revenus",
+"P1description":"Que vous ayez votre propre véhicule ou non, Lets Go offre des opportunités de gains flexibles pour chaque chauffeur.",
+"P1search_placeholder":"rechercher un chauffeur...",
+"P1join_button":"Rejoignez-nous maintenant",
+"P1join_alternative":"Vous avez déjà un compte ?",
+"P1join_link":"Se connecter",
+"P2title":"NOS AVANTAGES POUR LES CHAUFFEURS",
+"P2section1title":"Revenus minimums garantis",
+"P2section2title":"Flexibilité",
+"P2section3title":"Assistance 24/7",
+"P2section1desc":"Notre structure tarifaire est conçue pour maximiser vos revenus, et vous pouvez augmenter vos gains grâce à des bonus supplémentaires pour les performances élevées et les pourboires des passagers satisfaits. Des frais de gain obligatoires minimes garantissent que vous avez toujours un revenu stable, même pendant les périodes moins occupées.",
+"P2section2desc":"Créez la vie professionnelle que vous méritez avec la flexibilité et la liberté d'être votre propre patron. Établissez votre propre emploi du temps et conduisez quand cela vous convient le mieux, que vous préfériez des heures à temps plein ou une activité à temps partiel. Pas de quarts obligatoires ici - vous avez un contrôle total sur votre semaine de travail.",
+"P2section3desc":"L'assistance est disponible 24h/24 et 7j/7 grâce à notre équipe de support dédiée aux chauffeurs. Qu'il s'agisse d'un problème technique ou d'une préoccupation d'un passager, nous sommes là pour vous aider à tout moment. Si vous conduisez un véhicule fourni par nous, vous pouvez vous concentrer sur la conduite sans vous soucier des coûts d'entretien, car nous nous occupons de tout l'entretien du véhicule.",
+"P3title":"OPTIONS POUR LES CHAUFFEURS",
+"P3section1title":"Vous avez votre propre voiture ?",
+"P3section2title":"Pas de voiture ? Pas de problème !",
+"P3section1desc":"Vous avez votre propre voiture ? Rejoindre Lets Go est simple et direct. Commencez par vous inscrire et complétez notre processus de vérification, qui inclut une inspection du véhicule pour s'assurer qu'il répond à nos normes. Une fois approuvé, vous pouvez prendre la route et commencer à gagner immédiatement.",
+"P3section2desc":"Vous n'avez pas de voiture ? Pas de souci ! Lets Go propose des solutions de véhicules pour vous mettre sur la route. Nous fournissons des voitures bien entretenues pour vous assurer de pouvoir commencer à gagner sans délai. Après vous être inscrit, on vous attribuera un véhicule, vous compléterez le processus de vérification, et vous serez prêt à conduire.",
+"P3section1link":"Processus de vérification",
+"P3section2link":"S'inscrire pour une voiture",
+"P4title":"L'application mobile Lets Go pour les chauffeurs",
+"P4subtitle":"Conçue pour les chauffeurs, créée par des chauffeurs",
+"P4desc":"Expérimentez la simplicité et la fiabilité. Notre application permet aux chauffeurs de porter leurs trajets à de nouveaux sommets. Téléchargez maintenant et transformez vos trajets quotidiens en aventures extraordinaires !"
+},
+"footer":{
+"Contact": "Contact",
+"Newsletter": "Bulletin d'information",
+"Offers": "Offres",
+"blog": "blog",
+"marketplace": "Place de marché",
+"Our Vision": "Notre vision",
+"Terms & Conditions": "Termes et conditions",
+"Company":"Notre entreprise",
+"Our Mission":"Notre mission",
+"Our Objectives":"Nos objectifs",
+"Our Originality":"Notre originalité",
+"hiring":"Nous recrutons",
+"contact":"Informations de contact",
+"rental":"Agence de location",
+"travel":"Agence de voyage",
+"pooling":"Service de covoiturage",
+"pick":"Venir me chercher",
+"Blog": "Notre système pour connecter les clients de services de voyage et les fournisseurs de services de voyage",
+"About_us":"À propos de nous",
+"FAQ":"Support",
+"legal":"Informations légales",
+"Terms":"Conditions générales d'utilisation",
+"Terms of Service":"Conditions de service",
+"Privacy Policy":"Politique de confidentialité",
+"cookies":"Cookies",
+"personal":"Vos informations personnelles",
+"Services":"Services",
+"Mobile_App":"Application mobile",
+"language":"Français",
+"languageDark":"FR",
+"CopyRight":"Tous droits réservés",
+"Newsletter Text":"Abonnez-vous à notre newsletter pour recevoir nos dernières mises à jour et nouvelles"
+}
+},
+"About":{
+"section1":{
+"pageTitle": "À propos de nous",
+"sectionTitle": {
+"part1": "Nous sommes une",
+"part2": "Entreprise socialement responsable"
+},
+"description": {
+"paragraph1": {
+"text1": "Grâce à notre plateforme ",
+"text2": "LetsGO Driver App",
+"text3": ", une partie de nos revenus est reversée à nos partenaires pour assurer la formation continue de nos chauffeurs en matière de sécurité routière, de conduite responsable, de l'importance de la vie humaine et de la rentabilité économique."
+},
+"paragraph2": "En utilisant nos services de transport,"
+},
+"contributions": {
+"t1":"vous aidez notre entreprise à se développer,",
+"t2":"Vous contribuez à la joie trouvée dans chaque famille après chaque voyage,",
+"t3":"vous êtes un agent de changement,",
+"t4":"la vie n'a pas de prix, vivre votre bonheur comme vous le souhaitez est l'essence du bonheur",
+"t5":"nous considérons la vie comme un cadeau ; nous nous intéressons à la question du développement humain holistique, tout dépend de nous, de notre amour pour nous-mêmes."
+},
+"ourValues": {
+"title": "Nos valeurs",
+"mainText": "Yowyob Driver App est un service pour les chauffeurs professionnels pour qui la vie humaine compte, pour qui une vie compte. Des acteurs clés de la mobilité des véhicules motorisés qui ont un sens élevé de la responsabilité et du devoir, du détail et du service bien fait. Ceux qui sont, comme les capitaines de navire ou les commandants d'avion, responsables des vies au quotidien, de la productivité des opérateurs économiques qu'ils accompagnent quotidiennement, rendant heureuses les familles qui se réunissent chaque fois après chaque voyage.",
+"secondaryText": "Les propriétaires professionnels de VTP/C doivent arriver au travail psychologiquement stables et concentrés. Les personnes qui recherchent des chauffeurs indépendants sont généralement des professionnels conscients, orientés vers les résultats, axés sur la productivité, rentables et efficaces. Ils veulent quitter leur domicile et retourner dans leur famille en toute confiance après une journée productive et rentable. Les chauffeurs professionnels doivent apporter cette stabilité psychologique et cette sécurité. Notre plateforme numérique collaborative web-responsive et mobile Yowyob Letsgo Driver App permettra de :"
+},
+"benefits": [
+{
+"title": "Améliorer la performance des acteurs économiques :",
+"description": "un chauffeur bien formé, référencé et expert vous met immédiatement à l'aise. Vous vous sentez à l'aise dans votre véhicule et sur la route, sur votre lieu de travail ou chez vous dans votre bureau privé ; vous vous laissez aller et vous vous concentrez sur l'essentiel."
+},
+{
+"title": "Soulager les propriétaires de VTP/C du stress d'une conduite chaotique et opportuniste."
+},
+{
+"title": "Augmenter la productivité et la rentabilité pour les propriétaires de VTP."
+},
+{
+"title": "Lutter contre les accidents, réduire le nombre d'accidents - des chauffeurs bien formés sauvent des vies."
+},
+{
+"title": "Offrir aux chauffeurs freelance une visibilité et la possibilité de signaler leur disponibilité en temps réel",
+"description": "et ainsi permettre aux propriétaires de VTP de solliciter leurs offres sur une base contractuelle."
+},
+{
+"title": "Améliorer la performance des véhicules et les revenus (chiffre d'affaires) des chauffeurs indépendants :",
+"description": "une bonne organisation et une bonne planification permettent de contrôler les arrêts, de suivre les itinéraires, de réduire la consommation de carburant et de maximiser le chiffre d'affaires des chauffeurs indépendants."
+},
+{
+"title": "Améliorer les interactions entre les chauffeurs indépendants et les demandeurs de services de voyage ;",
+"description": "c'est un moyen de distribuer le flux continu d'informations. L'objectif est de créer et de restaurer un climat de confiance et de bonnes relations entre les chauffeurs et les demandeurs de services de voyage."
+}
+]
+},
+"section2":{
+"section1": {
+"title": "Pourquoi une plateforme Web et Mobile pour les chauffeurs indépendants ?",
+"content": [
+"Nous aspirons à un idéal :",
+{
+"text": " rendre la transformation numérique tangible et concrète en construisant des projets socialement responsables qui profitent à un grand nombre de personnes, en particulier dans les pays en développement.",
+"format": "bold"
+},
+" Concrètement, cela signifie ",
+{
+"text": "mettre en relation des chauffeurs indépendants avec des personnes ayant besoin de services de transport",
+"format": "bold"
+},
+" grâce à ",
+{
+"text": "notre plateforme numérique collaborative, Yowyob LetsGo Driver App.",
+"format": "bold"
+},
+" Nous sommes pleinement convaincus de la nécessité d'une présence numérique sur le web pour le secteur professionnel en général et pour le transport de personnes en particulier. Plus précisément, ",
+{
+"text": "la désintermédiation des services dans toutes les professions est désormais une opportunité pour le développement local.",
+"format": "bold"
+}
+]
+},
+"section2": {
+"title": "Notre Mission",
+"content": [
+"À travers Yowyob Driver App, nous offrons et améliorons la présence numérique professionnelle des chauffeurs indépendants. Que vous soyez une ",
+{
+"text": "entreprise, une organisation, un client individuel ou un travailleur de l'économie informelle",
+"format": "bold"
+},
+", notre mission est de mettre en relation des chauffeurs professionnels avec vous, clients à la recherche de services de transport, grâce à notre plateforme d'assistance numérique, LetsGo."
+],
+"learnMoreText": "En savoir plus"
+}
+},
+"section3":{
+"ourObjectives": {
+"title": "Nos Objectifs",
+"introduction": "Vous permettre de gérer et de contrôler efficacement vos déplacements est essentiel pour votre productivité. Cela inclut :",
+"objectives": [
+"Faciliter les déplacements des personnes et faire de leur voyage une expérience utile et unique à renouveler ;",
+"Soulager tout voyageur du stress de la planification du voyage ;",
+"Aider à savoir exactement quand voyager, avec quel véhicule et quel chauffeur ;",
+"Avoir un contrôle sur les projections financières : budgets de voyage et revenus ;",
+"Aider un chauffeur à signaler sa disponibilité pour des services de conduite ;",
+"Optimiser le coût du voyage ou par kilomètre parcouru."
+]
+},
+"ourVision": {
+"title": "Notre Vision",
+"introduction": "Accroître le potentiel des acteurs économiques en leur permettant de rester concentrés sur leurs activités principales."
+},
+"toolsForDrivers": {
+"title": "Nos Outils pour les Chauffeurs et Leur Promotion",
+"introduction": "Nous fournissons aux chauffeurs freelance :",
+"tools": [
+"Des applications web et mobiles intuitives, ergonomiques, sécurisées, adaptables aux mobiles, ordinateurs portables, tablettes et PC, optimisées pour l'auto-référencement afin de faciliter le contact et la collaboration avec les demandeurs de services de voyage.",
+"Des pages publiques pour se présenter, se mettre en valeur et se promouvoir.",
+"Pour présenter leur portfolio, leur valeur ajoutée, ce qui les rend plus compétitifs et meilleurs par rapport à la concurrence, leurs préférences : musique, café, sucreries, convivialité, suivi GPS, eau en bouteille, accès à la presse, Wifi, TV, Vidéo, etc.",
+"Des pages web et mobiles personnalisables où les chauffeurs peuvent insérer leurs meilleures photos souriantes ou diverses illustrations.",
+"Une application de Chat intégrée permettant aux chauffeurs de communiquer en toute sécurité avec leurs clients."
+]
+},
+"loyaltyTool": {
+"title": "Notre Plateforme de Chauffeurs Indépendants est un Outil de Fidélisation",
+"introduction": "Yowyob Driver App est conçue pour être un outil de fidélisation pour les chauffeurs indépendants.",
+"features": [
+"Elle permet de trouver un chauffeur professionnel et de le positionner selon un système de notification et d'évaluation automatique.",
+"Les clients peuvent exprimer leurs opinions à travers des commentaires, le niveau de satisfaction sur les services rendus, des likes, etc. sur les services demandés aux différents chauffeurs.",
+"Les clients devraient vouloir reprendre des courses avec vous via votre page web/formulaire mobile chaque fois que nécessaire."
+]
+},
+"partnerAdvantages": {
+"title": "Avantages d'Être Notre Partenaire Chauffeur Freelance : Améliorer la Qualité du Service",
+"introduction": "Notre plateforme d'applications web et mobiles pour les chauffeurs indépendants est conçue pour atteindre plus de demandeurs de services de voyage.",
+"advantages": [
+"Elle leur permet d'améliorer la qualité de leurs services grâce aux réservations, confirmations et paiements en ligne et via le web et mobile à tout moment.",
+"Les clients peuvent s'abonner ou s'inscrire sur la page du chauffeur en tant que membre, leur permettant de construire des communautés.",
+"L'application Letsgo Driver est un moyen d'améliorer les interactions entre les chauffeurs freelance et les demandeurs de services de voyage, en particulier la distribution continue du flux d'informations.",
+"L'application Letsgo Driver est utilisée pour la communication et la distribution de services de mobilité."
+]
+},
+"platformAdvantages": {
+"title": "Avantages d'Utiliser Notre Plateforme pour Contacter et Réserver Nos Chauffeurs Freelance",
+"introduction": "Nos chauffeurs sont syndiqués et parrainés par nos partenaires locaux Syndicats et Auto-écoles.",
+"advantages": [
+"Vous pouvez accéder aux informations de nos partenaires Syndicats et Auto-écoles qui offrent respectivement des garanties de responsabilité et de formation pour une conduite responsable.",
+"Nos plateformes sont sécurisées, elles intègrent des protocoles HTTPS/TLS/SSL pour assurer la protection et la confidentialité des données et informations lors des transactions bancaires et mobiles sur nos sites. Grâce à nos stratégies de sauvegarde et mises à jour régulières, nos partenaires peuvent accéder à leurs historiques et diverses analyses.",
+"Notre système d'évaluation du niveau de satisfaction nous permet de prendre en compte chacun de vos désirs pour une meilleure qualité de service."
+]
+},
+"ourUniqueness": {
+"title": "Notre Singularité par Rapport à la Concurrence",
+"content": [
+"Comment rassurons-nous nos demandeurs de services de voyage sur la qualité de la formation de nos chauffeurs professionnels ?",
+{
+"text": "Nous sommes des acteurs de soutien.",
+"format": "bold"
+},
+" LetsGo est la toute première plateforme numérique à travailler en partenariat direct avec les Syndicats de Transport. Nous convenons que le parrainage des chauffeurs par leur syndicat respectif ou l'auto-école où la formation a eu lieu est un capital de confiance utile et important pour rassurer les demandeurs de services de voyage. En effet, qui mieux que les syndicats du secteur des transports et les auto-écoles sont les mieux placés pour former et parrainer les chauffeurs ?",
+"Nous croyons que l'auto-organisation de chaque secteur d'activité en général et celui du transport en particulier a ses règles professionnelles dont l'expertise doit être soutenue par une vocation. Nous croyons que la maîtrise de la formation des chauffeurs par les chauffeurs ne peut être que bénéfique pour la société.",
+"Nous proposons ",
+{
+"text": "un service d'éducation et de sensibilisation",
+"format": "bold"
+},
+" pour optimiser l'assistance à nos clients à travers des services de Podcast, Blog et Chatbot."
+]
+}
+},
+"team":{
+"ourTeam": "Notre Équipe",
+"teamDescription": "Notre équipe se compose d'ingénieurs d'affaires, d'ingénieurs de recherche, de chercheurs de tous niveaux d'expertise avérée, et de consultants professionnels spécialisés dans divers domaines tels que l'anthropologie pour mieux comprendre les sociétés pour lesquelles nous construisons des solutions technologiques. Nous sommes investis dans la recherche appliquée et impliqués dans la recherche et le développement. À cette fin, nous travaillons en étroite collaboration avec des laboratoires de recherche d'universités locales et étrangères",
+"teamMembers": "Membres de l'équipe",
+"members": {
+"thomas": {
+"title": "Prof, Dr-Ing",
+"role": "PDG"
+},
+"bernabe": {
+"title": "Prof, Dr-Ing",
+"role": "Chef du Département Formation"
+},
+"jean": {
+"title": "Ing. TEO",
+"role": "Développeur logiciel Fullstack Java"
+},
+"zacharie": {
+"title": "Jr. Ing",
+"role": "Développeur logiciel Backend, Stagiaire"
+},
+"yann": {
+"title": "Jr. Ing",
+"role": "Développeur logiciel Front End, Stagiaire"
+},
+"jason": {
+"title": "",
+"role": "Développeur Web Junior"
+}
+}
+}
+},
+"LocaleSwitcher": {
+"label": "Changer de langue",
+"locale": {
+"en": "Anglais",
+"fr": "Français",
+"es": "Espagnol",
+"de": "Allemand"
+}
+}
+}
