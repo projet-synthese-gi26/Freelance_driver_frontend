@@ -2,9 +2,9 @@ import Image from "next/image";
 
 export default function AgencySection() {
   return (
-    <section className="flex flex-col lg:flex-row justify-between items-center px-4 lg:px-0 pb-36 gap-8 lg:gap-12 max-w-7xl mx-auto">
+    <section className="flex flex-col lg:flex-row justify-between pt-5 px-4 lg:px-0 pb-30 gap-8 lg:gap-12 max-w-7xl mx-auto">
       {/* Image Container */}
-      <div className="w-full lg:w-[616px] h-[300px] md:h-[500px] lg:h-[676px] relative rounded-2xl overflow-hidden">
+      <div className="w-full lg:w-[616px] order-2 md:order-1 h-[300px] md:h-[500px] lg:h-[676px] relative rounded-2xl overflow-hidden">
         <Image
           src="/landingpage/agency-section.png"
           alt="Nyabugogo Bus Park"
@@ -15,7 +15,7 @@ export default function AgencySection() {
       </div>
 
       {/* Content Container */}
-      <div className="flex flex-col items-start gap-5 w-full lg:w-[748px]">
+      <div className="flex flex-col items-start order-1 md:order-2 gap-5 w-full lg:w-[748px]">
         {/* Tag */}
         <div className="bg-tertiary-50 text-tertiary-600 font-semibold text-base py-2 px-4 rounded-full">
           Letsgo for Agencies

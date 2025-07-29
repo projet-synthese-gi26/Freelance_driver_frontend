@@ -1,5 +1,5 @@
 import type React from "react"
-import { Shield, Wallet, ThumbsUp } from "lucide-react"
+import { Shield, Wallet, ThumbsUp,ArrowRight } from "lucide-react"
 
 
 const FeatureCard: React.FC<{
@@ -15,8 +15,8 @@ const FeatureCard: React.FC<{
     </div>
     <button className="flex items-center text-orange-600 font-medium">
       Get started
-      <span className="ml-2 w-5 h-5 border border-orange-600 rounded-full rotate-90 flex items-center justify-center">
-        →
+      <span className="ml-2 w-5 h-5 border border-orange-600 rounded-full flex items-center justify-center">
+        <ArrowRight/>
       </span>
     </button>
   </div>
@@ -24,7 +24,7 @@ const FeatureCard: React.FC<{
 
 const WhyChooseLetsGo: React.FC = () => {
   return (
-    <section className="flex flex-col items-center py-36 px-8 md:px-32 bg-white">
+    <section className="flex flex-col items-center py-[34px] px-8 md:px-32 bg-white">
       <div className="flex flex-col items-center gap-5 max-w-4xl mb-20">
         <span className="px-4 py-2 bg-tertiary-50 text-tertiary-600 font-semibold rounded-full">Why choose LetsGo</span>
         <h2 className="text-4xl md:text-5xl font-semibold text-center text-gray-900 mb-3">The Smarter Way to Travel</h2>

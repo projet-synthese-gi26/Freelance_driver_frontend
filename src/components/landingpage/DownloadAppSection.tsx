@@ -3,7 +3,7 @@ import { Apple, PlayCircle } from "lucide-react";
 
 const DownloadAppSection = () => {
   return (
-    <section className="flex flex-col justify-center items-center py-16 md:py-24 lg:py-36 px-4 md:px-12 lg:px-36 xl:px-44 bg-[#E1E3F64D]">
+    <section className="flex flex-col justify-center items-center py-16 md:py-20 lg:py-30 px-4 md:px-12 lg:px-36 xl:px-44 bg-[#E1E3F64D]">
       <div className="w-full max-w-7xl ">
         <div className="relative flex flex-col lg:flex-row items-center bg-white shadow-lg rounded-2xl overflow-hidden">
           {/* Left content */}
@@ -19,8 +19,8 @@ const DownloadAppSection = () => {
                 Android.
               </p>
 
-              <div className="flex flex-col sm:flex-row justify-between">
-                <button className="flex items-center justify-center py-2 px-3 lg:py-[18px] lg:px-6  bg-primary hover:bg-primary-600 text-white rounded-xl">
+              <div className="flex flex-row md:flex-col md:gap-3 justify-between">
+                <button className="flex items-center justify-center py-2 px-3 lg:py-[18px] lg:px-6  bg-primary hover:bg-black text-white rounded-xl">
                   <Image
                     src="/landingpage/apple.png"
                     alt="Apple"
@@ -30,7 +30,7 @@ const DownloadAppSection = () => {
                   />
                   <span className="text-base lg:text-lg font-medium">Get on App Store</span>
                 </button>
-                <button className="flex items-center justify-center py-2 px-3 lg:py-[18px] lg:px-6  bg-primary hover:bg-primary-600 text-white rounded-xl">
+                <button className="flex items-center justify-center py-2 px-3 lg:py-[18px] lg:px-6  bg-primary hover:bg-black text-white rounded-xl">
                   <Image
                     src="/landingpage/googleplay.png"
                     alt="GooglePlay"

@@ -2,7 +2,7 @@ import Image from "next/image"
 
 const DriversSection = () => {
   return (
-    <section className="flex flex-col lg:flex-row justify-between items-center px-4 lg:px-0  pb-36 gap-8 lg:gap-12 max-w-7xl mx-auto">
+    <section className="flex flex-col lg:flex-row justify-between pt-3 px-4 lg:px-0  pb-30 gap-8 lg:gap-12 max-w-7xl mx-auto">
       <div className="flex flex-col items-start gap-5 w-full lg:w-[748px]">
         <div className="bg-tertiary-50 text-tertiary-600 font-semibold text-base py-2 px-4 rounded-full">
           Letsgo for Drivers
