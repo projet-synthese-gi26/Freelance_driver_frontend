@@ -50,7 +50,7 @@ const FreelanceSearchPage = () => {
             setAllPlannings(sorted);
         } catch (error) {
             console.error(error);
-            toast.error("Error loading plannings.");
+            toast.error("Erreur de chargement des plannings.");
         } finally {
             setIsLoading(false);
         }
@@ -74,26 +74,26 @@ const FreelanceSearchPage = () => {
         if (startDate) {
             filtered = filtered.filter(p => new Date(p.startDate) >= startDate);
         }
-        if (driverTypeValue) {
-            // Logique à implémenter si le backend ne filtre pas
-        }
-        if (tripIntentionValue) {
-            // Logique à implémenter
-        }
         
         return filtered;
-    }, [location, destination, startDate, driverTypeValue, tripIntentionValue, allPlannings]);
+    }, [location, destination, startDate, allPlannings]);
 
+    // La fonction handleSearch n'est plus nécessaire si le filtrage est en temps réel,
+    // mais on la garde au cas où vous voudriez un bouton de recherche explicite.
+    const handleSearch = (e) => {
+        e.preventDefault();
+        // Le filtrage est déjà fait par useMemo, ce bouton peut rester pour la forme.
+        toast.success("Filtres appliqués !");
+    };
 
     return (
         <div className="bg-gray-50 min-h-screen">
             <div className="container mx-auto p-4 md:p-6">
                 
                 {/* FORMULAIRE DE RECHERCHE */}
-                <div className="bg-white rounded-xl shadow-lg p-6 mb-8 border border-gray-100">
+                <div className="bg-white rounded-xl shadow-lg p-6 mb-8 border">
                     <h2 className="text-xl font-bold mb-5 text-gray-800">Trouver un Chauffeur</h2>
-                    <form className="space-y-4">
-                        {/* Ligne 1: Lieux */}
+                    <form onSubmit={handleSearch} className="space-y-4">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="relative auto-search-wrapper">
                                 <label className="block text-sm font-medium text-gray-600 mb-1">Départ</label>
@@ -104,8 +104,6 @@ const FreelanceSearchPage = () => {
                                 <input id="destination" value={destination} onChange={e => setDestination(e.target.value)} placeholder="Ville d'arrivée" className="w-full p-2.5 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
                             </div>
                         </div>
-
-                        {/* Ligne 2: Filtres */}
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                             <div>
                                 <label className="block text-sm font-medium text-gray-600 mb-1">Date</label>
@@ -130,11 +128,15 @@ const FreelanceSearchPage = () => {
                         <p className="text-gray-500 mt-4">Chargement des chauffeurs disponibles...</p>
                     </div>
                 ) : filteredPlannings.length > 0 ? (
-                    <div className="space-y-6">
-                        <p className="text-sm text-gray-600 font-medium">{filteredPlannings.length} planning(s) trouvé(s)</p>
-                        {filteredPlannings.map(planning => (
-                            <SearchCardFreelance key={planning.id} planning={planning} onActionCompleted={loadPlannings} />
-                        ))}
+                    <div>
+                        <p className="text-sm text-gray-600 font-medium mb-4">{filteredPlannings.length} chauffeur(s) trouvé(s)</p>
+                        
+                        {/* --- CORRECTION ICI --- */}
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            {filteredPlannings.map(planning => (
+                                <SearchCardFreelance key={planning.id} planning={planning} onActionCompleted={loadPlannings} />
+                            ))}
+                        </div>
                     </div>
                 ) : (
                     <EmptyJumbotron 

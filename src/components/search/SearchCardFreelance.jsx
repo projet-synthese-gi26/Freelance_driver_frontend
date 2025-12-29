@@ -3,12 +3,10 @@ import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-hot-toast';
-import { v4 as uuidv4 } from 'uuid';
 
 import {
   CalendarIcon,
   ChatBubbleLeftRightIcon,
-  MapPinIcon,
   ChevronRightIcon
 } from '@heroicons/react/24/outline';
 import { StarIcon } from '@heroicons/react/24/solid';
@@ -16,7 +14,7 @@ import { StarIcon } from '@heroicons/react/24/solid';
 import { planningService } from '@/service/planningService';
 import { sessionService } from '@/service/sessionService';
 
-// Le composant accepte maintenant la prop 'planning' au lieu de 'driverData' & 'vehicleData'
+// Le composant accepte la prop 'planning'
 const SearchCardFreelance = ({ planning, onActionCompleted }) => {
     const router = useRouter();
     const [isLoadingBooking, setIsLoadingBooking] = useState(false);
@@ -45,19 +43,17 @@ const SearchCardFreelance = ({ planning, onActionCompleted }) => {
             if (onActionCompleted) onActionCompleted();
         } catch (error) {
             console.error("Erreur réservation:", error);
-            toast.error(error.response?.data?.message || "Échec de la demande.");
+            const errorMessage = error.response?.data?.message || "Échec de la demande.";
+            toast.error(errorMessage);
         } finally {
             setIsLoadingBooking(false);
         }
     };
     
+    // --- CORRECTION DE LA REDIRECTION ---
     const goToDriverDetails = () => {
-        // Encodage pour la sécurité de l'URL
-        const profileId = encodeURIComponent(planning.authorId);
-        const planningId = encodeURIComponent(planning.id);
-        
-        // Similaire au mobile, on passe l'ID du chauffeur et du planning
-        router.push(`/freelance-profile?driverId=${profileId}&planningId=${planningId}`);
+        // Redirige vers la page de profil dynamique en utilisant l'ID du chauffeur
+        router.push(`/freelance-profile/${planning.authorId}`);
     };
 
     const renderActionButtonOrStatus = () => {
@@ -91,20 +87,23 @@ const SearchCardFreelance = ({ planning, onActionCompleted }) => {
         );
     };
 
+    const imageUrl = planning.authorImageUrl || "/img/default-avatar.jpeg";
+    const authorName = planning.authorName || "Chauffeur";
+
     return (
         <div className="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden hover:shadow-lg transition-shadow">
             {/* Header */}
             <div className="flex items-center p-3 sm:p-4 bg-blue-50/50 border-b border-blue-100">
                 <div className="relative w-11 h-11 sm:w-12 sm:h-12 mr-3 sm:mr-4 flex-shrink-0">
                     <Image 
-                        src={planning.authorImageUrl || "/img/default-avatar.jpeg"} 
-                        alt={planning.authorName} 
+                        src={imageUrl} 
+                        alt={authorName} 
                         fill
                         className="rounded-full object-cover border-2 border-white shadow-sm"
                     />
                 </div>
                 <div className="flex-1 min-w-0">
-                    <h3 className="font-bold text-gray-800 text-base sm:text-lg truncate">{planning.authorName}</h3>
+                    <h3 className="font-bold text-gray-800 text-base sm:text-lg truncate">{authorName}</h3>
                     <p className="text-xs sm:text-sm text-gray-500 truncate">{planning.title}</p>
                 </div>
                 <button 
