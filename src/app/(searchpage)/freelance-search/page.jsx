@@ -1,14 +1,17 @@
 "use client"
 import React, {useEffect, useRef, useState} from 'react';
-//import Select from 'react-select';
 import Select from '@/components/general/CustomSelect';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import { useSearchParams} from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import SearchResult from "@/components/search/SearchResultSection";
 import { faLocationCrosshairs } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {createAutocomplete} from "@/scripts/autocomplete"
+import { createAutocomplete } from "@/scripts/autocomplete"
+import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
+
+// --- IMPORT DU SERVICE ---
+import { driverSearchService } from '@/service/driverSearchService';
 
 import {
     meetingPointOptions,
@@ -19,9 +22,6 @@ import {
     pricingMethod,
     languageOptions,
 } from "@/data/Structure";
-import {MagnifyingGlassIcon} from "@heroicons/react/24/outline";
-
-
 
 const Search = () => {
     const searchParams = useSearchParams();
@@ -30,9 +30,15 @@ const Search = () => {
     const locationRef = useRef(null);
     const destinationRef = useRef(null);
     const currentDate = new Date();
-    const [serverCurrentDate, setServerCurrentDate] = useState(new Date());
+    
+    // --- ÉTATS ---
+    const [searchResults, setSearchResults] =  useState([]); // Ancienne variable (peut être supprimée si apiResults remplace tout)
+    
+    // NOUVEL ÉTAT POUR LES RÉSULTATS API
+    const [apiResults, setApiResults] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState(null);
 
-    const [searchResults, setSearchResults] =  useState([]);
     const [location, setLocation] = useState(locationBase || '');
     const [destination, setDestination] = useState(destinationBase || '');
     const [iconsLoaded, setIconsLoaded] = useState(false);
@@ -53,6 +59,30 @@ const Search = () => {
         averageRating:'',
         pricingMethod:''
     });
+
+    // --- CHARGEMENT DES DONNÉES API AU MONTAGE ---
+    useEffect(() => {
+        const fetchDrivers = async () => {
+            setIsLoading(true);
+            setError(null);
+            try {
+                console.log("Chargement des conducteurs depuis l'API...");
+                const data = await driverSearchService.getAvailableDrivers();
+                setApiResults(data);
+                // Si vous voulez aussi mettre à jour l'ancien état
+                setSearchResults(data); 
+            } catch (err) {
+                console.error("Erreur chargement conducteurs:", err);
+                setError("Impossible de charger les conducteurs disponibles.");
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchDrivers();
+    }, []);
+
+    // --- AUTOCOMPLETE (Inchangé) ---
     useEffect(() => {
         const locationAutocomplete = createAutocomplete('location', (selectedValue) => {
             setLocation(selectedValue);
@@ -61,13 +91,9 @@ const Search = () => {
             setDestination(selectedValue);
         });
 
-        // Set a small timeout to ensure icons are loaded
         const timer = setTimeout(() =>{
             setIconsLoaded(true);
-
         }, 100);
-
-
 
         return () => {
             clearTimeout(timer);
@@ -82,23 +108,31 @@ const Search = () => {
     };
 
 
-    const handleSearch = (e) => {
+    const handleSearch = async (e) => {
         e.preventDefault();
 
         const searchData = {...formData};
-        searchData["experience"]=Number(searchData["experience"]);
+        searchData["experience"] = Number(searchData["experience"]);
         ['startDate', 'endDate', 'startTime', 'endTime'].forEach(key => {
             if (searchData[key] instanceof Date) {
                 searchData[key] = searchData[key].toISOString();
             }
         });
 
+        console.log("Données de recherche:", searchData);
 
-        const fakeSearchResults = [""];
-        setSearchResults(fakeSearchResults);
-
-        console.log("Search Data:", searchData);
-        // Ici, vous pouvez envoyer searchData à votre API ou effectuer d'autres actions
+        // ICI : Vous pouvez appeler l'API avec des filtres si le backend le supporte
+        // Pour l'instant, on recharge juste la liste complète
+        setIsLoading(true);
+        try {
+            const data = await driverSearchService.getAvailableDrivers();
+            // TODO: Appliquer un filtrage côté client ici si l'API renvoie tout
+            setApiResults(data);
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     const isToday = (date) => {
@@ -136,6 +170,7 @@ const Search = () => {
                 <form onSubmit={handleSearch} className="mb-8">
                     <div className="flex flex-wrap gap-2 lg:{flex flex-wrap gap-1}">
                         <div className="relative flex-auto w-full md:w-[30%] xl:w-[30%] h-max">
+                            {/* ... (Bloc de champs de formulaire inchangé) ... */}
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-2">
                                 <div className="relative auto-search-wrapper w-full lg:w-3/4">
                                     <input
@@ -180,7 +215,7 @@ const Search = () => {
                                     placeholder="Driver type"
                                     className="react-select-container"
                                     classNamePrefix="react-select"
-                                    maxMenuHeight={180} // Hauteur pour environ 3 éléments
+                                    maxMenuHeight={180}
                                     onChange={(selectedOption) => handleInputChange('driverType', selectedOption?.value)}
                                 />
 
@@ -189,7 +224,7 @@ const Search = () => {
                                     placeholder="Payment Method"
                                     className="react-select-container"
                                     classNamePrefix="react-select"
-                                    maxMenuHeight={180} // Hauteur pour environ 3 éléments
+                                    maxMenuHeight={180}
                                     onChange={(selectedOption) => handleInputChange('driverType', selectedOption?.value)}
                                 />
 
@@ -198,7 +233,7 @@ const Search = () => {
                                     placeholder="Trip type"
                                     className="react-select-container"
                                     classNamePrefix="react-select"
-                                    maxMenuHeight={180} // Hauteur pour environ 3 éléments
+                                    maxMenuHeight={180}
                                     onChange={(selectedOption) => handleInputChange('tripType', selectedOption?.value)}
                                 />
 
@@ -207,7 +242,7 @@ const Search = () => {
                                     placeholder="Select meetup point"
                                     className="react-select-container"
                                     classNamePrefix="react-select"
-                                    maxMenuHeight={180} // Hauteur pour environ 3 éléments
+                                    maxMenuHeight={180}
                                     onChange={(selectedOption) => handleInputChange('meetupPoint', selectedOption?.value)}
                                 />
                             </div>
@@ -276,7 +311,7 @@ const Search = () => {
                                     placeholder="Preferred language"
                                     className="react-select-container"
                                     classNamePrefix="react-select"
-                                    maxMenuHeight={180} // Hauteur pour environ 3 éléments
+                                    maxMenuHeight={180}
                                     onChange={(selectedOption) => handleInputChange('preferredLanguage', selectedOption?.value)}
                                 />
                                 <Select
@@ -284,13 +319,13 @@ const Search = () => {
                                     placeholder="Trip intention"
                                     className="react-select-container"
                                     classNamePrefix="react-select"
-                                    maxMenuHeight={180} // Hauteur pour environ 3 éléments
+                                    maxMenuHeight={180}
                                     onChange={(selectedOption) => handleInputChange('tripIntention', selectedOption?.value)}
                                 />
                             </div>
                             <div className="flex justify-between items-center">
                                 <button
-                                    type="button"  // Ajout de cette ligne
+                                    type="button"
                                     onClick={() => setShowAdvanced(!showAdvanced)}
                                     className="text-blue-600 hover:text-blue-800"
                                 >
@@ -311,7 +346,7 @@ const Search = () => {
                                         placeholder="Average rating"
                                         className="react-select-container"
                                         classNamePrefix="react-select"
-                                        maxMenuHeight={180} // Hauteur pour environ 3 éléments
+                                        maxMenuHeight={180}
                                         onChange={(selectedOption) => handleInputChange('averageRating', selectedOption?.value)}
                                     />
                                     <Select
@@ -319,7 +354,7 @@ const Search = () => {
                                         placeholder="Pricing method"
                                         className="react-select-container"
                                         classNamePrefix="react-select"
-                                        maxMenuHeight={180} // Hauteur pour environ 3 éléments
+                                        maxMenuHeight={180}
                                         onChange={(selectedOption) => handleInputChange('pricingMethod', selectedOption?.value)}
                                     />
                                 </div>
@@ -328,7 +363,6 @@ const Search = () => {
                             <div className="w-full flex justify-end">
                                 <button type="submit"
                                         className="bg-black text-white px-2 py-2 sm:px-4  sm:py-2 rounded-md hover:bg-gray-800 flex items-center justify-center text w-full sm:w-auto">
-
                                     Find a driver
                                 </button>
                             </div>
@@ -336,15 +370,22 @@ const Search = () => {
                     </div>
                 </form>
 
-                {searchResults.length > 0 &&
-                    <SearchResult results={searchResults}/>
-                }
+                {/* --- AFFICHAGE DES RÉSULTATS --- */}
+                {isLoading ? (
+                    <div className="text-center py-20">
+                         <p className="text-gray-500 text-xl font-medium">Chargement des conducteurs...</p>
+                    </div>
+                ) : error ? (
+                    <div className="text-center py-20">
+                         <p className="text-red-500">{error}</p>
+                    </div>
+                ) : (
+                    // On passe apiResults à SearchResult via la prop 'results'
+                    <SearchResult results={apiResults}/>
+                )}
             </div>
 
-            <div className="lg:mb-[15rem]">
-
-            </div>
-
+            <div className="lg:mb-[15rem]"></div>
 
             <style jsx global>{`
                 @import "/styles/css/autocomplete.css";

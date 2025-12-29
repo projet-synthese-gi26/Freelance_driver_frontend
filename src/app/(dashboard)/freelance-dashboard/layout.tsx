@@ -7,6 +7,8 @@ import portofolio from "@public/img/cv.png"
 import support from "@public/img/support.png"
 import { toast } from 'react-hot-toast';
 import {orders} from '@/data/Structure'
+// AJOUT DE L'IMPORT DU SERVICE DE SESSION
+import { sessionService } from "@/service/sessionService";
 
 import {
   CheckIcon,
@@ -56,6 +58,24 @@ export default function RootLayout({
     setNavOpen(!navOpen);
   };
 
+  // --- NOUVELLE FONCTION DE DÉCONNEXION ---
+  const handleLogout = () => {
+    try {
+      // 1. Nettoyer les cookies et le localStorage
+      sessionService.clearUserData();
+      
+      // 2. Feedback utilisateur
+      toast.success("Déconnexion réussie");
+      
+      // 3. Redirection vers la page de connexion
+      router.replace('/auth/signin');
+    } catch (error) {
+      console.error("Erreur lors de la déconnexion", error);
+      // Force la redirection même en cas d'erreur
+      router.replace('/auth/signin');
+    }
+  };
+
   const NavItems = useMemo(() => [
     {link:'/freelance-dashboard',title:'Personal Info',icon:UserCircleIcon},
     {link:'/freelance-dashboard/security',title:'Security',icon:ShieldCheckIcon},
@@ -95,6 +115,13 @@ export default function RootLayout({
   ], []);
 
   const toggleSubMenu = useCallback((navItem: any) => {
+    // --- MODIFICATION ICI POUR INTERCEPTER LE LOGOUT ---
+    if (navItem.title === 'Log out') {
+      handleLogout();
+      return;
+    }
+    // ---------------------------------------------------
+
     if (navItem.subItems) {
       setOpenSubMenu(prevOpenSubMenu => 
         prevOpenSubMenu === navItem.title ? null : navItem.title
@@ -104,9 +131,12 @@ export default function RootLayout({
       }
     } else {
       setOpenSubMenu(null);
-      router.push(navItem.link);
+      if (navItem.link && navItem.link !== '#') {
+        router.push(navItem.link);
+      }
     }
   }, [openSubMenu, router]);
+
   const inputFileRef = useRef<HTMLInputElement>(null);
   const handlePencilClick = () => {
     if (inputFileRef.current) {
@@ -115,7 +145,7 @@ export default function RootLayout({
   };
 
   const isActive = useCallback((navItem: any) => {
-    if (navItem.link) {
+    if (navItem.link && navItem.link !== '#') {
       return path === navItem.link;
     }
     if (navItem.subItems) {

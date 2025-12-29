@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 
-const FinalStep = ({ formData, handleInputChange, calculateCost, prevStep }) => {
+// Ajout de onSubmit et isSubmitting dans les props
+const FinalStep = ({ formData, handleInputChange, calculateCost, prevStep, onSubmit, isSubmitting }) => {
     const cost = calculateCost();
 
     return (
@@ -11,13 +12,26 @@ const FinalStep = ({ formData, handleInputChange, calculateCost, prevStep }) => 
             exit={{ opacity: 0, x: -50 }}
         >
             <h2 className="title font-bold mb-4">Review and Submit</h2>
-            {/* Display a summary of the form data here */}
             <div className="mb-4">
                 <strong>Estimated Cost:</strong> {cost} {formData.currency}
             </div>
+            
             <div className="flex justify-between mt-4">
-                <button onClick={prevStep} className="bg-gray-300 px-4 py-2 rounded">Previous</button>
-                <button onClick={() => alert('Form submitted!')} className="bg-green-500 text-white px-4 py-2 rounded">Submit</button>
+                <button 
+                    onClick={prevStep} 
+                    className="bg-gray-300 px-4 py-2 rounded"
+                    disabled={isSubmitting}
+                >
+                    Previous
+                </button>
+                <button 
+                    // Modification ici pour appeler onSubmit
+                    onClick={onSubmit} 
+                    className="bg-green-500 text-white px-4 py-2 rounded flex items-center"
+                    disabled={isSubmitting}
+                >
+                    {isSubmitting ? 'Sending...' : 'Submit'}
+                </button>
             </div>
         </motion.div>
     );

@@ -7,7 +7,6 @@ import { authService } from "@/service/authService";
 import { EyePassword, NoEyePassword } from "@/components/icon/passwordIcon";
 import { RegistrationRequest } from "@/type/auth";
 
-// Liste simplifiée des codes pays
 const countryCodes = [
   { label: 'CM (+237)', value: '+237' },
   { label: 'FR (+33)', value: '+33' },
@@ -18,7 +17,7 @@ export default function RegisterForm({ onSignInClick }: { onSignInClick: () => v
     const router = useRouter();
     const [loading, setLoading] = useState(false);
     
-    // États du formulaire de base
+    // États du formulaire (Seulement les informations de base)
     const [role, setRole] = useState<'driver' | 'client'>('driver');
     const [firstName, setFirstName] = useState("");
     const [lastName, setLastName] = useState("");
@@ -27,12 +26,6 @@ export default function RegisterForm({ onSignInClick }: { onSignInClick: () => v
     const [confirmPassword, setConfirmPassword] = useState("");
     const [countryCode, setCountryCode] = useState(countryCodes[0].value);
     const [localPhone, setLocalPhone] = useState("");
-
-    // États supplémentaires (Pour éviter le crash Java NullPointerException)
-    const [companyName, setCompanyName] = useState("");
-    const [companyDescription, setCompanyDescription] = useState("");
-    const [licenseNumber, setLicenseNumber] = useState("");
-    const [vehicleDetails, setVehicleDetails] = useState("");
     
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirm, setShowConfirm] = useState(false);
@@ -49,25 +42,15 @@ export default function RegisterForm({ onSignInClick }: { onSignInClick: () => v
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         
-        // Validation des champs de base
+        // Validation simple
         if (!firstName || !lastName || !email || !password || !localPhone) {
-            toast.error("Please fill all basic fields");
+            toast.error("Please fill all fields");
             return;
         }
-
-        // Validation spécifique au Chauffeur
-        if (role === 'driver') {
-            if (!licenseNumber || !vehicleDetails) {
-                toast.error("License number and vehicle details are required for drivers");
-                return;
-            }
-        }
-
         if (password !== confirmPassword) {
             toast.error("Passwords do not match");
             return;
         }
-        
         const pwdError = checkPasswordStrength(password);
         if (pwdError) {
             toast.error(pwdError);
@@ -77,9 +60,9 @@ export default function RegisterForm({ onSignInClick }: { onSignInClick: () => v
         setLoading(true);
         const fullPhone = `${countryCode}${localPhone.trim()}`;
 
-        // CORRECTION MAJEURE ICI :
-        // On s'assure d'envoyer des chaînes vides ("") et non null/undefined
-        // pour éviter le crash backend (NullPointerException sur .trim())
+        // --- C'EST ICI QUE LA MAGIE OPÈRE (Comme sur le Mobile) ---
+        // On prépare les données cachées pour satisfaire le backend Java
+        // et éviter le NullPointerException
         const requestData: RegistrationRequest = {
             username: email.trim(),
             email: email.trim(),
@@ -88,17 +71,22 @@ export default function RegisterForm({ onSignInClick }: { onSignInClick: () => v
             lastName: lastName.trim(),
             phoneNumber: fullPhone,
             role: role,
-            // Champs optionnels ou spécifiques envoyés comme "" s'ils sont vides
-            companyName: companyName.trim() || "",
-            companyDescription: companyDescription.trim() || "",
-            licenseNumber: licenseNumber.trim() || "",
-            vehicleDetails: vehicleDetails.trim() || ""
+            
+            // VALEURS PAR DÉFAUT (Pour éviter le crash Backend)
+            // On envoie des chaînes vides ("") au lieu de null/undefined
+            licenseNumber: "", 
+            vehicleDetails: "",
+            // On génère un nom d'entreprise par défaut comme sur le mobile
+            companyName: `${firstName.trim()} ${lastName.trim()}'s Business`,
+            companyDescription: `Freelance ${role} services.`
         };
 
         try {
+            console.log("Sending payload:", requestData); // Debug
+            
             await authService.registerInit(requestData);
             
-            // Stockage temporaire sécurisé pour la page OTP
+            // On stocke les données complètes (y compris les champs cachés) pour l'étape OTP
             if (typeof window !== 'undefined') {
                 sessionStorage.setItem('temp_registration_data', JSON.stringify(requestData));
             }
@@ -107,7 +95,7 @@ export default function RegisterForm({ onSignInClick }: { onSignInClick: () => v
             router.push('/auth/otp');
 
         } catch (error: any) {
-            console.error("Registration Error:", error);
+            console.error(error);
             const msg = error.response?.data?.message || "Registration failed";
             toast.error(msg);
         } finally {
@@ -140,7 +128,6 @@ export default function RegisterForm({ onSignInClick }: { onSignInClick: () => v
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4">
-                {/* --- Informations Personnelles --- */}
                 <div className="grid grid-cols-2 gap-4">
                     <input className="input-field" placeholder="First Name" value={firstName} onChange={e => setFirstName(e.target.value)} />
                     <input className="input-field" placeholder="Last Name" value={lastName} onChange={e => setLastName(e.target.value)} />
@@ -149,75 +136,22 @@ export default function RegisterForm({ onSignInClick }: { onSignInClick: () => v
                 <input className="input-field w-full" type="email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} />
                 
                 <div className="flex gap-2">
-                    <select className="input-field w-1/3" value={countryCode} onChange={e => setCountryCode(e.target.value)}>
+                    <select className="input-field w-1/3 bg-white" value={countryCode} onChange={e => setCountryCode(e.target.value)}>
                         {countryCodes.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
                     </select>
                     <input className="input-field w-2/3" type="tel" placeholder="Phone Number" value={localPhone} onChange={e => setLocalPhone(e.target.value)} />
                 </div>
 
-                {/* --- Informations Spécifiques Chauffeur --- */}
-                {role === 'driver' && (
-                    <div className="p-4 bg-blue-50 rounded-lg space-y-3 border border-blue-100">
-                        <h3 className="text-sm font-semibold text-blue-800 mb-2">Driver Details</h3>
-                        <div className="grid grid-cols-2 gap-4">
-                            <input 
-                                className="input-field" 
-                                placeholder="License Number" 
-                                value={licenseNumber} 
-                                onChange={e => setLicenseNumber(e.target.value)} 
-                            />
-                             <input 
-                                className="input-field" 
-                                placeholder="Vehicle (e.g. Toyota Corolla)" 
-                                value={vehicleDetails} 
-                                onChange={e => setVehicleDetails(e.target.value)} 
-                            />
-                        </div>
-                        <input 
-                            className="input-field w-full" 
-                            placeholder="Company Name (Optional)" 
-                            value={companyName} 
-                            onChange={e => setCompanyName(e.target.value)} 
-                        />
-                         <textarea 
-                            className="input-field w-full h-20 resize-none" 
-                            placeholder="Company Description (Optional)" 
-                            value={companyDescription} 
-                            onChange={e => setCompanyDescription(e.target.value)} 
-                        />
-                    </div>
-                )}
-
-                 {/* --- Informations Spécifiques Client (Optionnel) --- */}
-                 {role === 'client' && (
-                    <div className="p-4 bg-green-50 rounded-lg space-y-3 border border-green-100">
-                         <h3 className="text-sm font-semibold text-green-800 mb-2">Company Details (Optional)</h3>
-                         <input 
-                            className="input-field w-full" 
-                            placeholder="Company Name" 
-                            value={companyName} 
-                            onChange={e => setCompanyName(e.target.value)} 
-                        />
-                         <textarea 
-                            className="input-field w-full h-20 resize-none" 
-                            placeholder="Company Description" 
-                            value={companyDescription} 
-                            onChange={e => setCompanyDescription(e.target.value)} 
-                        />
-                    </div>
-                )}
-
-                {/* --- Mot de passe --- */}
-                <div className="relative pt-2">
+                <div className="relative">
                     <input className="input-field w-full" type={showPassword ? "text" : "password"} placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} />
-                    <button type="button" className="absolute right-3 top-5" onClick={() => setShowPassword(!showPassword)}>
+                    <button type="button" className="absolute right-3 top-3.5 text-gray-500" onClick={() => setShowPassword(!showPassword)}>
                         {showPassword ? <EyePassword/> : <NoEyePassword/>}
                     </button>
                 </div>
 
                 <div className="relative">
                     <input className="input-field w-full" type={showConfirm ? "text" : "password"} placeholder="Confirm Password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} />
-                    <button type="button" className="absolute right-3 top-3" onClick={() => setShowConfirm(!showConfirm)}>
+                    <button type="button" className="absolute right-3 top-3.5 text-gray-500" onClick={() => setShowConfirm(!showConfirm)}>
                         {showConfirm ? <EyePassword/> : <NoEyePassword/>}
                     </button>
                 </div>

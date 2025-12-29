@@ -4,7 +4,6 @@ import { useRouter } from 'next/navigation';
 import { toast } from 'react-hot-toast';
 import { authService } from '@/service/authService';
 import { RegistrationRequest } from '@/type/auth';
-// Assurez-vous que le chemin vers authContext est correct selon votre structure
 import { useAuthContext } from '@/components/context/authContext';
 
 export default function OTPPage() {
@@ -15,12 +14,10 @@ export default function OTPPage() {
     const [regData, setRegData] = useState<RegistrationRequest | null>(null);
 
     useEffect(() => {
-        // Récupération des données depuis le stockage temporaire (mis dans RegisterForm)
         const stored = sessionStorage.getItem('temp_registration_data');
         if (!stored) {
-            // Si pas de données, on renvoie vers l'inscription
             toast.error("Session expirée, veuillez vous réinscrire.");
-            router.push('/register');
+            router.push('/auth/register'); // Vérifie bien que c'est le bon chemin (/register ou /auth/register)
             return;
         }
         setRegData(JSON.parse(stored));
@@ -34,25 +31,40 @@ export default function OTPPage() {
 
         setLoading(true);
         try {
-            // Appel au service qui finalise l'inscription
-            await authService.finalizeOnboarding(regData, otp);
+            console.log("▶️ Envoi OTP pour validation...");
             
-            // Nettoyage des données temporaires
+            // 1. Appel Backend (Qui fonctionne déjà selon tes logs)
+            const response = await authService.finalizeOnboarding(regData, otp);
+            console.log("✅ Backend a répondu succès:", response);
+            
+            // 2. Nettoyage
             sessionStorage.removeItem('temp_registration_data');
             
-            // Mise à jour de l'état global de l'utilisateur (Context)
-            await checkAuth();
+            // 3. Mise à jour du contexte (Sécurisée pour ne pas bloquer la redirection)
+            try {
+                console.log("🔄 Tentative de mise à jour du contexte Auth...");
+                await checkAuth();
+                console.log("✅ Contexte mis à jour.");
+            } catch (authError) {
+                console.warn("⚠️ checkAuth a échoué (non critique car le token est là) :", authError);
+                // On ne throw pas ici, on continue la redirection
+            }
 
             toast.success("Compte vérifié avec succès !");
             
-            // Redirection selon le rôle choisi
+            // 4. Redirection
+            console.log(`🔀 Redirection pour le rôle: ${regData.role}`);
             if (regData.role === 'driver') {
                 router.push('/freelance-dashboard');
             } else {
                 router.push('/customer-dashboard');
             }
+
         } catch (error: any) {
-            const msg = error.response?.data?.message || "Échec de la vérification";
+            console.error("❌ ERREUR CRITIQUE FRONTEND :", error);
+            
+            // Affichage de l'erreur réelle
+            const msg = error.response?.data?.message || error.message || "Échec de la vérification";
             toast.error(msg);
         } finally {
             setLoading(false);

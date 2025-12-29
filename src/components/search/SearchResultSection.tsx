@@ -1,12 +1,9 @@
 "use client";
 import React, { useState, useMemo } from "react";
-// import Select from "react-select";
 import Select from "@/components/general/CustomSelect";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { carlistings } from "@/data/carlisting";
 import SearchCardFreelance from "@/components/search/SearchCardFreelance";
-
 
 import {
     paymentOptions,
@@ -18,24 +15,27 @@ import {
     languageOptions
 } from "@/data/Structure"
 
-
 type FilterState = {
     startDate: Date | null;
     endDate: Date | null;
     startTime: Date | null;
     endTime: Date | null;
     paymentType: string | null;
-    preferredLanguage:string | null;
+    preferredLanguage: string | null;
     experience: string | null;
     sortBy: string | null;
-    amenities: string[]; // tableau de chaînes de caractères
-    languages: string[]; // tableau de chaînes de caractères
+    amenities: string[];
+    languages: string[];
     referringBy: string | null;
     priceCategory: string | null;
 };
 
+// Interface pour les props du composant
+interface SearchResultProps {
+    results?: any[]; // Accepte les données de l'API
+}
 
-const SearchResult = () => {
+const SearchResult = ({ results = [] }: SearchResultProps) => {
     const [filters, setFilters] = useState<FilterState>({
         startDate: null,
         endDate: null,
@@ -43,10 +43,10 @@ const SearchResult = () => {
         endTime: null,
         paymentType: null,
         experience: null,
-        preferredLanguage:null,
+        preferredLanguage: null,
         sortBy: null,
-        amenities: [], // Initialisation comme tableau vide
-        languages: [], // Initialisation comme tableau vide
+        amenities: [],
+        languages: [],
         referringBy: null,
         priceCategory: null,
     });
@@ -70,13 +70,25 @@ const SearchResult = () => {
         return new Date(selectedDate?.getFullYear() || 0, selectedDate?.getMonth() || 0, selectedDate?.getDate() || 0, 0, 0);
     };
 
-
+    // Logique de filtrage adaptée aux données API
     const filteredListings = useMemo(() => {
-        return carlistings.filter(car => {
-            // Implement your filtering logic here
-            return true; // Placeholder
+        // Utilise les données passées en props (results)
+        const data = Array.isArray(results) ? results : [];
+
+        return data.filter(item => {
+            // Exemple de filtrage côté client sur la date
+            if (filters.startDate && item.startDate) {
+                const itemDate = new Date(item.startDate);
+                // Si la date du planning est avant la date filtrée, on rejette
+                if (itemDate < filters.startDate) return false;
+            }
+            
+            // Vous pouvez ajouter ici d'autres logiques de filtrage
+            // basées sur les champs de l'objet Planning (item.paymentOption, etc.)
+            
+            return true;
         });
-    }, [filters, carlistings]);
+    }, [filters, results]);
 
     const resetFilters = () => {
         setFilters({
@@ -86,7 +98,7 @@ const SearchResult = () => {
             endTime: null,
             paymentType: null,
             experience: null,
-            preferredLanguage:null,
+            preferredLanguage: null,
             sortBy: null,
             amenities: [],
             languages: [],
@@ -95,10 +107,10 @@ const SearchResult = () => {
         });
     };
 
-
     return (
         <div className="w-full text max-w-[1400px] mx-auto px-4 py-4">
             <div className="flex flex-col lg:flex-row gap-8">
+                {/* SECTION FILTRES (Gauche) */}
                 <div className="w-full lg:w-1/4">
                     <div className="bg-white rounded-2xl p-6">
                         <h4 className="font-bold mb-2 border-b ">Filter</h4>
@@ -161,7 +173,7 @@ const SearchResult = () => {
                                     options={paymentOptions}
                                     maxMenuHeight={150}
                                     value={paymentOptions.find(option => option.value === filters.paymentType)}
-                                    onChange={(selectedOption:any) => handleFilterChange('paymentType', selectedOption?.value)}
+                                    onChange={(selectedOption: any) => handleFilterChange('paymentType', selectedOption?.value)}
                                     className="react-select-container"
                                     classNamePrefix="react-select"
                                 />
@@ -173,7 +185,7 @@ const SearchResult = () => {
                                     options={experienceOptions}
                                     maxMenuHeight={80}
                                     value={experienceOptions.find(option => option.value === filters.experience)}
-                                    onChange={(selectedOption:any) => handleFilterChange('experience', selectedOption?.value)}
+                                    onChange={(selectedOption: any) => handleFilterChange('experience', selectedOption?.value)}
                                     className="react-select-container"
                                     classNamePrefix="react-select"
 
@@ -185,7 +197,7 @@ const SearchResult = () => {
                                 <Select
                                     options={sortOptions}
                                     value={sortOptions.find(option => option.value === filters.sortBy)}
-                                    onChange={(selectedOption:any) => handleFilterChange('sortBy', selectedOption?.value)}
+                                    onChange={(selectedOption: any) => handleFilterChange('sortBy', selectedOption?.value)}
                                     className="react-select-container"
                                     classNamePrefix="react-select"
                                 />
@@ -198,7 +210,7 @@ const SearchResult = () => {
                                     isMulti
                                     maxMenuHeight={100}
                                     value={amenitiesOptions.filter(option => filters.amenities.includes(option.value))}
-                                    onChange={(selectedOptions:any) => handleFilterChange('amenities', selectedOptions.map((option: { value: any; }) => option.value))}
+                                    onChange={(selectedOptions: any) => handleFilterChange('amenities', selectedOptions.map((option: { value: any; }) => option.value))}
                                     className="react-select-container"
                                     classNamePrefix="react-select"
                                 />
@@ -210,7 +222,7 @@ const SearchResult = () => {
                                     options={referringOptions}
                                     maxMenuHeight={150}
                                     value={referringOptions.find(option => option.value === filters.referringBy)}
-                                    onChange={(selectedOption:any) => handleFilterChange('referringBy', selectedOption?.value)}
+                                    onChange={(selectedOption: any) => handleFilterChange('referringBy', selectedOption?.value)}
                                     className="react-select-container"
                                     classNamePrefix="react-select"
                                 />
@@ -222,7 +234,7 @@ const SearchResult = () => {
                                     options={priceCategoryOptions}
                                     maxMenuHeight={150}
                                     value={priceCategoryOptions.find(option => option.value === filters.priceCategory)}
-                                    onChange={(selectedOption:any) => handleFilterChange('priceCategory', selectedOption?.value)}
+                                    onChange={(selectedOption: any) => handleFilterChange('priceCategory', selectedOption?.value)}
                                     className="react-select-container"
                                     classNamePrefix="react-select"
                                 />
@@ -235,12 +247,10 @@ const SearchResult = () => {
                                     placeholder="Preferred language"
                                     className="react-select-container"
                                     classNamePrefix="react-select"
-                                    maxMenuHeight={180} // Hauteur pour environ 3 éléments
-                                    onChange={(selectedOption:any) => handleFilterChange('preferredLanguage', selectedOption?.value)}
+                                    maxMenuHeight={180}
+                                    onChange={(selectedOption: any) => handleFilterChange('preferredLanguage', selectedOption?.value)}
                                 />
                             </div>
-
-
                         </div>
 
                         <button
@@ -252,23 +262,54 @@ const SearchResult = () => {
                     </div>
                 </div>
 
+                {/* SECTION RESULTATS (Droite) */}
                 <div className="w-full lg:w-3/4">
                     <div className="bg-white rounded-lg py-4 px-6 shadow-lg mb-6">
-
                         <div className="flex justify-between items-center">
-                            <p className=" font-bold">Search results</p>
+                            <p className="font-bold">Search results</p>
                             <p className="font-bold">{filteredListings.length}</p>
                         </div>
                     </div>
 
                     <div className="space-y-6">
-                        {filteredListings.map((carListing) => (
-                            // <div key={carListing.id} className="bg-white rounded-lg shadow-lg p-6 transition-transform hover:scale-105">
-                            <div key={carListing.driverData.driver_id}
-                                 className="bg-white rounded-lg ">
-                                <SearchCardFreelance {...carListing} />
-                            </div>
+                        {filteredListings.map((item) => (
+                            <SearchCardFreelance
+                                key={item.id}
+                                // MAPPING DES DONNÉES DE L'API VERS LE FORMAT DU COMPOSANT
+                                driverData={{
+                                    driver_id: item.clientId || item.id,
+                                    // Utilisation de clientName ou concatenation si nom/prénom dispo
+                                    driver_first_name: item.clientName || item.authorName || 'Chauffeur',
+                                    driver_last_name: '', 
+                                    // Avatar ou image par défaut
+                                    driver_profile_image: item.profileImageUrl || item.authorImageUrl || '/img/default-avatar.jpeg',
+                                    driverLocation: item.pickupLocation,
+                                    driver_email: '', // Donnée sensible souvent masquée
+                                    driver_phone_number: item.clientPhoneNumber || item.authorPhoneNumber || 'N/A',
+                                    // Champs par défaut pour les tableaux s'ils manquent dans l'objet API
+                                    driver_experiences: [],
+                                    driver_languages: [],
+                                    driver_specialities: [],
+                                    driver_keywords: [],
+                                    // Mock des stats si non fournies
+                                    driver_statistics: { average_rating: 4.5, review_total_number: 0 }
+                                }}
+                                vehicleData={{
+                                    // Valeurs par défaut car le planning API ne contient pas tous les détails techniques du véhicule
+                                    total_seat_number: 4,
+                                    luggage_max_capacity: 0,
+                                    mileage_at_mileage_since_commissioning: 0,
+                                    fuel_type_name: 'Standard',
+                                    transmission_type_name: 'Manuelle'
+                                }}
+                            />
                         ))}
+
+                        {filteredListings.length === 0 && (
+                            <div className="text-center p-10 bg-white rounded-lg">
+                                <p className="text-gray-500">Aucun résultat ne correspond à votre recherche.</p>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
