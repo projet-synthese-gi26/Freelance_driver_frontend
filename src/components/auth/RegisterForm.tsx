@@ -1,267 +1,162 @@
-
-
-import React, { useState, ChangeEvent, FormEvent, MouseEvent } from "react";
-import dynamic from 'next/dynamic';
-import LoginButtons from "@/components/auth/LoginButtons";
-import ErrorTooltip from "@/components/auth/ErrorTooltip";
+// src/components/auth/RegisterForm.tsx
+"use client";
+import React, { useState } from "react";
+import { useRouter } from "next/navigation";
+import { toast } from "react-hot-toast";
+import { authService } from "@/service/authService";
 import { EyePassword, NoEyePassword } from "@/components/icon/passwordIcon";
-import SuccessOverlay from "@/components/auth/SuccessOverlay";
-import {register} from "@/app/api/auth/register";
-import {toast} from "react-hot-toast";
-import {createUserData} from "@/app/api/auth/db";
-import validatePassword from "@/components/auth/passwordUtil";
+import { RegistrationRequest } from "@/type/auth";
 
+// Liste simplifiée des codes pays
+const countryCodes = [
+  { label: 'CM (+237)', value: '+237' },
+  { label: 'FR (+33)', value: '+33' },
+  { label: 'US (+1)', value: '+1' },
+];
 
-const PhoneInput = dynamic(() => import('react-phone-input-2'), { ssr: false });
+export default function RegisterForm({ onSignInClick }: { onSignInClick: () => void }) {
+    const router = useRouter();
+    const [loading, setLoading] = useState(false);
+    
+    // États du formulaire
+    const [role, setRole] = useState<'driver' | 'client'>('driver');
+    const [firstName, setFirstName] = useState("");
+    const [lastName, setLastName] = useState("");
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [confirmPassword, setConfirmPassword] = useState("");
+    const [countryCode, setCountryCode] = useState(countryCodes[0].value);
+    const [localPhone, setLocalPhone] = useState("");
+    
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirm, setShowConfirm] = useState(false);
 
-interface FormData {
-    phoneNumber: string;
-    email: string;
-    password: string;
-    confirmPassword: string;
-    isSelected: boolean;
-}
-
-
-interface RegisterFormProps {
-    onSignInClick: (callback: () => void) => void;
-
-}
-
-export default function RegisterForm({onSignInClick}:RegisterFormProps) {
-    const [formData, setFormData] = useState<FormData>({
-        phoneNumber: "",
-        email: "",
-        password: "",
-        confirmPassword: "",
-        isSelected: false
-    });
-    const { phoneNumber, email, password, confirmPassword, isSelected } = formData;
-    const [error, setError] = useState<string | null>(null);
-    const [isLoading, setIsLoading] = useState<boolean>(false);
-    const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-    const [passwordTouched, setPasswordTouched] = useState<boolean>(false);
-    const [showPassword, setShowPassword] = useState<boolean>(false);
-    const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false);
-    const [Success, setSuccess] = useState<boolean>(false);
-
-
-    const handleSuccess = () => {
-        setSuccess(true);
+    // Validation Mot de passe (identique mobile)
+    const checkPasswordStrength = (pwd: string) => {
+        if (pwd.length < 8) return "Password too short (min 8 chars)";
+        if (!/[A-Z]/.test(pwd)) return "Missing uppercase letter";
+        if (!/[a-z]/.test(pwd)) return "Missing lowercase letter";
+        if (!/[0-9]/.test(pwd)) return "Missing number";
+        return null;
     };
 
-    const togglePasswordVisibility = (field: 'password' | 'confirmPassword') => {
-        if (field === 'password') {
-            setShowPassword(!showPassword);
-        } else if (field === 'confirmPassword') {
-            setShowConfirmPassword(!showConfirmPassword);
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        
+        // Validation
+        if (!firstName || !lastName || !email || !password || !localPhone) {
+            toast.error("Please fill all fields");
+            return;
         }
-    };
-
-    const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
-        setFormData({ ...formData, [event.target.name]: event.target.value });
-        if (event.target.name === 'confirmPassword') {
-            setPasswordTouched(true);
+        if (password !== confirmPassword) {
+            toast.error("Passwords do not match");
+            return;
         }
-    };
+        const pwdError = checkPasswordStrength(password);
+        if (pwdError) {
+            toast.error(pwdError);
+            return;
+        }
 
-    const validateForm = (): boolean => {
-        if (!phoneNumber || !email || !password || !confirmPassword) {
-           // setError("Please fill in all fields.");
-            toast.error("Please fill in all fields.");
+        setLoading(true);
+        const fullPhone = `${countryCode}${localPhone.trim()}`;
 
-            const {    isValid, message}=validatePassword(password );
-            if(!isValid) {
-                toast.error(message);
+        const requestData: RegistrationRequest = {
+            username: email.trim(),
+            email: email.trim(),
+            password: password,
+            firstName: firstName.trim(),
+            lastName: lastName.trim(),
+            phoneNumber: fullPhone,
+            role: role
+        };
+
+        try {
+            await authService.registerInit(requestData);
+            
+            // Stockage temporaire sécurisé pour la page OTP
+            if (typeof window !== 'undefined') {
+                sessionStorage.setItem('temp_registration_data', JSON.stringify(requestData));
             }
+            
+            toast.success("Verification code sent to your email!");
+            router.push('/auth/otp'); // Redirection vers la page OTP
 
-            return false;
+        } catch (error: any) {
+            const msg = error.response?.data?.message || "Registration failed";
+            toast.error(msg);
+        } finally {
+            setLoading(false);
         }
-        return true;
-    };
-
-
-     const createUser=async (
-        collectionName: string,
-        userId: string,
-        userData: object
-    )=>{
-
-         const {error}=await createUserData(collectionName,userId,userData);
-
-         if(error) {
-             setIsLoading(false);
-             toast.error(error.message);
-             return;
-
-         }
-
-         setIsLoading(false);
-         handleSuccess();
-         resetForm();
-
-    }
-
-    const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
-        if (!validateForm()) {
-            return;
-        }
-
-        setIsLoading(true);
-        setError(null);
-
-        const formatPh = "+" + formData.phoneNumber.replace(/\D/g, '');
-        const {data,error}=await register(email,formatPh, password,isSelected);
-
-        if(error) {
-            setIsLoading(false);
-            toast.error(error.message);
-            return;
-
-        }
-        const userData= {
-
-            user_id: data.uid,
-            user_email: data.email,
-            email_verified:data.emailVerified,
-            // phone_number:data.phoneNumber,
-            phone_number:formatPh,
-            created_at:new Date().toString(),
-            registration_date:new Date().toString(),
-            is_selected: isSelected,
-            user_type: ["customer"],
-        }
-        await createUser("users", data.uid, userData);
-
-    };
-
-    const resetForm = () => {
-        setFormData({ password: "", confirmPassword: "", phoneNumber:"", email: "", isSelected: false });
-        setError(null);
-        setShowPassword(false);
     };
 
     return (
-        <div className="flex flex-col items-center">
-            <div className="w-full max-w-sm mx-auto">
-                <LoginButtons />
-                <div className="my-4 border-b text-center">
-                    <div className="leading-none px-2 inline-block text-sm text-gray-600 tracking-wide font-medium bg-white transform translate-y-1/2">
-                        Or with email
-                    </div>
-                </div>
-
-                <form onSubmit={handleSubmit} className="space-y-4">
-                    <PhoneInput
-                        country={'cm'}
-                        value={formData.phoneNumber}
-                        onChange={(phoneNumber: string) => setFormData({ ...formData, phoneNumber })}
-                        inputProps={{
-                            name: 'phoneNumber',
-                            required: true,
-                            className: 'w-full pl-14 pr-3 py-2.5 text rounded-md border focus:outline-none focus:ring-2 focus:ring-indigo-500'
-                        }}
-                        containerClass="relative"
-                        buttonClass="absolute left-0 top-0 bottom-0 flex items-center justify-center px-3 border-r"
-                        dropdownClass="absolute left-0 z-50 bg-white shadow-lg rounded-md mt-1 max-h-60 overflow-y-auto"
-                    />
-                    <input
-                        className="w-full px-3 py-2 text rounded-md border focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                        type="email"
-                        name="email"
-                        placeholder="Email"
-                        value={email}
-                        onChange={handleChange}
-                        required
-                    />
-                    <div className="relative">
-                        <input
-                            className="w-full px-3 py-2 pr-10 rounded-md border text focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                            type={showPassword ? "text" : "password"}
-                            name="password"
-                            placeholder="Password"
-                            value={password}
-                            onChange={handleChange}
-                            required
-                        />
-                        <button
-                            type="button"
-                            className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                            onClick={() => togglePasswordVisibility('password')}
-                        >
-                            {!showPassword || !showConfirmPassword ? <NoEyePassword /> : <EyePassword />}
-                        </button>
-                    </div>
-                    <div className="relative">
-                        <input
-                            className="w-full px-3 py-2 pr-10 rounded-md border text focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                            type={showConfirmPassword ? "text" : "password"}
-                            name="confirmPassword"
-                            placeholder="Confirm password"
-                            value={confirmPassword}
-                            onChange={handleChange}
-                            required
-                        />
-                        <button
-                            type="button"
-                            className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                            onClick={() => togglePasswordVisibility('confirmPassword')}
-                        >
-                            {!showConfirmPassword || !showPassword ? <NoEyePassword /> : <EyePassword />}
-                        </button>
-                    </div>
-                    {passwordTouched && password !== confirmPassword && (
-                        <p className="text text-red-500">{"Passwords do not match"}</p>
-                    )}
-                    <label className="flex items-center">
-                        <input
-                            type="checkbox"
-                            className="form-checkbox h-4 w-4 text text-indigo-600 transition duration-150 ease-in-out"
-                            name="isSelected"
-                            onChange={(e: ChangeEvent<HTMLInputElement>) => setFormData({
-                                ...formData,
-                                isSelected: e.target.checked
-                            })}
-                            required
-                        />
-                        <span className="ml-2 text text-gray-600">
-                            By creating account means you agree to the
-                            <a href="#0" className="text-primary hover:underline"> Terms and Conditions</a>, and our
-                            <a href="#0" className="text-primary hover:underline"> Privacy Policy</a>
-                        </span>
-                    </label>
-                    <button
-                        className={`w-full py-2 text font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 ${
-                            isLoading || password !== confirmPassword ? "opacity-50 cursor-not-allowed" : ""
-                        }`}
-                        type="submit"
-                        onMouseMove={(e: MouseEvent<HTMLButtonElement>) => setMousePosition({ x: e.clientX, y: e.clientY })}
-                        disabled={isLoading}
-                    >
-                        {isLoading ? "Loading..." : "Create account"}
-                    </button>
-                    {/*{error && (*/}
-                    {/*    <ErrorTooltip message={error} position={mousePosition} />*/}
-                    {/*)}*/}
-                </form>
-
-                <p className="mt-2 text text-gray-600 text-center">
-                    Already have an account?{" "}
-                    <button onClick= {()=>{onSignInClick(()=>resetForm())}}
-                            className="font-medium text text-indigo-600 hover:underline">
-                        Sign in
-                    </button>
-                </p>
+        <div className="w-full">
+            {/* Sélecteur de Rôle */}
+            <div className="flex bg-gray-100 p-1 rounded-lg mb-6">
+                <button
+                    type="button"
+                    onClick={() => setRole('driver')}
+                    className={`flex-1 py-2 rounded-md text-sm font-semibold transition-all ${
+                        role === 'driver' ? 'bg-blue-600 text-white shadow' : 'text-gray-500'
+                    }`}
+                >
+                    Driver
+                </button>
+                <button
+                    type="button"
+                    onClick={() => setRole('client')}
+                    className={`flex-1 py-2 rounded-md text-sm font-semibold transition-all ${
+                        role === 'client' ? 'bg-green-500 text-white shadow' : 'text-gray-500'
+                    }`}
+                >
+                    Passenger
+                </button>
             </div>
 
-            {Success && (
-                <SuccessOverlay
-                    result="Register Successful!"
-                    message="Please verify your email to activate it before sign in..."
-                    redirect="/login"
-                />
-            )}
+            <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                    <input className="input-field" placeholder="First Name" value={firstName} onChange={e => setFirstName(e.target.value)} />
+                    <input className="input-field" placeholder="Last Name" value={lastName} onChange={e => setLastName(e.target.value)} />
+                </div>
+                
+                <input className="input-field w-full" type="email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} />
+                
+                <div className="flex gap-2">
+                    <select className="input-field w-1/3" value={countryCode} onChange={e => setCountryCode(e.target.value)}>
+                        {countryCodes.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
+                    </select>
+                    <input className="input-field w-2/3" type="tel" placeholder="Phone Number" value={localPhone} onChange={e => setLocalPhone(e.target.value)} />
+                </div>
+
+                <div className="relative">
+                    <input className="input-field w-full" type={showPassword ? "text" : "password"} placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} />
+                    <button type="button" className="absolute right-3 top-3" onClick={() => setShowPassword(!showPassword)}>
+                        {showPassword ? <EyePassword/> : <NoEyePassword/>}
+                    </button>
+                </div>
+
+                <div className="relative">
+                    <input className="input-field w-full" type={showConfirm ? "text" : "password"} placeholder="Confirm Password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} />
+                    <button type="button" className="absolute right-3 top-3" onClick={() => setShowConfirm(!showConfirm)}>
+                        {showConfirm ? <EyePassword/> : <NoEyePassword/>}
+                    </button>
+                </div>
+
+                <button disabled={loading} className="w-full bg-blue-600 text-white py-3 rounded-lg font-bold hover:bg-blue-700 transition disabled:opacity-50">
+                    {loading ? "Processing..." : "Sign Up"}
+                </button>
+            </form>
+
+            <p className="text-center mt-4 text-sm">
+                Already have an account? <button onClick={onSignInClick} className="text-blue-600 font-bold">Sign In</button>
+            </p>
+
+            <style jsx>{`
+                .input-field {
+                    @apply px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent;
+                }
+            `}</style>
         </div>
     );
 }

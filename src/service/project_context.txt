@@ -1,0 +1,1293 @@
+Project Context From: /home/mbogneng-junior/freelance-driver_Sylladb/frontend_web/src/service
+Generated On: lun. 29 déc. 2025 00:51:32 WAT
+===============================================
+Ignored Directory Patterns: .* node_modules vendor build dist target __pycache__ .next cache target storage
+Ignored File Patterns: *.log *.jar *.pdf *.class *.sqlite project_context.txt package-lock.json yarn.lock composer.lock *.ico pnpm-lock.yaml
+===============================================
+
+//---> PATH: /home/mbogneng-junior/freelance-driver_Sylladb/frontend_web/src/service/addressService.ts
+
+// src/services/addressService.ts
+
+import apiClient from './apiClient';
+import { Address } from '@/type/address';
+
+/**
+ * Traduit un objet "Product" brut reçu du backend en un objet "Address" propre
+ * et typé pour être utilisé par l'interface utilisateur.
+ */
+const mapProductToAddress = (product: any): Address => {
+    return {
+        id: product.key?.id || product.id || '',
+        title: product.name || 'Adresse',
+        street: product.pickupLocation || '',
+        city: product.dropoffLocation || '',
+        zipCode: product.shortDescription || '',
+        country: product.baggageInfo || '',
+    };
+};
+
+/**
+ * Traduit un objet "Address" de l'interface utilisateur en un payload "Product"
+ * prêt à être envoyé au backend.
+ */
+const mapAddressToProductPayload = (address: Partial<Address>, clientId: string) => {
+    return {
+        name: address.title,
+        pickupLocation: address.street,
+        dropoffLocation: address.city,
+        shortDescription: address.zipCode,
+        baggageInfo: address.country,
+        
+        clientId: clientId, // On lie l'adresse à son propriétaire
+
+        // Champs par défaut nécessaires pour le modèle Product
+        status: 'Published',
+        defaultSellPrice: 0,
+        paymentMethod: 'N/A',
+        isNegotiable: false,
+        startDate: new Date().toISOString().split('T')[0],
+        startTime: '00:00',
+    };
+};
+
+/**
+ * Service pour gérer toutes les opérations CRUD pour les adresses.
+ */
+export const addressService = {
+    /**
+     * Récupère toutes les adresses de l'utilisateur actuellement connecté.
+     * Le token est injecté automatiquement par apiClient.
+     */
+    getAllAddresses: async (): Promise<Address[]> => {
+        console.log("▶️ [addressService] Récupération des adresses de l'utilisateur connecté.");
+        const response = await apiClient.get('/api/addresses');
+        console.log(`✅ [addressService] ${response.data.length} adresses trouvées.`);
+        return response.data.map(mapProductToAddress);
+    },
+
+    /**
+     * Récupère les adresses d'un utilisateur spécifique par son ID.
+     */
+    getAddressesByDriver: async (driverId: string): Promise<Address[]> => {
+        console.log(`▶️ [addressService] Récupération des adresses publiques pour le chauffeur ID: ${driverId}`);
+        const response = await apiClient.get(`/api/addresses/user/${driverId}`);
+        console.log(`✅ [addressService] ${response.data.length} adresses publiques trouvées.`);
+        return response.data.map(mapProductToAddress);
+    },
+
+    /**
+     * Crée une nouvelle adresse pour l'utilisateur connecté.
+     */
+    createAddress: async (address: Partial<Address>, userId: string): Promise<Address> => {
+        const payload = mapAddressToProductPayload(address, userId);
+        console.log("▶️ [addressService] Création d'une nouvelle adresse...", payload);
+        const response = await apiClient.post('/api/addresses', payload);
+        return mapProductToAddress(response.data);
+    },
+
+    /**
+     * Met à jour une adresse existante.
+     */
+    updateAddress: async (id: string, address: Partial<Address>, userId: string): Promise<Address> => {
+        const payload = mapAddressToProductPayload(address, userId);
+        console.log(`▶️ [addressService] Mise à jour de l'adresse ID ${id}...`, payload);
+        const response = await apiClient.put(`/api/addresses/${id}`, payload);
+        return mapProductToAddress(response.data);
+    },
+
+    /**
+     * Supprime une adresse.
+     */
+    deleteAddress: async (id: string): Promise<void> => {
+        console.log(`▶️ [addressService] Suppression de l'adresse ID ${id}`);
+        await apiClient.delete(`/api/addresses/${id}`);
+    },
+};// END OF FILE: addressService.ts
+
+//---> PATH: /home/mbogneng-junior/freelance-driver_Sylladb/frontend_web/src/service/agencyService.ts
+
+import axios from 'axios';
+
+export interface Agency {
+  id: string;
+  name: string;
+  description: string;
+  servicesOffered: string;
+  foundationDate: string;
+  rating: string;
+  numberOfRides: string;
+  status: 'published' | 'unpublished';
+  resource_id: string;
+  organization_id: string;
+  category_id: string;
+}
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://gateway.yowyob.com/resource-service';
+const ORGANIZATION_ID = 'e347ceb0-18fa-11f0-9b3d-97e645ebbe47';
+const CATEGORY_ID = '1549b370-317d-11f0-a5b5-bb7d33c83c13';
+
+const mapResourceToAgency = (resource: any): Agency => ({
+  id: resource.resource_id || '',
+  name: resource.name || '',
+  description: resource.long_description || '',
+  servicesOffered: resource.short_description || '',
+  foundationDate: resource.created_at?.split('T')[0] || '',
+  rating: resource.iot_number || '0',
+  numberOfRides: resource.available_quantity?.toString() || '0',
+  status: (resource.state?.toLowerCase() === 'available') ? 'published' : 'unpublished',
+  resource_id: resource.resource_id || '',
+  organization_id: resource.organization_id || ORGANIZATION_ID,
+  category_id: resource.category_id || CATEGORY_ID,
+});
+
+const mapAgencyToResource = (agency: Partial<Agency>): any => {
+  return {
+    name: agency.name || '',
+    long_description: agency.description || '',
+    short_description: agency.servicesOffered || '',
+    iot_number: agency.rating || '0',
+    available_quantity: parseInt(agency.numberOfRides || '0'),
+    state: agency.status === 'published' ? 'AVAILABLE' : 'UNAVAILABLE',
+    category_id: CATEGORY_ID,
+    organization_id: ORGANIZATION_ID,
+    product_type: 'TANGIBLE',
+    accessibility: 'PUBLIC',
+  };
+};
+
+export const agencyService = {
+  getAgency: async (): Promise<Agency | null> => {
+    try {
+      const response = await axios.get(`${API_URL}/${ORGANIZATION_ID}/resources/search`, {
+        params: {
+          organization_id: ORGANIZATION_ID,
+          category_id: CATEGORY_ID
+        }
+      });
+      const resources = Array.isArray(response.data)
+        ? response.data
+        : (response.data as any)?.data || (response.data as any)?.items || [];
+      if (!resources.length) return null;
+      return mapResourceToAgency(resources[0]);
+    } catch (error) {
+      console.error('Error fetching agency:', error);
+      return null;
+    }
+  },
+};
+// END OF FILE: agencyService.ts
+
+//---> PATH: /home/mbogneng-junior/freelance-driver_Sylladb/frontend_web/src/service/announcementService.ts
+
+// src/services/announcementService.ts
+
+import apiClient from './apiClient';
+// Adaptez les chemins d'importation selon votre structure "src/type/..."
+import { Announcement as AnnouncementClientType, AnnouncementStatus } from '@/type/announcement';
+import { Planning as PlanningType } from '@/type/planning';
+
+// Interface pour la vue publique
+export interface PublicOfferView {
+  id: string;
+  title: string;
+  pickupLocation: string;
+  dropoffLocation: string;
+  fullLocation: string;
+  cost: number;
+  startDate: string;
+  startTime: string;
+  endDate: string;
+  endTime: string;
+  paymentMethod: string;
+  baggageInfo: string;
+  isNegotiable: boolean;
+  authorName: string;
+  authorId: string;
+  authorPhoneNumber: string;
+  authorImageUrl?: string;
+  status: AnnouncementStatus;
+  reservedByDriverId?: string;
+  reservedByDriverName?: string;
+  createdAt?: string;
+}
+
+// Fonction de mapping (Product -> PublicOfferView)
+export const mapProductToPublicView = (product: any): PublicOfferView => {
+    // console.log("DEBUG_MAP_PUBLIC_VIEW (Web):", JSON.stringify(product, null, 2));
+
+    const pickup = product.pickupLocation || 'Non défini';
+    const dropoff = product.dropoffLocation || 'Non défini';
+    
+    // Fallback ID robuste
+    const id = product.id || product.key?.id || product.resource_id || 'UNKNOWN_ID';
+
+    const mappedProduct: PublicOfferView = { 
+        id: id,
+        title: product.name || 'Annonce sans titre',
+        pickupLocation: pickup,
+        dropoffLocation: dropoff,
+        fullLocation: `${pickup} ➔ ${dropoff}`,
+        cost: product.defaultSellPrice || 0,
+        startDate: product.startDate || '',
+        startTime: product.startTime || '',
+        endDate: product.endDate || '',
+        endTime: product.endTime || '',
+        paymentMethod: product.paymentMethod || 'Non précisé',
+        baggageInfo: product.shortDescription || 'Aucun bagage',
+        isNegotiable: product.isNegotiable || false,
+        authorName: product.authorName || product.clientName || 'Anonyme', 
+        authorId: product.authorId || product.clientId || '',
+        authorPhoneNumber: product.authorPhoneNumber || product.clientPhoneNumber || '',
+        authorImageUrl: product.authorProfileImageUrl || product.clientProfileImageUrl || undefined,
+        status: product.status || 'Draft',
+        reservedByDriverId: product.reservedByDriverId || undefined, 
+        reservedByDriverName: product.reservedByDriverName || undefined, 
+        createdAt: product.createdAt || undefined,
+    };
+    
+    return mappedProduct;
+};
+
+/**
+ * Traduit un objet "Product" du backend pour les vues privées (Mes Annonces)
+ */
+const mapBackendProductToPrivateView = (product: any): AnnouncementClientType | PlanningType => {
+  return {
+    id: product.key?.id || product.id || '',
+    title: product.name || 'Sans titre',
+    pickupLocation: product.pickupLocation || '',
+    dropoffLocation: product.dropoffLocation || '',
+    startDate: product.startDate || '',
+    startTime: product.startTime || '',
+    endDate: product.endDate || '',
+    endTime: product.endTime || '',
+    cost: product.defaultSellPrice?.toString() || '0',
+    baggageInfo: product.shortDescription || '',
+    status: product.status || 'Draft',
+    isNegotiable: product.isNegotiable || false,
+    paymentMethod: product.paymentMethod || 'cash',
+    clientId: product.clientId || '',
+    clientName: product.clientName || '',
+    clientPhoneNumber: product.clientPhoneNumber || '',
+    // Champs spécifiques au planning
+    paymentOption: product.metadata?.paymentOption,
+    regularAmount: product.metadata?.regularAmount?.toString(),
+    discountPercentage: product.metadata?.discountPercentage,
+    discountedAmount: product.metadata?.discountedAmount?.toString(),
+  };
+};
+
+/**
+ * Prépare le payload pour le backend
+ */
+const mapFormToBackendPayload = (formData: Partial<AnnouncementClientType | PlanningType>) => {
+  return {
+    name: formData.title,
+    defaultSellPrice: parseFloat((formData as AnnouncementClientType).cost || (formData as PlanningType).regularAmount || '0'),
+    shortDescription: (formData as AnnouncementClientType).baggageInfo,
+    pickupLocation: formData.pickupLocation,
+    dropoffLocation: formData.dropoffLocation,
+    startDate: formData.startDate,
+    startTime: formData.startTime,
+    endDate: formData.endDate,
+    endTime: formData.endTime,
+    status: formData.status,
+    isNegotiable: formData.isNegotiable,
+    paymentMethod: formData.paymentMethod,
+    clientId: formData.clientId,
+    clientName: formData.clientName,
+    clientPhoneNumber: formData.clientPhoneNumber,
+    metadata: { 
+        paymentOption: (formData as PlanningType).paymentOption || 'fixed',
+        regularAmount: (formData as PlanningType).regularAmount || '0',
+        discountPercentage: (formData as PlanningType).discountPercentage || '0',
+        discountedAmount: (formData as PlanningType).discountedAmount || '0',
+    },
+  };
+};
+
+// ==============================================================================
+//                            LE SERVICE
+// ==============================================================================
+
+export const announcementService = {
+    // --- Fonctions de RECHERCHE PUBLIQUE ---
+
+    getPublishedAnnouncements: async (): Promise<PublicOfferView[]> => {
+      // apiClient utilise l'URL de base définie dans .env
+      const response = await apiClient.get('/api/announcements');
+      return response.data.map(mapProductToPublicView);
+    },
+
+    getPublishedPlannings: async (): Promise<PublicOfferView[]> => {
+      const response = await apiClient.get('/api/planning/published');
+      return response.data.map(mapProductToPublicView);
+    },
+
+    // --- Fonctions de GESTION pour le CLIENT (Mes Annonces) ---
+
+    getMyAnnouncements: async (): Promise<AnnouncementClientType[]> => {
+        // apiClient injecte automatiquement le token via les cookies
+        const response = await apiClient.get('/api/announcements/my-announcements');
+        return response.data.map((p: any) => mapBackendProductToPrivateView(p) as AnnouncementClientType);
+    },
+    
+    createAnnouncement: async (announcement: Partial<AnnouncementClientType>): Promise<AnnouncementClientType> => {
+        const payload = mapFormToBackendPayload(announcement);
+        const response = await apiClient.post('/api/announcements', payload);
+        return mapBackendProductToPrivateView(response.data) as AnnouncementClientType;
+    },
+
+    updateAnnouncement: async (id: string, announcement: Partial<AnnouncementClientType>): Promise<AnnouncementClientType> => {
+        const payload = mapFormToBackendPayload(announcement);
+        const response = await apiClient.put(`/api/announcements/${id}`, payload);
+        return mapBackendProductToPrivateView(response.data) as AnnouncementClientType;
+    },
+
+    deleteAnnouncement: async (id: string): Promise<void> => {
+        await apiClient.delete(`/api/announcements/${id}`);
+    },
+
+    // --- Fonctions de GESTION pour le CONDUCTEUR (Mes Plannings & Courses) ---
+
+    getMyPlannings: async (): Promise<PlanningType[]> => {
+        const response = await apiClient.get('/api/planning');
+        return response.data.map((p: any) => mapBackendProductToPrivateView(p) as PlanningType);
+    },
+
+    createPlanning: async (planning: Partial<PlanningType>): Promise<PlanningType> => {
+        const payload = mapFormToBackendPayload(planning);
+        const response = await apiClient.post('/api/planning', payload);
+        return mapBackendProductToPrivateView(response.data) as PlanningType;
+    },
+
+    updatePlanning: async (id: string, planning: Partial<PlanningType>): Promise<PlanningType> => {
+        const payload = mapFormToBackendPayload(planning);
+        const response = await apiClient.put(`/api/planning/${id}`, payload);
+        return mapBackendProductToPrivateView(response.data) as PlanningType;
+    },
+
+    deletePlanning: async (id: string): Promise<void> => {
+        await apiClient.delete(`/api/planning/${id}`);
+    },
+    
+    getPlanningsByDriver: async (driverId: string): Promise<PublicOfferView[]> => {
+        const response = await apiClient.get(`/api/planning/user/${driverId}`);
+        return response.data.map(mapProductToPublicView);
+    },
+
+    // --- Fonctions de Réservation ---
+
+    /**
+     * Conducteur postule à une annonce
+     */
+    applyToAnnouncement: async (announcementId: string): Promise<PublicOfferView> => {
+      try {
+        console.log(`▶️ [announcementService] Conducteur postule à l'annonce ID: ${announcementId}`);
+        const response = await apiClient.post(`/api/announcements/${announcementId}/apply`, {});
+        console.log(`✅ [announcementService] Postulation réussie.`);
+        return mapProductToPublicView(response.data);
+      } catch (error) {
+        console.error('Error applying to announcement:', error);
+        throw error;
+      }
+    },
+
+    /**
+     * Client confirme un chauffeur
+     */
+    confirmDriverForAnnouncement: async (announcementId: string, driverId: string): Promise<PublicOfferView> => {
+      try {
+        console.log(`▶️ Client confirme le chauffeur ${driverId} pour l'annonce ${announcementId}`);
+        const response = await apiClient.post(
+          `/api/announcements/${announcementId}/confirm?driverId=${driverId}`,
+          {}
+        );
+        console.log(`✅ Confirmation réussie.`);
+        return mapProductToPublicView(response.data);
+      } catch (error) {
+        console.error('Error confirming driver:', error);
+        throw error;
+      }
+    },
+
+    cancelPostulation: async (announcementId: string): Promise<PublicOfferView> => {
+      try {
+        console.log(`▶️ Conducteur annule sa postulation pour l'annonce ${announcementId}`);
+        const response = await apiClient.post(
+          `/api/announcements/${announcementId}/cancel-postulation`,
+          {}
+        );
+        return mapProductToPublicView(response.data);
+      } catch (error) {
+        console.error('Error cancelling postulation:', error);
+        throw error;
+      }
+    },
+
+    getMyAcceptedRides: async (): Promise<PublicOfferView[]> => {
+        const response = await apiClient.get('/api/announcements/my-rides');
+        console.log("DEBUG: Rides acceptés récupérés");
+        return response.data.map(mapProductToPublicView);
+    },
+    
+    getMyReservedRides: async (): Promise<PublicOfferView[]> => { 
+      try {
+        const response = await apiClient.get('/api/planning/my-reservations');
+        return response.data.map(mapProductToPublicView);
+      } catch (error: any) {
+        console.error('Error fetching client reservations:', error);
+        throw error;
+      }
+    },
+};// END OF FILE: announcementService.ts
+
+//---> PATH: /home/mbogneng-junior/freelance-driver_Sylladb/frontend_web/src/service/apiClient.ts
+
+import axios from 'axios';
+import { sessionService } from './sessionService';
+
+const apiClient = axios.create({
+  baseURL: process.env.NEXT_PUBLIC_API_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+apiClient.interceptors.request.use(
+  (config) => {
+    const token = sessionService.getAuthToken();
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
+export default apiClient;// END OF FILE: apiClient.ts
+
+//---> PATH: /home/mbogneng-junior/freelance-driver_Sylladb/frontend_web/src/service/apiService.ts
+
+import axios from 'axios';
+
+const API_KEY = '3qUkt_O1YcClmouM6_-W-dZ5bWdx13uf';
+const API_URL = `https://gateway.yowyob.com/payment-service/${API_KEY}/payin`;
+
+const api = axios.create({
+  timeout: 10000,
+  headers: {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json'
+  }
+});
+
+export interface PaymentResponse {
+  transactionId: string;
+  status: string;
+  amount: number;
+  currency: string;
+  message?: string;
+}
+
+function formatPhoneNumber(phoneNumber: string): string {
+  // Ajoute ici la logique de formatage si besoin
+  return phoneNumber;
+}
+
+export const apiService = {
+  initiatePayment: async (amount: number, phoneNumber: string): Promise<PaymentResponse> => {
+    const requestData = {
+      payer_email: "test@customer.cm",
+      payer_name: "test_yow_yob",
+      payer_phone_number: formatPhoneNumber(phoneNumber),
+      payer_reference: "7c85bea3-8144-4ea2-bed7-ef1f3b5ff8e3",
+      service_description: "test post",
+      service_reference: "7c85bea3",
+      service_name: "test",
+      service_quantity: 1,
+      transaction_amount: amount,
+      transaction_currency: "XAF",
+      transaction_method: "MOBILE",
+      transaction_reference: ""
+    };
+    const response = await api.post(API_URL, requestData);
+    return {
+      transactionId: response.data.transaction_id || response.data.transactionId,
+      status: response.data.status,
+      amount: response.data.amount,
+      currency: response.data.currency,
+      message: response.data.message
+    };
+  }
+};
+// END OF FILE: apiService.ts
+
+//---> PATH: /home/mbogneng-junior/freelance-driver_Sylladb/frontend_web/src/service/driverSearchService.ts
+
+// src/services/driverSearchService.ts
+
+import apiClient from './apiClient';
+import { Planning } from '@/type/planning'; // Adaptation du chemin d'import pour Next.js
+
+// On pourrait enrichir ce type si le backend renvoie plus d'infos que juste le planning
+export interface AvailableDriver extends Planning {
+    // Par exemple, on pourrait ajouter des infos sur le conducteur
+    driverInfo?: {
+        name: string;
+        rating: number;
+    };
+}
+
+export const driverSearchService = {
+  /**
+   * Récupère tous les plannings publiés et disponibles pour la recherche.
+   */
+  getAvailableDrivers: async (): Promise<AvailableDriver[]> => {
+    try {
+      console.log("Recherche des conducteurs disponibles via le backend...");
+      
+      // Utilisation de apiClient : 
+      // 1. L'URL de base est gérée par la variable d'environnement dans apiClient.ts
+      // 2. Pas besoin de token ici (endpoint public), mais apiClient fonctionne quand même
+      const response = await apiClient.get<AvailableDriver[]>('/api/search/drivers');
+      
+      console.log("Conducteurs disponibles reçus:", response.data.length);
+      return response.data;
+    } catch (error) {
+      console.error('Erreur lors de la récupération des conducteurs disponibles:', error);
+      throw error;
+    }
+  },
+};// END OF FILE: driverSearchService.ts
+
+//---> PATH: /home/mbogneng-junior/freelance-driver_Sylladb/frontend_web/src/service/experienceService.ts
+
+import axios from 'axios';
+import { sessionService } from './sessionService';
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_URL_BACKEND;
+
+const DRIVER_LICENSE_CATEGORY_ID = "f1c2b3d4-e5f6-7890-1234-567890abcdef";
+const CV_CATEGORY_ID = "a1b2c3d4-e5f6-7890-1234-567890fedcba";
+const EXPERIENCE_CATEGORY_ID = "e1f2a3b4-c5d6-7890-1234-567890abcdef";
+
+export const experienceService = {
+  getDocument: async <T>(categoryId: string): Promise<T | null> => {
+    const headers = sessionService.getAuthHeaders();
+    // Ajoute ici la logique pour récupérer le document selon la catégorie
+    const response = await axios.get(`${API_BASE_URL}/api/documents/${categoryId}`, { headers });
+    return response.data || null;
+  },
+  // Ajoute ici d'autres méthodes si besoin
+};
+// END OF FILE: experienceService.ts
+
+//---> PATH: /home/mbogneng-junior/freelance-driver_Sylladb/frontend_web/src/service/locale.ts
+
+'use server';
+
+import {cookies} from 'next/headers';
+import {Locale, defaultLocale} from '@/config';
+
+// In this example the locale is read from a cookie. You could alternatively
+// also read it from a database, backend service, or any other source.
+const COOKIE_NAME = 'NEXT_LOCALE';
+
+export async function getUserLocale() {
+  return cookies().get(COOKIE_NAME)?.value || defaultLocale;
+}
+
+export async function setUserLocale(locale: Locale) {
+  cookies().set(COOKIE_NAME, locale);
+}// END OF FILE: locale.ts
+
+//---> PATH: /home/mbogneng-junior/freelance-driver_Sylladb/frontend_web/src/service/mediaService.ts
+
+import apiClient from './apiClient';
+import { UploadMediaResponse } from '@/type/media';
+import { sessionService } from './sessionService';
+
+export const mediaService = {
+  uploadFileAndGetResponse: async (
+    file: File, // Changement ici: on prend un objet File JS standard
+    type: 'avatars' | 'vehicles' | 'documents', 
+    resourceId: string
+  ): Promise<UploadMediaResponse> => {
+    
+    const formData = new FormData();
+    // Sur le web, on append directement le fichier
+    formData.append('file', file);
+
+    try {
+      const url = `/api/media/upload?type=${type}&resourceId=${resourceId}`;
+      console.log(`▶️ Uploading file type '${type}' to: ${url}`);
+      
+      // Axios gère automatiquement le boundary pour multipart/form-data
+      const response = await apiClient.post(url, formData, {
+        headers: {
+            'Content-Type': 'multipart/form-data',
+        }
+      });
+      
+      return response.data;
+    } catch (error) {
+      console.error(`❌ Erreur upload (type: '${type}'):`, error);
+      throw error;
+    }
+  },
+
+  // Helper pour compatibilité si nécessaire, mais préférez la méthode ci-dessus
+  uploadFile: async (file: File, type: any, resourceId: string): Promise<string> => {
+      const res = await mediaService.uploadFileAndGetResponse(file, type, resourceId);
+      return res.url;
+  }
+};// END OF FILE: mediaService.ts
+
+//---> PATH: /home/mbogneng-junior/freelance-driver_Sylladb/frontend_web/src/service/offerService.ts
+
+import axios from 'axios';
+
+export interface Offer {
+  id: string;
+  profileUrl: string;
+  name: string;
+  location: string;
+  availableSeats: number;
+  price: number;
+  date: string;
+  time: string;
+  paymentMethod: string;
+  hasCar: boolean;
+  status: string;
+  email: string;
+  phone: string;
+  clientName: string;
+  resource_id: string;
+  organization_id: string;
+  category_id: string;
+}
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://gateway.yowyob.com/resource-service';
+const ORGANIZATION_ID = 'e347ceb0-18fa-11f0-9b3d-97e645ebbe47';
+const CATEGORY_ID = '287b16a0-2124-11f0-a7e0-c929ab2c082a';
+
+const mapResourceToOffer = (resource: any): Offer => ({
+  id: resource.resource_id,
+  profileUrl: resource.qr_code || "",
+  name: resource.name,
+  location: resource.storage_condition || "",
+  availableSeats: resource.available_quantity,
+  price: resource.base_price,
+  date: resource.expires_at?.split('T')[0] || "",
+  time: resource.expires_at?.split('T')[1]?.split('.')[0] || "",
+  paymentMethod: "Cash",
+  hasCar: resource.is_tangible,
+  status: (resource.state || 'AVAILABLE').toLowerCase(),
+  email: resource.serial_number || "", 
+  phone: resource.iot_number || "", 
+  clientName: resource.name || "",
+  resource_id: resource.resource_id,
+  organization_id: resource.organization_id,
+  category_id: resource.category_id,
+});
+
+export const offerService = {
+  getAllOffers: async () => {
+    const response = await axios.get(`${API_URL}/${ORGANIZATION_ID}/resources/search`, {
+      params: {
+        organization_id: ORGANIZATION_ID,
+        category_id: CATEGORY_ID
+      }
+    });
+    const resources = Array.isArray(response.data)
+      ? response.data
+      : (response.data as any)?.data || (response.data as any)?.items || [];
+    return resources.map(mapResourceToOffer);
+  },
+};
+// END OF FILE: offerService.ts
+
+//---> PATH: /home/mbogneng-junior/freelance-driver_Sylladb/frontend_web/src/service/orderService.ts
+
+import axios from 'axios';
+
+export interface Order {
+  id: string;
+  profileUrl: string;
+  name: string;
+  location: string;
+  availableSeats: number;
+  price: number;
+  date: string;
+  time: string;
+  paymentMethod: string;
+  hasCar: boolean;
+  status: string;
+  email: string;
+  phone: string;
+  clientName: string;
+  resource_id: string;
+  organization_id: string;
+  category_id: string;
+}
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://gateway.yowyob.com/resource-service';
+const ORGANIZATION_ID = 'e347ceb0-18fa-11f0-9b3d-97e645ebbe47';
+const CATEGORY_ID = '4d2f1cd0-2467-11f0-a7e0-c929ab2c082a';
+
+const mapResourceToOrder = (resource: any): Order => ({
+  id: resource.resource_id,
+  profileUrl: resource.qr_code || "",
+  name: resource.name,
+  location: resource.storage_condition || "",
+  availableSeats: resource.available_quantity,
+  price: resource.base_price,
+  date: resource.expires_at?.split('T')[0] || "",
+  time: resource.expires_at?.split('T')[1]?.split('.')[0] || "",
+  paymentMethod: resource.sku_code || "Cash",
+  hasCar: resource.is_tangible,
+  status: (resource.state || 'AVAILABLE').toLowerCase(),
+  email: resource.serial_number || "", 
+  phone: resource.iot_number || "", 
+  clientName: resource.name || "",
+  resource_id: resource.resource_id,
+  organization_id: resource.organization_id,
+  category_id: resource.category_id,
+});
+
+export const orderService = {
+  getAllOrders: async () => {
+    const response = await axios.get(`${API_URL}/${ORGANIZATION_ID}/resources/search`, {
+      params: {
+        organization_id: ORGANIZATION_ID,
+        category_id: CATEGORY_ID
+      }
+    });
+    const resources = Array.isArray(response.data)
+      ? response.data
+      : (response.data as any)?.data || (response.data as any)?.items || [];
+    return resources.map(mapResourceToOrder);
+  },
+};
+// END OF FILE: orderService.ts
+
+//---> PATH: /home/mbogneng-junior/freelance-driver_Sylladb/frontend_web/src/service/planningService.ts
+
+// src/services/planningService.ts
+
+import apiClient from './apiClient';
+import { PublicOfferView, mapProductToPublicView } from './announcementService';
+import { Planning as PlanningType, PlanningStatus } from '@/type/planning';
+
+/**
+ * Traduit un objet "Product" pour la vue privée Planning (Chauffeur)
+ */
+ const mapBackendProductToPlanningPrivateView = (product: any): PlanningType => {
+  return {
+    id: product.key?.id || product.id || '',
+    title: product.name || 'Sans titre',
+    pickupLocation: product.pickupLocation || '',
+    dropoffLocation: product.dropoffLocation || '',
+    startDate: product.startDate || '',
+    startTime: product.startTime || '',
+    endDate: product.endDate || '',
+    endTime: product.endTime || '',
+    paymentOption: product.metadata?.paymentOption,
+    regularAmount: product.metadata?.regularAmount?.toString(),
+    discountPercentage: product.metadata?.discountPercentage,
+    discountedAmount: product.metadata?.discountedAmount?.toString(),
+    status: product.status as PlanningStatus || 'Draft',
+    clientId: product.clientId || '',
+    clientName: product.clientName || '',
+    clientPhoneNumber: product.clientPhoneNumber || '',
+    profileImageUrl: product.clientProfileImageUrl || undefined,
+  };
+};
+
+/**
+ * Payload pour le backend
+ */
+ const mapPlanningFormToBackendPayload = (formData: Partial<PlanningType>) => {
+  return {
+    name: formData.title,
+    defaultSellPrice: parseFloat(formData.regularAmount || '0'), 
+    shortDescription: formData.baggageInfo,
+    pickupLocation: formData.pickupLocation,
+    dropoffLocation: formData.dropoffLocation,
+    startDate: formData.startDate,
+    startTime: formData.startTime,
+    endDate: formData.endDate,
+    endTime: formData.endTime,
+    status: formData.status,
+    isNegotiable: false,
+    paymentMethod: 'cash',
+    clientId: formData.clientId,
+    clientName: formData.clientName,
+    clientPhoneNumber: formData.clientPhoneNumber,
+    clientProfileImageUrl: formData.profileImageUrl,
+    metadata: { 
+        paymentOption: formData.paymentOption || 'fixed',
+        regularAmount: formData.regularAmount || '0',
+        discountPercentage: formData.discountPercentage || '0',
+        discountedAmount: formData.discountedAmount || '0',
+    },
+  };
+};
+
+
+export const planningService = {
+    // --- RECHERCHE PUBLIQUE ---
+
+    getPublishedPlannings: async (): Promise<PublicOfferView[]> => {
+      const response = await apiClient.get('/api/planning/published');
+      return response.data.map(mapProductToPublicView);
+    },
+    
+    getPlanningsByDriver: async (driverId: string): Promise<PublicOfferView[]> => {
+        const response = await apiClient.get(`/api/planning/user/${driverId}`);
+        return response.data.map(mapProductToPublicView);
+    },
+
+    // --- CLIENT (Mes Réservations) ---
+
+    getMyReservedRides: async (): Promise<PublicOfferView[]> => { 
+      try {
+        const response = await apiClient.get('/api/planning/my-reservations');
+        return response.data.map(mapProductToPublicView);
+      } catch (error) {
+        console.error('Error fetching client reservations:', error);
+        throw error;
+      }
+    },
+    
+    /**
+     * Client demande à réserver un planning
+     */
+    requestPlanningBooking: async (planningId: string): Promise<PublicOfferView> => {
+      try {
+        console.log(`▶️ Client demande à réserver le planning ID: ${planningId}`);
+        const response = await apiClient.post(`/api/planning/${planningId}/request-booking`, {});
+        return mapProductToPublicView(response.data);
+      } catch (error) {
+        console.error('Error requesting planning booking:', error);
+        throw error;
+      }
+    },
+
+    /**
+     * Client annule une réservation
+     */
+    cancelReservation: async (planningId: string): Promise<PublicOfferView> => {
+      try {
+        console.log(`▶️ Client annule sa réservation pour le planning ID: ${planningId}`);
+        const response = await apiClient.post(`/api/planning/${planningId}/cancel-reservation`, {});
+        return mapProductToPublicView(response.data);
+      } catch (error) {
+        console.error('Error cancelling reservation:', error);
+        throw error;
+      }
+    },
+
+    // --- CHAUFFEUR (Mes Plannings) ---
+
+    getMyPlannings: async (): Promise<PlanningType[]> => {
+        const response = await apiClient.get('/api/planning');
+        return response.data.map(mapBackendProductToPlanningPrivateView);
+    },
+
+    createPlanning: async (planning: Partial<PlanningType>): Promise<PlanningType> => {
+        const payload = mapPlanningFormToBackendPayload(planning);
+        const response = await apiClient.post('/api/planning', payload);
+        return mapBackendProductToPlanningPrivateView(response.data);
+    },
+
+    updatePlanning: async (id: string, planning: Partial<PlanningType>): Promise<PlanningType> => {
+        const payload = mapPlanningFormToBackendPayload(planning);
+        const response = await apiClient.put(`/api/planning/${id}`, payload);
+        return mapBackendProductToPlanningPrivateView(response.data);
+    },
+
+    deletePlanning: async (id: string): Promise<void> => {
+        await apiClient.delete(`/api/planning/${id}`);
+    },
+
+    /**
+     * Chauffeur accepte une réservation
+     */
+    confirmPlanningBooking: async (planningId: string, clientId: string): Promise<PublicOfferView> => {
+      try {
+        console.log(`▶️ Chauffeur confirme la réservation ID: ${planningId}`);
+        const response = await apiClient.post(
+          `/api/planning/${planningId}/confirm-booking?clientId=${clientId}`,
+          {}
+        );
+        return mapProductToPublicView(response.data);
+      } catch (error) {
+        console.error('Error confirming planning booking:', error);
+        throw error;
+      }
+    },
+};// END OF FILE: planningService.ts
+
+//---> PATH: /home/mbogneng-junior/freelance-driver_Sylladb/frontend_web/src/service/profileService.ts
+
+// src/services/profileService.ts
+
+import apiClient from './apiClient';
+import { mediaService } from './mediaService';
+import { sessionService } from './sessionService';
+import { UserSessionContext } from '@/type/profile'; 
+// import { UploadMediaResponse } from '@/type/media';
+
+export const profileService = { 
+  /**
+   * Met à jour les informations du profil du CONDUCTEUR connecté.
+   */
+  updateDriverProfile: async (profileData: any): Promise<UserSessionContext> => {
+    console.log("▶️ [profileService] Mise à jour du profil conducteur avec:", profileData);
+    // apiClient gère les headers
+    const response = await apiClient.put(
+      `/api/profiles/driver/me`,
+      profileData
+    );
+    console.log("✅ [profileService] Profil conducteur mis à jour. Contexte reçu:", response.data);
+    return response.data;
+  },
+
+  /**
+   * Met à jour les informations du profil du CLIENT connecté.
+   */
+  updateClientProfile: async (profileData: any): Promise<UserSessionContext> => {
+    console.log("▶️ [profileService] Mise à jour du profil client avec:", profileData);
+    const response = await apiClient.put(
+      `/api/profiles/client/me`,
+      profileData
+    );
+    console.log("✅ [profileService] Profil client mis à jour. Contexte reçu:", response.data);
+    return response.data;
+  },
+
+  /**
+   * Étape 1 de la mise à jour de l'avatar : téléverse le fichier.
+   * NOTE: Sur le web, prend un objet `File` en entrée.
+   */
+  uploadAvatar: async (file: File): Promise<string> => { 
+    // Récupération synchrone depuis le localStorage via sessionService (pas besoin d'await sur AsyncStorage)
+    const context = sessionService.getUserSessionContext();
+    const userId = context?.userId;
+    
+    if (!userId) throw new Error("ID utilisateur non trouvé pour l'upload d'avatar");
+
+    // <-- Appel à la méthode Web qui accepte un File
+    const uploadResponse = await mediaService.uploadFileAndGetResponse(file, 'avatars', userId); 
+    
+    if (uploadResponse && uploadResponse.url) {
+      console.log("DEBUG: profileService.uploadAvatar - URL valide prête à être retournée:", uploadResponse.url);
+      return uploadResponse.url;
+    } else {
+      console.error("ERREUR: profileService.uploadAvatar - URL non reçue.");
+      throw new Error("L'upload de l'avatar a échoué: URL non reçue.");
+    }
+  },
+
+  /**
+   * Étape 2 de la mise à jour de l'avatar du CONDUCTEUR.
+   */
+  updateDriverAvatarUrl: async (newAvatarUrl: string): Promise<UserSessionContext> => {
+    console.log(`▶️ [profileService] Sauvegarde de la nouvelle URL d'avatar (via DRIVER): ${newAvatarUrl}`);
+    
+    const payload = { profileImageUrl: newAvatarUrl };
+    const response = await apiClient.put(
+      `/api/profiles/me/avatar`, 
+      payload
+    );
+    console.log("✅ [profileService] URL de l'avatar mise à jour. Contexte reçu:", response.data);
+    return response.data;
+  },
+
+  /**
+   * Étape 2 de la mise à jour de l'avatar du CLIENT.
+   */
+  updateClientAvatarUrl: async (newAvatarUrl: string): Promise<UserSessionContext> => {
+    console.log(`▶️ [profileService] Sauvegarde de la nouvelle URL d'avatar (via CLIENT): ${newAvatarUrl}`);
+    
+    const payload = { profileImageUrl: newAvatarUrl };
+    const response = await apiClient.put(
+      `/api/profiles/me/avatar`, 
+      payload
+    );
+    console.log("✅ [profileService] URL de l'avatar mise à jour. Contexte reçu:", response.data);
+    return response.data;
+  },
+
+  /**
+   * Récupère le profil public d'un chauffeur (ou client) par son ID.
+   */
+  getPublicDriverProfile: async (userId: string) => {
+    console.log(`▶️ [profileService] Récupération du profil public pour l'ID: ${userId}`);
+    const response = await apiClient.get(`/api/profiles/user/${userId}`);
+    console.log(`✅ [profileService] Profil public de ${userId} récupéré.`);
+    return response.data;
+  },
+};// END OF FILE: profileService.ts
+
+//---> PATH: /home/mbogneng-junior/freelance-driver_Sylladb/frontend_web/src/service/reviewService.ts
+
+// src/services/reviewService.ts
+
+import apiClient from './apiClient';
+
+/**
+ * Interface décrivant la structure d'un objet Avis.
+ * Vous pouvez déplacer ceci dans src/type/review.ts si vous préférez.
+ */
+export interface Review {
+  id: string;
+  targetUserId: string;
+  authorFirstName: string;
+  authorLastName: string;
+  authorProfileImageUrl?: string;
+  score: number;
+  comment: string;
+  createdAt: string;
+}
+
+/**
+ * Service pour gérer toutes les opérations liées aux avis et évaluations.
+ */
+export const reviewService = {
+  /**
+   * Récupère tous les avis laissés pour un utilisateur spécifique.
+   */
+  getReviewsForUser: async (userId: string): Promise<Review[]> => {
+    console.log(`▶️ [reviewService] Récupération des avis pour l'utilisateur ID: ${userId}`);
+    try {
+      const response = await apiClient.get(`/api/reviews/user/${userId}`);
+      console.log(`✅ [reviewService] ${response.data.length} avis trouvés pour l'utilisateur ${userId}.`);
+      return response.data;
+    } catch (error) {
+      console.error(`❌ [reviewService] Erreur lors de la récupération des avis pour l'utilisateur ${userId}:`, error);
+      return [];
+    }
+  },
+
+  /**
+   * Permet à l'utilisateur connecté de créer un nouvel avis.
+   */
+  createReview: async (targetUserId: string, score: number, comment: string): Promise<Review> => {
+    const payload = { targetUserId, score, comment };
+    console.log(`▶️ [reviewService] Envoi d'un nouvel avis pour l'utilisateur ID: ${targetUserId}`, payload);
+    const response = await apiClient.post('/api/reviews', payload);
+    console.log("✅ [reviewService] Avis créé avec succès.");
+    return response.data;
+  },
+
+  /**
+   * Permet d'envoyer une évaluation détaillée par critères.
+   */
+  rateByCriteria: async (entityId: string, ratings: { [key: string]: number }): Promise<void> => {
+    const payload = { entityId, ratings };
+    console.log(`▶️ [reviewService] Envoi d'une évaluation par critères pour l'entité ID: ${entityId}`, payload);
+    await apiClient.post('/api/reviews/criteria', payload);
+    console.log("✅ [reviewService] Évaluation par critères envoyée avec succès.");
+  },
+};// END OF FILE: reviewService.ts
+
+//---> PATH: /home/mbogneng-junior/freelance-driver_Sylladb/frontend_web/src/service/sessionService.ts
+
+import Cookies from 'js-cookie';
+import { UserSessionContext } from '@/type/profile';
+
+const TOKEN_KEY = 'authToken';
+const PROFILE_KEY = 'userProfile';
+
+export const sessionService = {
+  getAuthToken: () => {
+    return Cookies.get(TOKEN_KEY);
+  },
+
+  getAuthHeaders: () => {
+    const token = Cookies.get(TOKEN_KEY);
+    if (!token) return {};
+    return { Authorization: `Bearer ${token}` };
+  },
+
+  getUserOrganizationId: (): string => {
+    try {
+      // Sur le web, on utilise localStorage pour les objets complexes
+      if (typeof window === 'undefined') return '';
+      const profileString = localStorage.getItem(PROFILE_KEY);
+      if (!profileString) throw new Error("Contexte utilisateur non trouvé.");
+      
+      const context: UserSessionContext = JSON.parse(profileString);
+      const organizationId = context?.organisation?.organization_id;
+      
+      if (!organizationId) throw new Error("ID d'organisation non trouvé.");
+      return organizationId;
+    } catch (error) {
+      console.error("Erreur récupération Org ID:", error);
+      throw error;
+    }
+  },
+
+  saveSessionContext: (context: UserSessionContext) => {
+    if (typeof window !== 'undefined') {
+        localStorage.setItem(PROFILE_KEY, JSON.stringify(context));
+    }
+  },
+
+  getUserSessionContext: (): UserSessionContext | null => {
+    if (typeof window === 'undefined') return null;
+    const profileString = localStorage.getItem(PROFILE_KEY);
+    return profileString ? JSON.parse(profileString) : null;
+  },
+
+  clearUserData: () => {
+    Cookies.remove(TOKEN_KEY);
+    if (typeof window !== 'undefined') {
+        localStorage.removeItem(PROFILE_KEY);
+        localStorage.removeItem('userData');
+    }
+  },
+  
+  isLoggedIn: () => {
+      return !!Cookies.get(TOKEN_KEY);
+  }
+};// END OF FILE: sessionService.ts
+
+//---> PATH: /home/mbogneng-junior/freelance-driver_Sylladb/frontend_web/src/service/vehicleService.ts
+
+// src/services/vehicleService.ts
+
+import apiClient from './apiClient';
+import { sessionService } from './sessionService';
+import { mediaService } from './mediaService';
+import { Vehicle } from '@/type/vehicle';
+
+const VEHICLE_CATEGORY_ID = "e2a7f23e-a3a3-4b0c-852a-227a1c1d6a7e";
+
+const mapProductToVehicle = (product: any): Vehicle => {
+  const meta = product.metadata || {};
+  const photoUrls = meta.photoUrls
+    ? meta.photoUrls.split(',').filter((url: string) => url)
+    : (product.clientProfileImageUrl ? [product.clientProfileImageUrl] : []);
+
+  return {
+    id: product.key?.id || '',
+    photoUrls: photoUrls,
+    model: product.name || '',
+    manufacturer: meta.manufacturer || '',
+    seats: meta.seats || '0',
+    transmission: meta.transmission || '',
+    fuelType: meta.fuelType || '',
+    category: meta.category || '',
+    serialNumber: meta.serialNumber || '',
+    tankCapacity: meta.tankCapacity || '',
+    loadCapacity: meta.loadCapacity || '',
+    amenities: meta.amenities ? meta.amenities.split(',').map((a: string) => a.trim()) : [],
+  };
+};
+
+const mapVehicleToProductPayload = (vehicle: Partial<Vehicle>) => {
+  return {
+    name: vehicle.model || '',
+    clientProfileImageUrl: vehicle.photoUrls?.[0] || null,
+    shortDescription: `${vehicle.manufacturer || 'Marque'} - ${vehicle.seats || 'N/A'} places`,
+    categoryId: VEHICLE_CATEGORY_ID,
+    metadata: {
+      manufacturer: vehicle.manufacturer || '',
+      seats: vehicle.seats || '',
+      transmission: vehicle.transmission || '',
+      fuelType: vehicle.fuelType || '',
+      category: vehicle.category || '',
+      serialNumber: vehicle.serialNumber || '',
+      tankCapacity: vehicle.tankCapacity || '',
+      loadCapacity: vehicle.loadCapacity || '',
+      amenities: vehicle.amenities?.join(', ') || '',
+      photoUrls: vehicle.photoUrls?.join(',') || '',
+    },
+    defaultSellPrice: 0,
+    status: 'AVAILABLE',
+  };
+};
+
+export const vehicleService = {
+  /**
+   * Récupère tous les véhicules de l'organisation de l'utilisateur connecté.
+   */
+  getAllVehicles: async (): Promise<Vehicle[]> => {
+    // Sur le web, l'organisation ID est récupérée de manière synchrone ou via une promesse rapide du localStorage
+    const organizationId = await sessionService.getUserOrganizationId();
+    console.log(`▶️ [vehicleService] Récupération de tous les véhicules pour l'organisation ${organizationId}`);
+    
+    // apiClient ajoute automatiquement le token Bearer
+    const response = await apiClient.get(
+      `/api/mock-products/${organizationId}?categoryId=${VEHICLE_CATEGORY_ID}`
+    );
+    
+    console.log(`✅ [vehicleService] ${response.data.length} véhicules trouvés.`);
+    return response.data.map(mapProductToVehicle);
+  },
+
+  /**
+   * Récupère les véhicules d'un chauffeur spécifique (Public).
+   */
+  getVehiclesByDriver: async (driverId: string): Promise<Vehicle[]> => {
+    console.log(`▶️ [vehicleService] Récupération des véhicules publics pour le chauffeur ID: ${driverId}`);
+    const response = await apiClient.get(`/api/vehicles/user/${driverId}`);
+    console.log(`✅ [vehicleService] ${response.data.length} véhicules publics trouvés.`);
+    return response.data.map(mapProductToVehicle);
+  },
+
+  /**
+   * Crée un nouveau véhicule.
+   */
+  createVehicle: async (vehicle: Partial<Vehicle>, driverId: string): Promise<Vehicle> => {
+    const organizationId = await sessionService.getUserOrganizationId();
+    const payload = mapVehicleToProductPayload(vehicle);
+    // @ts-ignore : On ajoute dynamiquement clientId au payload
+    payload.clientId = driverId;
+    
+    const finalPayload = { ...payload, id: vehicle.id }; 
+    
+    console.log(`▶️ [vehicleService] Création d'un nouveau véhicule...`, finalPayload);
+    const response = await apiClient.post(`/api/mock-products/${organizationId}`, finalPayload);
+    return mapProductToVehicle(response.data);
+  },
+
+  /**
+   * Met à jour un véhicule existant.
+   */
+  updateVehicle: async (id: string, vehicle: Partial<Vehicle>, driverId: string): Promise<Vehicle> => {
+    const organizationId = await sessionService.getUserOrganizationId();
+    const payload = mapVehicleToProductPayload(vehicle);
+    // @ts-ignore
+    payload.clientId = driverId;
+    
+    console.log(`▶️ [vehicleService] Mise à jour du véhicule ID ${id}...`, payload);
+    const response = await apiClient.put(`/api/mock-products/${organizationId}/${id}`, payload);
+    return mapProductToVehicle(response.data);
+  },
+
+  /**
+   * Supprime un véhicule.
+   */
+  deleteVehicle: async (id: string): Promise<void> => {
+    const organizationId = await sessionService.getUserOrganizationId();
+    console.log(`▶️ [vehicleService] Suppression du véhicule ID ${id}`);
+    await apiClient.delete(`/api/mock-products/${organizationId}/${id}`);
+  },
+
+  /**
+   * Téléverse une photo de véhicule.
+   * NOTE: Sur le web, le paramètre `file` est un objet `File` (input type="file"), pas une string URI.
+   */
+  uploadVehiclePhoto: async (file: File, vehicleId: string): Promise<string> => {
+    // Utilise la version Web de mediaService qui gère les objets File
+    const response = await mediaService.uploadFileAndGetResponse(file, 'vehicles', vehicleId);
+    return response.url;
+  },
+};// END OF FILE: vehicleService.ts
+

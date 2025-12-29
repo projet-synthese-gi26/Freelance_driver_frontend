@@ -1,172 +1,117 @@
-import React, { useState, ChangeEvent, FormEvent } from "react";
-import ErrorTooltip from "./ErrorTooltip";
-import SuccessOverlay from "@/components/auth/SuccessOverlay";
-import { EyePassword, NoEyePassword } from "@/components/icon/passwordIcon";
-import {loginWithEmailAndPassword} from "@/app/api/auth/login";
-import { setAuthCookie } from "@/app/lib/firebase";
-// import {toast} from "react-toastify";
+// src/components/auth/LoginFormEmail.tsx
+"use client";
+import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
-
-
+import { authService } from "@/service/authService";
+import { sessionService } from "@/service/sessionService";
+import { EyePassword, NoEyePassword } from "@/components/icon/passwordIcon";
+import { useAuthContext } from "@/components/context/authContext";
 
 interface LoginFormProps {
-    onForgottenPasswordClick:(callback: () => void) => void;
+    onForgottenPasswordClick: (callback: () => void) => void;
     onSignUpClick: (callback: () => void) => void;
-
 }
 
-interface FormData {
-    email: string;
-    password: string;
-    rememberMe: boolean;
-}
+export default function LoginFormEmail({ onForgottenPasswordClick, onSignUpClick }: LoginFormProps) {
+    const router = useRouter();
+    const { checkAuth } = useAuthContext(); // Pour mettre à jour l'état global après login
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [showPassword, setShowPassword] = useState(false);
+    const [loading, setLoading] = useState(false);
 
-interface MousePosition {
-    x: number;
-    y: number;
-}
+    const handleLogin = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setLoading(true);
 
-export default function LoginFormEmail({onForgottenPasswordClick,onSignUpClick}:LoginFormProps) {
+        try {
+            const response = await authService.login({ username: email.trim(), password });
+            
+            const { token, profile } = response;
+            const roles = profile.roles || [];
 
-    const [formData, setFormData] = useState<FormData>({ email: "", password: "", rememberMe: false });
-    const [error, setError] = useState<string | null>(null);
-    const [mousePosition, setMousePosition] = useState<MousePosition>({ x: 0, y: 0 });
-    const [loginSuccess, setLoginSuccess] = useState<boolean>(false);
-    const [isLoadingEmail, setIsLoadingEmail] = useState<boolean>(false);
-    const [showPassword, setShowPassword] = useState<boolean>(false);
+            // Sauvegarde de base
+            sessionService.saveSession(token, profile);
+            
+            // Mise à jour du contexte React
+            await checkAuth();
 
-    const resetForm = () => {
-        setFormData({ email: "", password: "", rememberMe: false });
-        setError(null);
-        setMousePosition({ x: 0, y: 0 });
-        setLoginSuccess(false);
-        setIsLoadingEmail(false);
-        setShowPassword(false);
-    };
+            // LOGIQUE DE REDIRECTION (Copie du mobile)
+            if (roles.length > 1) {
+                // Plusieurs rôles -> Page de choix
+                console.log("Multi-roles detected -> Redirect to Choose Profile");
+                router.push('/auth/choose-profile');
+            } else if (roles.length === 1) {
+                // Rôle unique -> Redirection directe
+                const role = roles[0];
+                if (role === 'DRIVER') {
+                    router.push('/freelance-dashboard');
+                } else if (role === 'CLIENT') {
+                    router.push('/customer-dashboard');
+                } else {
+                    router.push('/');
+                }
+                toast.success("Welcome back!");
+            } else {
+                toast.error("No valid profile found.");
+            }
 
-    const togglePasswordVisibility = () => {
-        setShowPassword(!showPassword);
-    };
-
-    const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
-        const { name, value, type, checked } = event.target;
-        setFormData(prev => ({
-            ...prev,
-            [name]: type === 'checkbox' ? checked : value
-        }));
-    };
-
-    const validateFormMail = (): boolean => {
-        if (!formData.email || !formData.password) {
-            // setError("Email and password are required.");
-            toast.error("Email and password are required.");
-            return false;
+        } catch (error: any) {
+            const msg = error.response?.data?.message || "Login failed. Check your credentials.";
+            toast.error(msg);
+        } finally {
+            setLoading(false);
         }
-        return true;
-    };
-
-
-
-    const handleSubmitEmail = async (event: FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
-        if (!validateFormMail()) {
-            return;
-        }
-        setIsLoadingEmail(true);
-        setError(null);
-        const { email, password,rememberMe } = formData;
-        const {data,error}=await loginWithEmailAndPassword(email,password,rememberMe);
-        if(error) {
-            setIsLoadingEmail(false);
-            toast.error(error.message);
-            return;
-
-        }
-        setLoginSuccess(true);
-        setAuthCookie()
-        setIsLoadingEmail(false);
     };
 
     return (
-        <>
-            <form onSubmit={handleSubmitEmail} className="space-y-3">
+        <form onSubmit={handleLogin} className="space-y-4">
+            <div>
                 <input
-                    className="w-full px-3 py-2 rounded-md text border focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                    type="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleChange}
+                    className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                    type="text" // 'text' car ça peut être username ou email
                     placeholder="Email"
-                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                 />
-                <div className="relative">
-                    <input
-                        className="w-full px-3 py-2 text rounded-md border focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                        type={showPassword ? "text" : "password"}
-                        name="password"
-                        value={formData.password}
-                        onChange={handleChange}
-                        placeholder="Password"
-                        required
-                    />
-                    <button
-                        type="button"
-                        className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                        onClick={togglePasswordVisibility}
-                    >
-                        {!showPassword ? <NoEyePassword /> : <EyePassword />}
-                    </button>
-                </div>
-
-                <div className="flex justify-between items-center mt-2 mb-4">
-                    <label className="flex items-center">
-                        <input
-                            type="checkbox"
-                            className="form-checkbox h-4 w-4 text-indigo-600 transition duration-150 ease-in-out"
-                            name="rememberMe"
-                            checked={formData.rememberMe}
-                            onChange={handleChange}
-                        />
-                        <span className="ml-2 text text-gray-600">Remember Me</span>
-                    </label>
-                    <button
-                        type="button"
-                        onClick={()=>{onForgottenPasswordClick(()=>resetForm())}}
-                        className="text text-indigo-600 font-medium hover:underline"
-                    >
-                        Forgot password?
-                    </button>
-                </div>
-                <button
-                    className={`w-full py-2 text font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 ${
-                        isLoadingEmail ? "opacity-50 cursor-not-allowed" : ""
-                    }`}
-                    disabled={isLoadingEmail}
-                    onMouseMove={(e) => setMousePosition({ x: e.clientX, y: e.clientY })}
-                >
-                    {isLoadingEmail ? "Loading..." : "Continue"}
-                </button>
-                {/*{error && <ErrorTooltip message={error} position={mousePosition} />}*/}
-            </form>
-
-            <p className="mt-4 text-sm text-gray-600 text text-center">
-                Don't have an account yet?{" "}
+            </div>
+            <div className="relative">
+                <input
+                    className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                />
                 <button
                     type="button"
-                    onClick={()=>{onSignUpClick(()=>resetForm())}}
-                    className="font-medium text-indigo-600 hover:underline"
+                    className="absolute right-3 top-3.5 text-gray-500"
+                    onClick={() => setShowPassword(!showPassword)}
                 >
-                    Create your account
+                    {showPassword ? <EyePassword /> : <NoEyePassword />}
+                </button>
+            </div>
+
+            <div className="flex justify-end">
+                <button type="button" onClick={() => onForgottenPasswordClick(() => {})} className="text-sm text-indigo-600 hover:underline">
+                    Forgot Password?
+                </button>
+            </div>
+
+            <button
+                disabled={loading}
+                className="w-full bg-indigo-600 text-white py-3 rounded-lg font-bold hover:bg-indigo-700 transition disabled:opacity-50"
+            >
+                {loading ? "Signing in..." : "Sign In"}
+            </button>
+
+            <p className="text-center text-sm text-gray-600 mt-4">
+                Don't have an account?{" "}
+                <button type="button" onClick={() => onSignUpClick(() => {})} className="text-indigo-600 font-bold hover:underline">
+                    Sign Up
                 </button>
             </p>
-            {loginSuccess && (
-                <SuccessOverlay
-
-                    result="Login Successful!"
-                    message="Redirecting you to the dashboard...please wait !"
-                    redirect="/customer-dashboard"
-                />
-            )}
-        </>
+        </form>
     );
 }

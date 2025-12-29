@@ -1,0 +1,40 @@
+export interface Resource {
+  created_at: string;
+  updated_at: string;
+  deleted_at?: string;
+  brand_id?: string;
+  immatriculation?: string;
+  serial_number?: string;
+  sku_code?: string;
+  bar_code?: string;
+  qr_code?: string;
+  name: string;
+  short_description?: string;
+  long_description?: string;
+  storage_condition?: string;
+  model_id?: string;
+  category_id: string;
+  iot_number?: string;
+  available_quantity: number;
+  product_type: 'TANGIBLE' | 'INTANGIBLE';
+  base_price: number;
+  accessibility: 'PUBLIC' | 'PRIVATE';
+  organisation_id?: string;
+  default_agency_id?: string;
+  sell_product_id?: string;
+  purchase_unit_id?: string;
+  parent_id?: string;
+  number_usage: number;
+  transferable: boolean;
+  state: 'AVAILABLE' | 'UNAVAILABLE' | 'ACCEPTED';
+  max_reservation: number;
+  is_tangible: boolean;
+  expires_at?: string;
+  resource_id: string;
+  organization_id: string;
+  email_address?: string;
+  phone_number?: string;
+  metadata?: {
+    [key: string]: any;
+  };
+}
