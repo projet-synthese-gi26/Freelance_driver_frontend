@@ -1,46 +1,113 @@
 "use client"
-import React, { useState } from 'react'
-import {vehicles} from "@/data/Structure"
-import {PlusCircleIcon} from "@heroicons/react/24/outline";
+import React, { useState, useEffect, useCallback } from 'react';
+import { PlusIcon } from "@heroicons/react/24/outline";
+import { toast } from 'react-hot-toast';
+
 import AddVehicleForm from '@/components/freelance/business/AddVehicleForm';
-import VehicleList from '@/components/freelance/business/VehicleList';
+import { VehicleCard } from '@/components/freelance/business/VehicleCard'; // Assurez-vous du bon import
+import { vehicleService } from '@/service/vehicleService';
+import { Vehicle } from '@/type/vehicle';
+import EmptyJumbotron from '@/components/EmptyJumbotron';
 
 const Page = () => {
-  const [isAdding,setIsAdding]=useState(false)
-  const [Editing,setEditing]=useState(false )
+  const [vehicles, setVehicles] = useState<Vehicle[]>([]);
+  const [loading, setLoading] = useState(true);
+  
+  // Gestion de l'affichage (Liste vs Formulaire)
+  const [viewMode, setViewMode] = useState<'list' | 'add' | 'edit'>('list');
+  const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
 
-  return (
-    <div className='text p-4'>
-      <h1 className="title font-bold mb-4">Vehicles Management</h1>
-      <div className="rounded-md bg-white">
-        {vehicles.length<=0 ? (
-        <div className='flex items-center justify-center flex-col space-y-[10%]'>
-          <span className='opacity-[80%]'>No Registered vehicle yet</span>
-          <div className='border border-dashed p-3 rounded items-center flex flex-col justify-center hover:bg-[var(--btn-bg)] cursor-pointer'
-            onClick={()=>{setIsAdding(true)}}
-          >
-            <PlusCircleIcon className='w-7 h-7'/>
-            <span className='font-medium'>Add a new vehicle</span> 
-          </div>
+  const loadVehicles = useCallback(async () => {
+    setLoading(true);
+    try {
+      const data = await vehicleService.getAllVehicles();
+      setVehicles(data);
+    } catch (error) {
+      console.error(error);
+      toast.error("Impossible de charger vos véhicules.");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadVehicles();
+  }, [loadVehicles]);
+
+  const handleEditClick = (vehicle: Vehicle) => {
+    setSelectedVehicle(vehicle);
+    setViewMode('edit');
+  };
+
+  const handleDeleteClick = async (vehicle: Vehicle) => {
+    if (!confirm(`Voulez-vous vraiment supprimer la ${vehicle.model} ?`)) return;
+
+    try {
+        await vehicleService.deleteVehicle(vehicle.id);
+        setVehicles(prev => prev.filter(v => v.id !== vehicle.id));
+        toast.success("Véhicule supprimé.");
+    } catch (error) {
+        toast.error("Erreur lors de la suppression.");
+    }
+  };
+
+  const handleFormSuccess = () => {
+    setViewMode('list');
+    loadVehicles();
+  };
+
+  // --- Rendu du Formulaire ---
+  if (viewMode === 'add' || viewMode === 'edit') {
+    return (
+        <div className="p-4 md:p-6 max-w-4xl mx-auto">
+            <AddVehicleForm 
+                vehicleToEdit={selectedVehicle}
+                onSuccess={handleFormSuccess}
+                onCancel={() => setViewMode('list')}
+            />
         </div>
-        ):(
-          <div>
-            {isAdding? (
-              <div>
-                <span className='font-medium'>Adding a new vehicle</span>
-                <AddVehicleForm setIsEditing={setIsAdding} isEditing={isAdding}/>
-              </div>
-            ):(
-              <>
-                <VehicleList setIsAdding={setIsAdding} isAdding={isAdding}/>
-              </>
-            )}
-            
-          </div>
-        )}
+    );
+  }
+
+  // --- Rendu de la Liste ---
+  return (
+    <div className='p-4 md:p-6 max-w-7xl mx-auto'>
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-2xl font-bold text-gray-800">Mes Véhicules</h1>
+        <button
+            onClick={() => {
+                setSelectedVehicle(null);
+                setViewMode('add');
+            }}
+            className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition shadow-sm"
+        >
+            <PlusIcon className="w-5 h-5" />
+            <span>Nouveau Véhicule</span>
+        </button>
       </div>
+
+      {loading ? (
+        <div className="text-center py-20 text-gray-500">Chargement...</div>
+      ) : vehicles.length === 0 ? (
+        <EmptyJumbotron 
+            title="Aucun véhicule" 
+            message="Vous n'avez pas encore ajouté de véhicule à votre flotte." 
+            icon="/img/car-placeholder.png" // Assurez-vous d'avoir une icône ou utilisez celle par défaut
+        />
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {vehicles.map(vehicle => (
+                <VehicleCard 
+                    key={vehicle.id}
+                    vehicle={vehicle}
+                    onEdit={handleEditClick}
+                    onDelete={handleDeleteClick}
+                />
+            ))}
+        </div>
+      )}
     </div>
-  )
+  );
 }
 
-export default Page
+export default Page;

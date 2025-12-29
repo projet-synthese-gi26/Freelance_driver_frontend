@@ -6,12 +6,11 @@ import IconComponent from "@/components/general/IconComponent";
 import portofolio from "@public/img/cv.png"
 import support from "@public/img/support.png"
 import { toast } from 'react-hot-toast';
-import {orders} from '@/data/Structure'
-// AJOUT DE L'IMPORT DU SERVICE DE SESSION
 import { sessionService } from "@/service/sessionService";
+import { profileService } from "@/service/profileService";
+import { useAuthContext } from "@/components/context/authContext";
 
 import {
-  CheckIcon,
   ChatBubbleLeftRightIcon,
   BriefcaseIcon,
   ShieldCheckIcon,
@@ -26,58 +25,34 @@ import {
   ChevronDownIcon,
 } from "@heroicons/react/24/outline";
 
-import { useState, MouseEvent,ChangeEvent, useMemo, useEffect, useCallback, useRef } from "react";
-
-import { useContextProvider } from "@/components/context/context";
+import { useState, MouseEvent, ChangeEvent, useMemo, useEffect, useCallback, useRef } from "react";
 
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const { user, isLoading, logout, checkAuth } = useAuthContext();
   const [navOpen, setNavOpen] = useState(false);
   const [openSubMenu, setOpenSubMenu] = useState<string | null>(null);
   const path = usePathname();
   const router = useRouter();
 
-  const OrderCount=()=>{
-    let count=0;
-    for (let i=0; i<orders.length; i++){
-      if(orders[i].status=="Pending"){
-        count++;
-      }
+  useEffect(() => {
+    if (!isLoading && !user) {
+      router.replace('/login');
     }
-    return count
-  }
+  }, [isLoading, user, router]);
 
-  const Pendingorders:number=OrderCount();
-  
+  const Pendingorders = 0; 
   
   const handleOpen = (event: MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation();
     setNavOpen(!navOpen);
   };
 
-  // --- NOUVELLE FONCTION DE DÉCONNEXION ---
   const handleLogout = () => {
-    try {
-      // 1. Nettoyer les cookies et le localStorage
-      sessionService.clearUserData();
-      
-      // 2. Feedback utilisateur
-      toast.success("Déconnexion réussie");
-      
-      // 3. Redirection vers la bonne page (D'après ton arborescence src/app/(auth)/login)
-      router.replace('/login'); 
-      
-      // NOTE : Si tu préfères rediriger vers la page d'accueil chauffeur, mets :
-      // router.replace('/driver');
-
-    } catch (error) {
-      console.error("Erreur lors de la déconnexion", error);
-      // Force la redirection même en cas d'erreur
-      router.replace('/login');
-    }
+      logout(); 
   };
 
   const NavItems = useMemo(() => [
@@ -119,12 +94,10 @@ export default function RootLayout({
   ], []);
 
   const toggleSubMenu = useCallback((navItem: any) => {
-    // --- MODIFICATION ICI POUR INTERCEPTER LE LOGOUT ---
     if (navItem.title === 'Log out') {
       handleLogout();
       return;
     }
-    // ---------------------------------------------------
 
     if (navItem.subItems) {
       setOpenSubMenu(prevOpenSubMenu => 
@@ -142,10 +115,32 @@ export default function RootLayout({
   }, [openSubMenu, router]);
 
   const inputFileRef = useRef<HTMLInputElement>(null);
+  
   const handlePencilClick = () => {
     if (inputFileRef.current) {
       inputFileRef.current.click();
     }
+  };
+
+  const handleFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
+      const files = event.target.files;
+      if (files && files.length > 0) {
+        const file = files[0];
+        const loadingToast = toast.loading("Mise à jour de la photo...");
+        
+        try {
+            const newUrl = await profileService.uploadAvatar(file);
+            const updatedContext = await profileService.updateDriverAvatarUrl(newUrl);
+            
+            sessionService.saveSessionContext(updatedContext);
+            await checkAuth(); 
+            
+            toast.success("Photo mise à jour !", { id: loadingToast });
+        } catch (error) {
+            console.error(error);
+            toast.error("Échec de la mise à jour", { id: loadingToast });
+        }
+      }
   };
 
   const isActive = useCallback((navItem: any) => {
@@ -167,35 +162,24 @@ export default function RootLayout({
     }
   }, [path, NavItems, isActive]);
 
-  const { clientDTO, setClientDTO } = useContextProvider();
-    const [formData, setFormData] = useState({
-      name: clientDTO.name,
-      email: clientDTO.email,
-      phoneNumber: clientDTO.phoneNumber,
-      sex: clientDTO.sex,
-      profile: clientDTO.profile,
-    });
-    
+  if (isLoading || !user) {
+      return (
+          <div className="min-h-screen flex items-center justify-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+          </div>
+      );
+  }
+
+  // --- CORRECTION AFFICHAGE NOM/CONTACT ---
+  const driverName = user.driverProfile?.firstName 
+    ? `${user.driverProfile.firstName} ${user.driverProfile.lastName}` 
+    : 'Profil Chauffeur';
   
-    const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
-      const files = event.target.files;
-      if (files && files.length > 0) {
-        const reader = new FileReader();
-        reader.onload = () => {
-          if (reader.result) {
-            setClientDTO(prevState => ({
-              ...prevState,
-              userPictureUrl: reader.result as string
-            }));
-          }
-        };
-        reader.readAsDataURL(files[0]);
-      }
-    };
-    const [editable,setEditable] = useState(false)
-    const handleSave = () => {
-          toast.success('Changes Saved Successfully');
-      };
+  // On affiche le téléphone si l'email n'est pas présent dans le profil chauffeur
+  // On évite strictement d'afficher l'UUID
+  const userContact = user.driverProfile?.driver_email || user.driverProfile?.phoneNumber || '';
+  
+  const avatarUrl = user.driverProfile?.profileImageUrl || "/img/default-avatar.jpeg";
 
   return (
     <div className="min-h-[72vh] bg-white">
@@ -241,9 +225,9 @@ export default function RootLayout({
                                   path === subItem.link ? "bg-primary text-white" : ""
                                 }`}
                               >
-                                {subItem.title=="Orders"? (
+                                {subItem.title === "Orders" ? (
                                   <span>{subItem.title} ({Pendingorders})</span>
-                                ):(
+                                ) : (
                                   <span>{subItem.title}</span>
                                 )}
                               </Link>
@@ -277,32 +261,34 @@ export default function RootLayout({
               >
                 <Bars3Icon className="w-6 h-6" />
               </button>
-              <div className="avatar-upload__edit">
-                <input type="file" id="imageUpload" accept=".png, .jpg, .jpeg" className="hidden" ref={inputFileRef} onChange={handleFileChange} />
+              
+              <div className="hidden">
+                <input type="file" id="imageUpload" accept=".png, .jpg, .jpeg" ref={inputFileRef} onChange={handleFileChange} />
               </div>
-              <div onClick={handlePencilClick} className="cursor-pointer border overflow-hidden w-[40px] h-[40px] border-[var(--primary)] rounded-full bg-white grid place-content-center relative mx-auto">
+
+              <div onClick={handlePencilClick} className="cursor-pointer border overflow-hidden w-[40px] h-[40px] border-[var(--primary)] rounded-full bg-white relative mx-auto">
                 <Image
-                  width={40}
-                  height={40}
-                  src={clientDTO.userPictureUrl}
-                  alt="image"
+                  src={avatarUrl}
+                  alt="avatar"
+                  fill
                   className="rounded-full object-cover"
                 />
-                {/* <div className="w-3 h-3 grid place-content-center rounded-full border-2 white text-white bg-primary absolute bottom-2 right-0">
-                  <CheckIcon className="w-2 h-2" />
-                </div> */}
               </div>
+
               <div className="font-medium text">
                 <div className="flex gap-2">
-                  <h6 className="font-bold">{clientDTO.name}</h6>
-                  <p className="text opacity-[70%]">(Not Verified)</p>
+                  <h6 className="font-bold">{driverName}</h6>
                 </div>
-                <Link href={`mailto:${clientDTO.email}`}>{clientDTO.email}</Link>
+                {/* Affiche le contact (tel ou email) mais jamais l'ID */}
+                {userContact && (
+                   <span className="text-sm text-gray-600">{userContact}</span>
+                )}
               </div>
             </div>
+            
             <Link
               className={`text font-bold cursor-pointer ${navOpen? "mt-[3rem]":""} flex items-center gap-1  p-2  mr-[2%] rounded-md  border-[var(--dark)] border hover:bg-primary hover:text-white justify-center`}
-              href="/freelance-profile"
+              href={`/freelance-profile?id=${user.userId}`}
             >
               View my profile
             </Link>
@@ -310,7 +296,7 @@ export default function RootLayout({
           <section
             className={`${
               navOpen ? "lg:ml-0" : "ml-0"
-            } transition-all duration-300 ease-out container`}
+            } transition-all duration-300 ease-out container p-4`}
           >
             {children}
           </section>

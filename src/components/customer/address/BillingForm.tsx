@@ -1,366 +1,270 @@
-import React,{ Dispatch, Fragment, SetStateAction, useState } from 'react'
+import React, { Fragment, useState, useEffect } from 'react'
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import Button from '@mui/material/Button';
-import { PaintBrushIcon } from '@heroicons/react/24/outline'
+import { PaintBrushIcon, MapPinIcon, PlusCircleIcon } from '@heroicons/react/24/outline';
 import Dialog from '@mui/material/Dialog';
-import {useForm} from 'react-hook-form'
-import { AdressFormData, BillingType } from '@/app/type/Billing'; 
-import {
-    MapPinIcon,
-    PlusCircleIcon,
-  } from "@heroicons/react/24/outline";
+import { useForm } from 'react-hook-form';
+import { toast } from 'react-hot-toast';
 
-  import { parseAddress } from './AdressParser';
+// SERVICES
+import { addressService } from '@/service/addressService';
+import { sessionService } from '@/service/sessionService';
+import { Address } from '@/type/address';
+import { parseAddress } from './AdressParser';
 
-interface BillingProps{
-    Billings: BillingType[];
-    BillId?:number;
-    status:string;
-    setBilling:Dispatch<SetStateAction<BillingType[]>>;
+// Type pour le formulaire (basé sur Address)
+type AddressFormData = {
+    title: string;
+    street: string;
+    city: string;
+    zipCode: string;
+    country: string;
+};
+
+interface BillingFormProps {
+    status: 'add' | 'update';
+    addressToEdit?: Address;
+    onSuccess: () => void;
 }
 
 interface Suggestion {
     display_name: string;
-    address: {
-        postcode?: string;
-        city?: string;
-        country?: string;
-        road?: string;
-    };
+    address: any;
 }
 
-const BillingForm = ({Billings,BillId,status,setBilling}:BillingProps) => {
+const BillingForm = ({ status, addressToEdit, onSuccess }: BillingFormProps) => {
     const theme = useTheme();
     const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
-    const [errors, setErrors] = useState<{[key: string]: string}>({});
     const [open, setOpen] = useState(false);
-    const {register,handleSubmit,setValue}=useForm<AdressFormData>()
-    const [suggestions, setSuggestions] = useState<Suggestion[]>([])
-    const [country,setCountry]=useState('')
-    const [city,setCity]=useState('')
-    const [street,setStreet]=useState('')
-    const [postalCode,setPostalCode]=useState('')
-    const [isLoading, setIsLoading] = useState(false);
-
-    const validateForm = () => {
-        let newErrors: {[key: string]: string} = {};
-        setErrors(newErrors);
-        return Object.keys(newErrors).length === 0;
-    };
-
-    const handleUpdate= (id:number|undefined) => { 
-        if (validateForm()) {
-            const Update=Billings.map(item=>{
-                if(item.id==BillId){
-                    return {...item, country:country,city:city,street:street,postalCode:postalCode}
-                }
-                return item
-            })
-            setBilling(Update)
-            // for (let index = 0; index < Billings.length; index++) {
-            //     if (Billings[index].id === BillId){
-            //         console.log(true);
-            //         Billings[index].country=country
-            //         Billings[index].city=city
-            //         Billings[index].street=street
-            //         Billings[index].postalCode=PostalCode
-            //     }
-            // }
-            handleClose();
-        }
-    };
-
-    const addItems=(items:BillingType[],newItem:BillingType):BillingType[] => {
-        return [...items,newItem];
-    }
-    const handleAdd= () => {
-        const NewBillAddress:BillingType={id: Billings.length + 1, country: country, city: city, street: street, postalCode: postalCode,select: false}
-        if (validateForm()) {
-            setBilling(addItems(Billings,NewBillAddress))
-        }
-        
-        handleClose();
-    }
-
-    const handleEdit = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const input = e.target.value;
-        setStreet(input);
-        if (input.length > 3) {
-            setIsLoading(true);
-            try {
-                const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(input)}&limit=5`);
-                const data = await response.json();
-                const newSuggestions = data.map((item: any) => {
-                    const parsedAddress = parseAddress(item.display_name);
-                    return {
-                        display_name: item.display_name,
-                        address: parsedAddress
-                    };
-                });
-                setSuggestions(newSuggestions);
-            } catch (error) {
-                console.error("Erreur lors de la récupération des suggestions:", error);
-                setSuggestions([]);
-            } finally {
-                setIsLoading(false);
-            }
-        } else {
-            setSuggestions([]);
-        }
-    }
-
-    const handleSelect = (suggestion: Suggestion) => {
-
-        setStreet(suggestion.address.road || '');
-        setCity(suggestion.address.city || '');
-        setPostalCode(suggestion.address.postcode || '');
-        setCountry(suggestion.address.country || '');
-        setValue('street', suggestion.address.road || '');
-        setValue('city', suggestion.address.city || '');
-        setValue('postalCode', suggestion.address.postcode || '');
-        setValue('country', suggestion.address.country || '');
-        setSuggestions([]);
-    }
-    const handleCountry = (e: React.ChangeEvent<HTMLInputElement>) => setCountry(e.target.value);
-    const handleCity = (e: React.ChangeEvent<HTMLInputElement>) => setCity(e.target.value);
-    const handleStreet = (e: React.ChangeEvent<HTMLInputElement>) => setStreet(e.target.value);
-    const handlePostalCode = (e: React.ChangeEvent<HTMLInputElement>) => setPostalCode(e.target.value);
-
-    const handleClickOpen = () => {
-        setCountry(Billings[(BillId as number)-1].country)
-        setCity(Billings[(BillId as number)-1].city)
-        setStreet(Billings[(BillId as number)-1].street)
-        setPostalCode(Billings[(BillId as number)-1].postalCode)
-        setOpen(true)
-    };
+    const { register, handleSubmit, setValue, reset, watch } = useForm<AddressFormData>();
     
-    const handleClose = () => {
-        setOpen(false)
-    }
-  return (
-    <div>
-        {status==="update" && (
-            <Fragment>
-            <a className="cursor-pointer btn-outline-gray inline-flex rounded-md items-center text gap-1 font-semibold shrink-0" onClick={handleClickOpen}>
-                <PaintBrushIcon className="w-4 h-4" />
-                Edit Address 
-            </a>
-            <Dialog
-                open={open}
-                onClose={handleClose}
-                fullScreen={fullScreen}
-                PaperProps={{
-                    component: 'form',
-                    onSubmit: (event: React.FormEvent<HTMLFormElement>) => {
-                        event.preventDefault();
-                        handleUpdate(BillId);
-                    },
-                    className: 'w-full max-w-[600px] sm:w-4/5 md:w-3/4'
-                }}
-            >
-                <DialogTitle>
-                    <h1 className={`font-bold ${fullScreen ? 'title' : 'title'}`}>
-                    Update Billing Address
-                    </h1>
-                </DialogTitle>
-                <DialogContent>
-                <form onSubmit={handleSubmit(() => status === "update" ? handleUpdate(BillId) : handleAdd())} className='flex text flex-col gap-3'>
-                    <label className="font-medium">Address</label>
-                    <div className="relative">
-                        <input
-                            {...register('street')}
-                            onChange={handleEdit}
-                            value={street}
-                            placeholder='Address'
-                            className='focus:outline-none border border-primary-500 rounded-full p-2 w-full'
-                        />
-                        {isLoading && (
-                            <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary-500"></div>
-                            </div>
-                        )}
+    // États pour l'autocomplétion et le chargement
+    const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
+    const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    // Watch pour l'autocomplétion
+    const streetValue = watch('street');
+
+    // Pré-remplir le formulaire en mode édition
+    useEffect(() => {
+        if (open && status === 'update' && addressToEdit) {
+            setValue('title', addressToEdit.title);
+            setValue('street', addressToEdit.street);
+            setValue('city', addressToEdit.city);
+            setValue('zipCode', addressToEdit.zipCode);
+            setValue('country', addressToEdit.country);
+        } else if (open && status === 'add') {
+            reset(); // Réinitialiser pour un nouvel ajout
+        }
+    }, [open, status, addressToEdit, setValue, reset]);
+
+    // Gestion de l'autocomplétion (Nominatim)
+    useEffect(() => {
+        const fetchSuggestions = async () => {
+            if (streetValue && streetValue.length > 3) {
+                setIsLoadingSuggestions(true);
+                try {
+                    const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(streetValue)}&limit=5&addressdetails=1`);
+                    const data = await response.json();
+                    setSuggestions(data);
+                } catch (error) {
+                    console.error("Erreur autocomplétion:", error);
+                } finally {
+                    setIsLoadingSuggestions(false);
+                }
+            } else {
+                setSuggestions([]);
+            }
+        };
+        
+        // Debounce simple
+        const timeoutId = setTimeout(fetchSuggestions, 500);
+        return () => clearTimeout(timeoutId);
+    }, [streetValue]);
+
+    const handleSelectSuggestion = (suggestion: Suggestion) => {
+        const parsed = parseAddress(suggestion.display_name); // Assurez-vous que votre fonction parseAddress est compatible
+        // Ou utiliser directement les champs de nominatim
+        const addr = suggestion.address;
+        
+        setValue('street', addr.road || addr.pedestrian || suggestion.display_name.split(',')[0]);
+        setValue('city', addr.city || addr.town || addr.village || '');
+        setValue('zipCode', addr.postcode || '');
+        setValue('country', addr.country || '');
+        
+        setSuggestions([]); // Fermer la liste
+    };
+
+    // Soumission du formulaire
+    const onSubmit = async (data: AddressFormData) => {
+        setIsSubmitting(true);
+        try {
+            // Récupérer l'ID utilisateur
+            const userContext = await sessionService.getUserContext();
+            const userId = userContext?.id;
+
+            if (!userId) {
+                toast.error("Utilisateur non connecté.");
+                return;
+            }
+
+            if (status === 'add') {
+                await addressService.createAddress(data, userId);
+                toast.success("Adresse ajoutée !");
+            } else if (status === 'update' && addressToEdit) {
+                await addressService.updateAddress(addressToEdit.id, data, userId);
+                toast.success("Adresse mise à jour !");
+            }
+            
+            onSuccess(); // Recharger la liste parente
+            handleClose();
+        } catch (error) {
+            console.error("Erreur sauvegarde:", error);
+            toast.error("Une erreur est survenue.");
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    const handleClickOpen = () => setOpen(true);
+    const handleClose = () => setOpen(false);
+
+    return (
+        <div>
+            {/* BOUTON D'OUVERTURE (Différent selon le mode) */}
+            {status === "update" ? (
+                <button 
+                    className="cursor-pointer flex items-center px-3 py-2 text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm font-semibold transition-colors" 
+                    onClick={handleClickOpen}
+                >
+                    <PaintBrushIcon className="w-4 h-4 mr-1" />
+                    Edit
+                </button>
+            ) : (
+                <button 
+                    className="w-full flex flex-col items-center justify-center p-6 border-2 border-dashed border-gray-300 rounded-2xl hover:bg-gray-50 hover:border-blue-300 transition-all cursor-pointer group" 
+                    onClick={handleClickOpen}
+                >
+                    <MapPinIcon className="w-10 h-10 text-gray-400 group-hover:text-blue-500 mb-2" />
+                    <div className="flex items-center text-gray-500 group-hover:text-blue-600 font-semibold">
+                        <PlusCircleIcon className="w-5 h-5 mr-1" />
+                        <span>Add a new address</span>
                     </div>
-                    {suggestions.length > 0 && (
-                        <ul className="bg-white border border-gray-300 rounded-md mt-1 max-h-60 overflow-auto">
-                            {suggestions.map((suggestion, index) => (
-                                <li 
-                                    key={index} 
-                                    onClick={() => handleSelect(suggestion)}
-                                    className="p-2 hover:bg-gray-100 cursor-pointer"
-                                >
-                                    {suggestion.display_name}
-                                </li>
-                            ))}
-                        </ul>
-                    )}
-                    <label className="font-medium">City</label>
-                    <input
-                        {...register('city')}
-                        placeholder='City'
-                        value={city}
-                        onChange={(e) => setCity(e.target.value)}
-                        className='focus:outline-none border border-primary-500 rounded-full p-2'
-                    />
-                    <label className="font-medium">Postal Code</label>
-                    <input
-                        {...register('postalCode')}
-                        placeholder='Postal Code'
-                        value={postalCode}
-                        onChange={(e) => setPostalCode(e.target.value)}
-                        className='focus:outline-none border border-primary-500 rounded-full p-2'
-                    />
-                    <label className="font-medium">Country</label>
-                    <input
-                        {...register('country')}
-                        placeholder='Country'
-                        value={country}
-                        onChange={(e) => setCountry(e.target.value)}
-                        className='focus:outline-none border border-primary-500 rounded-full p-2'
-                    />
-                </form>
-                </DialogContent>
-                <DialogActions className="flex justify-center pb-4">
-                    <Button
-                        type="submit"
-                        variant="contained"
-                        color="primary"
-                        className="mx-1 px-4 text py-2 rounded-lg hover:bg-blue-700"
-                    >
-                    Update
-                    </Button>
-                    <Button
-                        onClick={handleClose}
-                        variant="contained"
-                        color="error"
-                        className="mx-1 px-4 text py-2 rounded-lg hover:bg-red-700"
-                    >
-                    Cancel
-                    </Button>
-                </DialogActions>
-            </Dialog>
-        </Fragment>
-        )}
-        {status==="add" && (
-            <Fragment>
-            <a className="cursor-pointer grid w-full hover:bg-[var(--bg-1)] place-content-center text-center border border-dashed rounded-2xl p-4 p-xl-6" onClick={handleClickOpen}>
-                <div className="flex justify-center">
-                <MapPinIcon className="w-14 h-14" />
-                </div>
-                <div
-                className="link flex items-center justify-center gap-2 mt-1 clr-neutral-400 hover:text-primary">
-                    <PlusCircleIcon className="w-5 h-5" />
-                    <span className="font-semibold inline-block">
-                        {" "}
-                        Add a new address{" "}
-                    </span>
-                </div>
-            </a>
+                </button>
+            )}
+
+            {/* MODALE (DIALOG) */}
             <Dialog
                 open={open}
                 onClose={handleClose}
                 fullScreen={fullScreen}
                 PaperProps={{
-                    component: 'form',
-                    onSubmit: (event: React.FormEvent<HTMLFormElement>) => {
-                        event.preventDefault();
-                        handleAdd();
-                    },
-                    className: 'w-full max-w-[600px] sm:w-4/5 md:w-3/4'
+                    className: 'w-full max-w-[600px] rounded-xl'
                 }}
             >
-                <DialogTitle>
-                    <h1 className={`font-bold ${fullScreen ? 'title' : 'title'}`}>
-                    Add Billing Address
-                    </h1>
+                <DialogTitle className="border-b pb-4">
+                    <h2 className="text-xl font-bold text-gray-800">
+                        {status === 'add' ? 'Add New Address' : 'Edit Address'}
+                    </h2>
                 </DialogTitle>
-                <DialogContent>
-                    <form onSubmit={handleSubmit(handleAdd)} className='flex text flex-col gap-3'>
-                        <label className="font-medium">Address</label>
+                
+                <DialogContent className="pt-6">
+                    <form id="address-form" onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4 mt-2">
+                        
+                        {/* Titre */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Title (e.g., Home, Work)</label>
+                            <input
+                                {...register('title', { required: true })}
+                                placeholder="Home"
+                                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                            />
+                        </div>
+
+                        {/* Rue avec Autocomplétion */}
                         <div className="relative">
-                        <input
-                            {...register('street')}
-                            onChange={handleEdit}
-                            value={street}
-                            placeholder='Address'
-                            className='focus:outline-none border border-primary-500 rounded-full p-2 w-full'
-                        />
-                        {isLoading && (
-                            <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary-500"></div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Address / Street</label>
+                            <div className="relative">
+                                <input
+                                    {...register('street', { required: true })}
+                                    placeholder="123 Main St"
+                                    autoComplete="off"
+                                    className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                                />
+                                {isLoadingSuggestions && (
+                                    <div className="absolute right-3 top-2.5">
+                                        <div className="animate-spin h-5 w-5 border-2 border-blue-500 border-t-transparent rounded-full"></div>
+                                    </div>
+                                )}
                             </div>
-                        )}
-                    </div>
-                    {suggestions.length > 0 && (
-                        <ul className="bg-white border border-gray-300 rounded-md mt-1 max-h-60 overflow-auto">
-                            {suggestions.map((suggestion, index) => (
-                                <li 
-                                    key={index} 
-                                    onClick={() => handleSelect(suggestion)}
-                                    className="p-2 hover:bg-gray-100 cursor-pointer"
-                                >
-                                    {suggestion.display_name}
-                                </li>
-                            ))}
-                        </ul>
-                    )}
-                        {suggestions.length > 0 &&(
-                            <ul>
-                                {suggestions.map((suggestion,index) =>(
-                                    <li key={index} onClick={()=>handleSelect(suggestion)}>
-                                        {suggestion.display_name}
-                                    </li>
-                                ))}
-                            </ul>
-                        )}
-                        <label className="font-medium">City</label>
-                        <input {...register('city')}
-                        placeholder='City'
-                        value={city}
-                        onChange={handleCity}
-                        className='focus:outline-none border border-primary-500 rounded-full p-2'
-                        />
-                        <label className="font-medium">Postal Code</label>
-                        <input {...register('postalCode')}
-                        placeholder='Postal Code'
-                        value={postalCode}
-                        onChange={handlePostalCode}
-                        className='focus:outline-none border border-primary-500 rounded-full p-2'
-                        />
-                        <label className="font-medium">Country</label>
-                        <input {...register('country')}
-                        placeholder='Country'
-                        value={country}
-                        onChange={handleCountry}
-                        className='focus:outline-none border border-primary-500 rounded-full p-2'
-                        />
+                            
+                            {/* Liste de suggestions */}
+                            {suggestions.length > 0 && (
+                                <ul className="absolute z-10 w-full bg-white border border-gray-200 rounded-lg shadow-lg mt-1 max-h-48 overflow-y-auto">
+                                    {suggestions.map((s, i) => (
+                                        <li 
+                                            key={i} 
+                                            onClick={() => handleSelectSuggestion(s)}
+                                            className="px-4 py-2 hover:bg-gray-50 cursor-pointer text-sm border-b last:border-0"
+                                        >
+                                            {s.display_name}
+                                        </li>
+                                    ))}
+                                </ul>
+                            )}
+                        </div>
+
+                        {/* Ville & Code Postal */}
+                        <div className="grid grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">City</label>
+                                <input
+                                    {...register('city', { required: true })}
+                                    className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Postal Code</label>
+                                <input
+                                    {...register('zipCode', { required: true })}
+                                    className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                                />
+                            </div>
+                        </div>
+
+                        {/* Pays */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Country</label>
+                            <input
+                                {...register('country', { required: true })}
+                                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                            />
+                        </div>
                     </form>
                 </DialogContent>
-                <DialogActions className="flex justify-center pb-4">
-                    <Button
-                        type="submit"
-                        variant="contained"
-                        color="primary"
-                        className="mx-1 px-4 text py-2 rounded-lg hover:bg-blue-700"
-                    >
-                    Add
+
+                <DialogActions className="p-4 border-t bg-gray-50 rounded-b-xl">
+                    <Button onClick={handleClose} color="inherit" className="text-gray-600">
+                        Cancel
                     </Button>
-                    <Button
-                        onClick={handleClose}
-                        variant="contained"
-                        color="error"
-                        className="mx-1 px-4 text py-2 rounded-lg hover:bg-red-700"
+                    <Button 
+                        type="submit" 
+                        form="address-form" 
+                        variant="contained" 
+                        className="bg-blue-600 hover:bg-blue-700 text-white"
+                        disabled={isSubmitting}
                     >
-                    Cancel
+                        {isSubmitting ? 'Saving...' : (status === 'add' ? 'Add Address' : 'Update Address')}
                     </Button>
                 </DialogActions>
             </Dialog>
-        </Fragment>
-        )}
-    </div>
-)}
+        </div>
+    );
+}
 
-export default BillingForm
+export default BillingForm;

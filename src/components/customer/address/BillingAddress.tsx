@@ -1,64 +1,77 @@
 "use client"
-import React, { Dispatch, SetStateAction, useEffect, useState }  from 'react'
-import BillingForm from './BillingForm'
-import { BillingType } from '@/app/type/Billing'
+import React from 'react'
+import { Address } from '@/type/address';
+import BillingForm from './BillingForm';
+import { TrashIcon } from '@heroicons/react/24/outline';
 
-interface BillingProps {
-    Billings: BillingType[]
-    setLocation: React.Dispatch<React.SetStateAction<string>>;
-    setBilling:Dispatch<SetStateAction<BillingType[]>>;
+interface BillingAddressProps {
+    addresses: Address[];
+    selectedId: string | null;
+    onSelect: (id: string) => void;
+    onDelete: (id: string) => void;
+    onUpdateSuccess: () => void;
 }
 
-const BillingAddress = ({Billings, setLocation,setBilling}: BillingProps) => {
-    const [selectOption, setSelectOption] = useState('')
-
-    const handleSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setSelectOption(e.target.value)
-    }
-
-    useEffect(() => {
-        for (let index = 0; index < Billings.length; index++) {
-            if (selectOption === 'Bill' + Billings[index].id.toString()) {
-                Billings[index].select = true
-                setLocation(Billings[index].country)
-            } else {
-                Billings[index].select = false
-            }
-        }
-    }, [selectOption, Billings, setLocation])
-
+const BillingAddress = ({ addresses, selectedId, onSelect, onDelete, onUpdateSuccess }: BillingAddressProps) => {
     return (
-        <>
-            {Billings.map((billing) => (
-                <div key={billing.id} className="border border-dashed rounded-2xl mb-4">
-                    <form action="" className='flex flex-wrap items-center lg:justify-between p-4 '>
-                        <div className="flex items-center gap-4">
+        <div className="flex flex-col gap-4">
+            {addresses.map((address) => (
+                <div 
+                    key={address.id} 
+                    className={`border rounded-2xl transition-all duration-200 ${
+                        selectedId === address.id 
+                            ? 'border-blue-500 bg-blue-50 shadow-md' 
+                            : 'border-dashed border-gray-300 hover:border-gray-400'
+                    }`}
+                >
+                    <div className='flex flex-wrap items-center justify-between p-4'>
+                        {/* Zone Cliquable pour sélectionner */}
+                        <div 
+                            className="flex items-center gap-4 cursor-pointer flex-grow"
+                            onClick={() => onSelect(address.id)}
+                        >
                             <input
-                                className="accent-[var(--primary)] scale-125"
+                                className="accent-blue-600 scale-125 cursor-pointer"
                                 type="radio"
                                 name="select-address"
-                                id={`billing-address-${billing.id}`}
-                                value={'Bill' + billing.id.toString()}
-                                checked={selectOption === 'Bill' + billing.id.toString()}
-                                onChange={handleSelect}
+                                id={`billing-address-${address.id}`}
+                                checked={selectedId === address.id}
+                                onChange={() => onSelect(address.id)}
                             />
                             <label
-                                className="inline-block text-lg font-medium cursor-pointer"
-                                htmlFor={`billing-address-${billing.id}`}>
-                                <span className="text block font-bold">
-                                    Billing address #{billing.id}
+                                className="cursor-pointer flex-grow"
+                                htmlFor={`billing-address-${address.id}`}>
+                                <span className="block font-bold text-gray-800 text-lg mb-1">
+                                    {address.title}
                                 </span>
-                                <span className="block text clr-neutral-500">
-                                    {billing.country + ', ' + billing.city + ' ' + billing.street + ' ' + billing.postalCode}
+                                <span className="block text-gray-500 text-sm">
+                                    {address.street}, {address.city} {address.zipCode}, {address.country}
                                 </span>
                             </label>
                         </div>
-                        <BillingForm Billings={Billings} BillId={billing.id} status='update' setBilling={setBilling}/>
-                    </form>
+
+                        {/* Actions : Modifier / Supprimer */}
+                        <div className="flex items-center gap-3 mt-4 sm:mt-0">
+                            {/* Formulaire en mode "update" pour cette adresse spécifique */}
+                            <BillingForm 
+                                status='update' 
+                                addressToEdit={address} 
+                                onSuccess={onUpdateSuccess} 
+                            />
+                            
+                            <button 
+                                onClick={() => onDelete(address.id)}
+                                className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                                title="Delete address"
+                            >
+                                <TrashIcon className="w-5 h-5" />
+                            </button>
+                        </div>
+                    </div>
                 </div>
             ))}
-        </>
+        </div>
     )
 }
 
-export default BillingAddress
+export default BillingAddress;

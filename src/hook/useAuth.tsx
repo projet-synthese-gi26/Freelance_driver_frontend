@@ -1,65 +1,24 @@
-import { useEffect, useState } from "react";
-import { userInterface ,userData} from "@/type/user";
-import { onAuthStateChanged, User } from "@firebase/auth";
-import { auth, db } from "@/app/lib/firebase";
-import { onSnapshot } from "@firebase/firestore";
-import { doc } from "firebase/firestore";
+import { useAuthContext } from "@/components/context/authContext";
 
+// Ce hook sert de pont pour ne pas casser les composants existants
 export default function useAuth() {
-    const [authUser, setAuthUser] = useState<userInterface | null>(null);
-    const [authUserIsLoading, setAuthUserIsLoading] = useState(true);
+    const { user, isLoading, login, logout, register } = useAuthContext();
 
-    const getUserData = async (user: userInterface) => {
-        if (auth.currentUser) {
-            const userRef = doc(db, "users", auth.currentUser.uid);
-            onSnapshot(userRef, (doc) => {
-                const compactUser=user;
-                if (doc.exists()) {
-                    compactUser.userData = doc.data() as userData;
-                }
-
-                setAuthUser((prevAuthUser)=>({
-                    ...prevAuthUser,
-                    ...compactUser
-                }));
-
-                setAuthUserIsLoading(false);
-            });
-        }
-        else {
-            setAuthUser(null);
-            setAuthUserIsLoading(false);
-        }
-
-    }
-
-    const authStateChanged = async (authState: User | null) => {
-        if (!authState) {
-            setAuthUser(null);
-            setAuthUserIsLoading(false);
-            return;
-        }
-
-        setAuthUserIsLoading(true);
-        const formattedUser = formattedAuthUser(authState);
-        await getUserData(formattedUser);
-    }
-
-    const formattedAuthUser = (user: User): userInterface => ({
-        user_id: user.uid,
-        user_email: user.email,
-        // phone_number: user.phoneNumber,
-        emailVerified:user.emailVerified
-
-
-    });
-
-    useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, authStateChanged);
-
-        // Cleanup subscription on unmount
-        return () => unsubscribe();
-    }, []);
-
-    return { authUser, authUserIsLoading };
+    return {
+        // Mapping pour garder la compatibilité avec l'ancien code
+        authUser: user ? {
+            user_id: user.userId,
+            user_email: user.clientProfile?.contactEmail || user.driverProfile?.driver_email || '',
+            emailVerified: true, // Par défaut true car le backend gère ça
+            // On injecte le profil complet pour que les composants puissent y accéder
+            userData: user, 
+            driverProfile: user.driverProfile,
+            clientProfile: user.clientProfile
+        } : null,
+        
+        authUserIsLoading: isLoading,
+        login,
+        logout,
+        register
+    };
 }
