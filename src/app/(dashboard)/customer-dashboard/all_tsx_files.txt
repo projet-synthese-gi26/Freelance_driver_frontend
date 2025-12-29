@@ -1,0 +1,801 @@
+
+
+### FILE: ./user-chat/page.tsx
+
+"use client";
+import React, { useState } from "react";
+import ChatSideBar from "@/components/customer/chat/ChatSideBar";
+import ChatWindow from "@/components/customer/chat/ChatWindow";
+import MessageInput from "@/components/customer/chat/MessageInput";
+import ChatBox from "@/components/modal/chatModal";
+
+interface Contact {
+  id: number
+  name: string
+  avatar: string
+  lastMessage: string
+  lastMessageTime: string
+}
+
+interface Message {
+  id: number
+  senderId: number
+  text: string
+  timestamp: string
+}
+
+const contacts: Contact[] = [
+  { id: 1, name: "Alice", avatar: "/img/chauffeur_nouveau.png", lastMessage: "Hey there!", lastMessageTime: "10:30 AM" },
+  { id: 2, name: "Bob", avatar: "/img/chauffeur_nouveau.png", lastMessage: "How are you?", lastMessageTime: "Yesterday" },
+  { id: 3, name: "Charlie", avatar: "/img/chauffeur_nouveau.png", lastMessage: "See you soon!", lastMessageTime: "2 days ago" },
+  { id: 4, name: "David", avatar: "/img/chauffeur_nouveau.png", lastMessage: "See you soon!", lastMessageTime: "2 days ago" },
+  { id: 5, name: "Eve", avatar: "/img/chauffeur_nouveau.png", lastMessage: "See you soon!", lastMessageTime: "2 days ago" },
+]
+
+const initialMessages: Message[] = [
+  { id: 1, senderId: 1, text: "Hey there!", timestamp: "2023-05-10T10:30:00" },
+  { id: 2, senderId: 0, text: "Hi Alice! How are you?", timestamp: "2023-05-10T10:31:00" },
+  { id: 3, senderId: 1, text: "I'm good, thanks! How about you?", timestamp: "2023-05-10T10:32:00" },
+]
+
+const Page = () => {
+  const [selectedContact, setSelectedContact] = useState<Contact | null>(null)
+  const [messages, setMessages] = useState<Message[]>(initialMessages)
+  const [isChatting, setIsChatting] = useState(false)
+  const [searchResult,setSearchResult]=useState<string>('')
+
+  const handleContactSelect = (contact: Contact) => {
+    setSelectedContact(contact)
+    setIsChatting(true)
+    setSearchResult('')
+  }
+  const handleChatClick = () => {
+    setIsChatting((prevIsChat) => !prevIsChat);
+  };
+
+  const handleSendMessage = (text: string) => {
+    if (selectedContact) {
+      const newMessage: Message = {
+        id: messages.length + 1,
+        senderId: 0, // Assuming 0 is the current user
+        text,
+        timestamp: new Date().toISOString(),
+      }
+      setMessages([...messages, newMessage])
+    }
+  }
+
+  const handleBackToContacts = () => {
+    setIsChatting(false)
+  }
+
+  return (
+      <div className={`flex flex-col bg-white lg:flex-row ${contacts.length>6? ("lg:h-[40rem]"):("lg:h-full")} bg-gray-100 pb-20 mb-[15%]`}>
+        <div className={`${isChatting ? "lg:block hidden" : ""}`}>
+          <ChatSideBar contacts={contacts} onSelectContact={handleContactSelect} setSearchResult={setSearchResult} searchResult={searchResult} />
+        </div>
+        <div className="w-full">
+          <ChatBox isChat={isChatting} handleChatClick={handleChatClick} driverName={selectedContact?.name}
+                   driverId={selectedContact?.id.toString()} className={`h-full max-h-[100vh] w-[100%] bg-white rounded-md border shadow-lg ${
+              isChatting ? "block top-[10px]" : "hidden"
+          }`}
+            profilePicture={selectedContact?.avatar || ""}
+          />
+          {/* <ChatWindow contact={selectedContact} messages={messages} onBackToContacts={handleBackToContacts} />
+        <MessageInput onSendMessage={handleSendMessage} /> */}
+        </div>
+      </div>
+  );
+};
+
+export default Page;
+
+### FILE: ./user-notification/page.tsx
+
+"use client";
+import React from "react";
+import Notif1 from "@/components/customer/notification/Notif1";
+import Notif2 from "@/components/customer/notification/Notif2";
+import Notif3 from "@/components/customer/notification/Notif3";
+
+const Page = () => {
+
+  return (
+    <ul className="flex flex-col gap-6 pb-[30px] lg:pb-[60px] text">
+      <li>
+        <Notif1/>
+      </li>
+      <li>
+        <Notif2/>
+      </li>
+      <li>
+        <Notif3/>
+      </li>
+    </ul>
+  );
+};
+
+export default Page;
+
+
+### FILE: ./page.tsx
+
+"use client"
+import React, { useState, useEffect } from 'react'
+import { PencilSquareIcon } from "@heroicons/react/24/solid";
+import { toast } from 'react-hot-toast';
+import { languageOptions } from "@/data/Structure";
+import { DriverDTO, driverDTO } from '@/app/(dashboard)/freelance-dashboard/FreelanceDTO';
+
+// Import des services
+import { profileService } from '@/service/profileService';
+import { sessionService } from '@/service/sessionService';
+
+const Page = () => {
+    const [editable, setEditable] = useState<boolean>(false)
+    const [formData, setFormData] = useState<DriverDTO>(driverDTO)
+    const [errors, setErrors] = useState<Partial<Record<keyof DriverDTO, string>>>({});
+    const [loading, setLoading] = useState<boolean>(true);
+
+    const fields = [
+        { field: 'first_name', title: 'First Name', type: 'text' },
+        { field: 'last_name', title: 'Last Name', type: 'text' },
+        { field: 'friendly_name', title: 'Nickname', type: 'text', optional: true },
+        { field: 'date_of_birth', title: 'Date of Birth', type: 'date' },
+        { field: 'driver_email', title: 'Email', type: 'email' },
+        { field: 'driver_phone_number', title: 'Phone Number', type: 'text' },
+        { field: 'driver_gender', title: 'Gender', type: 'select' },
+        { field: 'driver_language', title: 'Language', type: 'select' },
+        { field: 'driver_bio', title: 'Bio', type: 'textarea', optional: true }
+    ] as const;
+
+    useEffect(() => {
+        const loadProfile = () => {
+            const context = sessionService.getUserSessionContext();
+            if (context) {
+                /**
+                 * Correction TypeScript : 
+                 * Dans votre architecture, les données sont souvent dans context.profile
+                 * ou utilisent le format snake_case (first_name).
+                 */
+                const p = (context as any).profile || context;
+
+                setFormData({
+                    ...driverDTO,
+                    // Mapping vers DriverDTO (snake_case)
+                    first_name: p.first_name || p.firstName || '',
+                    last_name: p.last_name || p.lastName || '',
+                    driver_email: p.email || p.driver_email || p.username || '',
+                    driver_phone_number: p.phone_number || p.phoneNumber || p.driver_phone_number || '',
+                    driver_gender: p.gender || p.driver_gender || '',
+                    driver_language: p.language || p.driver_language || '',
+                    driver_bio: p.bio || p.driver_bio || '',
+                    date_of_birth: p.date_of_birth || p.dateOfBirth || '',
+                    friendly_name: p.friendly_name || p.friendlyName || '',
+                });
+            }
+            setLoading(false);
+        };
+        loadProfile();
+    }, []);
+
+    const isAtLeast18YearsOld = (birthDate: string): boolean => {
+        if (!birthDate) return false;
+        const today = new Date();
+        const birthDateObj = new Date(birthDate);
+        let age = today.getFullYear() - birthDateObj.getFullYear();
+        const monthDiff = today.getMonth() - birthDateObj.getMonth();
+        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDateObj.getDate())) {
+            age--;
+        }
+        return age >= 18;
+    }
+
+    const handleInputChange = (field: keyof DriverDTO, value: string) => {
+        setFormData(prev => ({ ...prev, [field]: value }));
+        if (field === 'date_of_birth' && value) {
+            if (!isAtLeast18YearsOld(value)) {
+                setErrors(prev => ({ ...prev, [field]: "You must be at least 18 years old." }));
+            } else {
+                setErrors(prev => {
+                    const newErrors = { ...prev };
+                    delete newErrors[field];
+                    return newErrors;
+                });
+            }
+        }
+    };
+
+    const handleSave = async () => {
+        const requiredFields = fields.filter(f => !f.optional);
+        const newErrors: any = {};
+        
+        requiredFields.forEach(f => {
+            if (!formData[f.field]) newErrors[f.field] = "Required";
+        });
+
+        if (Object.keys(newErrors).length > 0) {
+            setErrors(newErrors);
+            toast.error("Please fill required fields");
+            return;
+        }
+
+        try {
+            /**
+             * Mapping pour l'envoi au backend. 
+             * On utilise 'any' ici pour éviter les conflits avec l'interface stricte
+             * si le backend attend des noms différents de votre DTO local.
+             */
+            const payload: any = {
+                first_name: formData.first_name,
+                last_name: formData.last_name,
+                email: formData.driver_email,
+                phone_number: formData.driver_phone_number,
+                gender: formData.driver_gender,
+                language: formData.driver_language,
+                bio: formData.driver_bio,
+                date_of_birth: formData.date_of_birth,
+                friendly_name: formData.friendly_name
+            };
+
+            const updatedContext = await profileService.updateDriverProfile(payload);
+            sessionService.saveSessionContext(updatedContext);
+            
+            toast.success('Profile updated');
+            setEditable(false);
+        } catch (error) {
+            console.error("Save error:", error);
+            toast.error("Failed to save");
+        }
+    };
+
+    if (loading) return <div className="p-10 text-center">Loading...</div>;
+
+    return (
+        <div className="p-4 max-w-6xl mx-auto">
+            <div className="flex justify-between items-center mb-6">
+                <h1 className="text-2xl font-bold text-gray-800">Personal Information</h1>
+                {!editable && (
+                    <button onClick={() => setEditable(true)} className="flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-lg">
+                        <PencilSquareIcon className="w-5 h-5" />
+                        <span className="font-medium">Edit Profile</span>
+                    </button>
+                )}
+            </div>
+
+            <div className="bg-white rounded-xl shadow-sm border p-6">
+                <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
+                    <div className="grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-6">
+                        {fields.map((item) => (
+                            <div key={item.field} className={item.type === 'textarea' ? 'lg:col-span-3' : ''}>
+                                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                    {item.title} {item.optional && <span className="text-gray-400 font-normal">(Optional)</span>}
+                                </label>
+                                
+                                {editable ? (
+                                    <>
+                                        {item.field === 'driver_gender' ? (
+                                            <select 
+                                                className="w-full p-2.5 border rounded-lg outline-none"
+                                                value={formData.driver_gender}
+                                                onChange={(e) => handleInputChange('driver_gender', e.target.value)}
+                                            >
+                                                <option value="">Select Gender</option>
+                                                <option value="MALE">Male</option>
+                                                <option value="FEMALE">Female</option>
+                                            </select>
+                                        ) : item.field === 'driver_language' ? (
+                                            <select 
+                                                className="w-full p-2.5 border rounded-lg outline-none"
+                                                value={formData.driver_language}
+                                                onChange={(e) => handleInputChange('driver_language', e.target.value)}
+                                            >
+                                                <option value="">Select Language</option>
+                                                {languageOptions.map((option, key) => (
+                                                    <option key={key} value={option.value}>{option.label}</option>
+                                                ))}
+                                            </select>
+                                        ) : item.type === 'textarea' ? (
+                                            <textarea
+                                                rows={4}
+                                                className="w-full p-2.5 border rounded-lg outline-none"
+                                                value={formData.driver_bio}
+                                                onChange={(e) => handleInputChange('driver_bio', e.target.value)}
+                                            />
+                                        ) : (
+                                            <input
+                                                type={item.type}
+                                                className={`w-full p-2.5 border rounded-lg outline-none ${errors[item.field] ? 'border-red-500' : ''}`}
+                                                value={formData[item.field as keyof DriverDTO] || ''}
+                                                onChange={(e) => handleInputChange(item.field as keyof DriverDTO, e.target.value)}
+                                            />
+                                        )}
+                                        {errors[item.field as keyof DriverDTO] && (
+                                            <p className="text-red-500 text-xs mt-1">{errors[item.field as keyof DriverDTO]}</p>
+                                        )}
+                                    </>
+                                ) : (
+                                    <div className="py-2.5 px-1 border-b text-gray-600 min-h-[45px]">
+                                        {formData[item.field as keyof DriverDTO] || <span className="text-gray-300 italic text-sm">Not specified</span>}
+                                    </div>
+                                )}
+                            </div>
+                        ))}
+                    </div>
+
+                    {editable && (
+                        <div className="flex items-center gap-4 pt-6 border-t">
+                            <button type="button" onClick={handleSave} className="bg-primary text-white px-8 py-2.5 rounded-lg font-bold">
+                                Save Changes
+                            </button>
+                            <button type="button" onClick={() => { setEditable(false); setErrors({}); }} className="px-8 py-2.5 rounded-lg text-gray-500">
+                                Cancel
+                            </button>
+                        </div>
+                    )}
+                </form>
+            </div>
+        </div>
+    )
+}
+
+export default Page;
+
+### FILE: ./user-wishlist/page.tsx
+
+"use client"
+import React from "react";
+import SearchForm from "@/components/search/SearchForm"
+
+const Page=() => {
+  return (
+  <div>
+    <SearchForm/>
+  </div>
+    
+  );
+};
+
+export default Page;
+
+
+### FILE: ./user-address/page.tsx
+
+"use client"
+import { BillingType } from "@/app/type/Billing";
+import BillingAddress from "@/components/customer/address/BillingAddress";
+import BillingForm from "@/components/customer/address/BillingForm";
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import {BillAddress} from "@/data/Structure";
+
+const Page = () => {
+    const [BillingAdress,setBillingAdress]=useState <BillingType[]>(BillAddress)
+    const [location, setLocation] = useState(BillingAdress[0].country)
+
+    return (
+      <div className="p-3 text rounded-2xl bg-white shadow-3 mb-[20%]">
+        <h3 className="mb-0 title font-bold flex-grow"> My Address </h3>
+        <div className="border border-t my-3"></div>
+        <p className="text-sm clr-neutral-500 mb-3">
+          Cards will be charged either at the end of the month or whenever your
+          balance exceeds the usage threshold All major credit/debit cards
+          accepted.
+        </p>
+        <ul className="flex flex-col  gap-6">
+          <li>
+            <BillingAddress Billings={BillingAdress} setLocation={setLocation} setBilling={setBillingAdress}/>
+          </li>
+          <li className="items-center justify-center flex w-full">
+            <BillingForm Billings={BillingAdress} status="add" setBilling={setBillingAdress}/>
+          </li>
+        </ul>
+        <div className="mt-6">
+          <div className="flex gap-2">
+            <p className="text-sm clr-neutral-500"> Tax location </p>
+            <Link
+              href="#"
+              className="link inline-block text-primary hover:text-primary font-medium">
+              More Info
+            </Link>
+          </div>
+          <h5 className="clr-neutral-500 font-semibold">
+            {" "}
+            {location} - 20.00% SST{" "}
+          </h5>
+        </div>
+        <div className="">
+          <p className="text-sm clr-neutral-500">
+            Your text location determines the taxes that are applied to your bill.
+          </p>
+          <Link
+            href="#"
+            className="link inline-block text-primary hover:text-primary font-medium">
+            How do I correct my tax location?
+          </Link>
+        </div>
+      </div>
+    );
+  };
+  
+  export default Page;
+
+### FILE: ./user-booking/page.tsx
+
+"use client";
+import SecondSection from "@/components/customer/statistic/SecondSection";
+import MostVisited from "@/components/customer/statistic/MostVisited";
+import ThirdSection from "@/components/customer/statistic/ThirdSection";
+
+const Page = () => {
+  const firstDonutData = {
+      labels: ["Bangangte", "Yaounde", "Douala", "Garoua", "Bamenda"],
+    values: [5000, 4000, 3000, 2000, 1000], // Exemple de données de fréquentation
+  };
+ 
+  // Données pour le deuxième diagramme circulaire
+  const secondDonutData = {
+      labels: ["Voiture", "monospace", "moto", "Bus"],
+    values: [5000, 3000, 2000, 1000], // Exemple de données sur le type de véhicule
+  };
+
+  return (
+    <div className="flex flex-col">
+      
+      <MostVisited firstDonutData={firstDonutData} secondDonutData={secondDonutData} Kilometer={224} Travel={80}/>
+      <SecondSection fidelity={100} vehiculeBorrow={200} destination={5000} depense={364}/>
+      <ThirdSection/>
+    </div>
+  );
+};
+
+export default Page;
+
+
+### FILE: ./user-security/page.tsx
+
+"use client";
+import React from "react";
+import Accordion1 from "@/components/customer/security/Accordion1";
+import Accordion2 from "@/components/customer/security/Accordion2";
+import Accordion3 from "@/components/customer/security/Accordion3";
+import Accordion4 from "@/components/customer/security/Accordion4";
+
+const Page=() => {
+  return (
+    <>
+      <Accordion1/>
+      <Accordion2/>
+      <Accordion3/>
+      <Accordion4/>
+    </>
+  );
+};
+
+export default Page;
+
+
+### FILE: ./user-preference/page.tsx
+
+import React from "react";
+import {
+  languageOptions,
+  timezoneOptions,
+  currencyOptions,
+  paymentMethod,
+  vehiculeType
+  
+} from "@/data/Structure";
+import Preference2 from "@/components/customer/preference/Preference2";
+
+const Page=() => {
+  
+  return (
+    <div className="mb-[23%]">
+      <div className="p-6 p-xl-10 rounded-2xl bg-white shadow-3 text">
+        <h3 className="mb-0 text font-bold flex-grow w-full"> Preferences </h3>
+        <h3 className="mb-0 text font-bold flex-grow w-full"> Preferences </h3>
+        <div className="hr-line my-6"></div>
+        <div className="grid md:grid-cols-2 grid-cols-1 xl:grid-cols-3">
+          <Preference2 label="Language" type="select" defaultSelectOption="Select Language" mapSelectOption={languageOptions}/>
+          <Preference2 label="Time Zone" type="select" defaultSelectOption="Select Time Zone" mapSelectOption={timezoneOptions}/>
+          <Preference2 label="Currency" type="select" defaultSelectOption="Select Currency" mapSelectOption={currencyOptions}/>
+          <Preference2 label="Payment Method" type="select" defaultSelectOption="Select Payment Method" mapSelectOption={paymentMethod}/>
+          <Preference2 label="Vehicule Type" type="select" defaultSelectOption="Select vehicule Type" mapSelectOption={vehiculeType}/>
+          <Preference2 label="Safety Features" type="switch"  mapSelectOption={currencyOptions}/>
+          <Preference2 label="Safety Features" type="switch"  mapSelectOption={currencyOptions}/>
+          <Preference2 label="Promotional Notification" type="switch"  mapSelectOption={currencyOptions}/>
+        </div>
+        <div>
+          <button type="submit" className="bg-primary text-white font-medium rounded-xl p-3 m-4">Save Preferences</button>
+          <button type="reset" className="border-primary-500 border text-primary font-medium rounded-xl p-3 m-4">Cancel</button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Page;
+
+
+### FILE: ./layout.tsx
+
+"use client";
+import { usePathname } from "next/navigation";
+import Image from "next/image";
+import Link from "next/link";
+import Driver from "@public/img/driver.png";
+import IconComponent from "@/components/general/IconComponent";
+
+import {
+  BellIcon,
+  CheckIcon,
+  ClipboardDocumentListIcon,
+  Cog6ToothIcon,
+  BellAlertIcon,
+  ChatBubbleLeftRightIcon,
+  CreditCardIcon,
+  MapPinIcon,
+  ShieldCheckIcon,
+  UserCircleIcon,
+  ArrowRightStartOnRectangleIcon,
+  Bars3Icon,
+  XMarkIcon,
+  MagnifyingGlassIcon
+} from "@heroicons/react/24/outline";
+
+import { useState, MouseEvent, useRef, ChangeEvent } from "react";
+
+import { useContextProvider } from "@/components/context/context";
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const [navOpen, setNavOpen] = useState(false);
+  const path = usePathname();
+  const handleOpen = (event: MouseEvent<HTMLButtonElement>) => {
+    event.stopPropagation();
+    setNavOpen(!navOpen);
+  };
+
+  const {clientDTO,setClientDTO}=useContextProvider()
+  const inputFileRef = useRef<HTMLInputElement>(null);
+  const handlePencilClick = () => {
+    if (inputFileRef.current) {
+      inputFileRef.current.click();
+    }
+  };
+  const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (files && files.length > 0) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        if (reader.result) {
+          setClientDTO(prevState => ({
+            ...prevState,
+            userPictureUrl: reader.result as string
+          }));
+        }
+      };
+      reader.readAsDataURL(files[0]);
+    }
+  };
+
+  const NavItems=[
+    {link:'/customer-dashboard',title:'Personal Info',icon:UserCircleIcon},
+    {link:'/customer-dashboard/user-security',title:'Security',icon:ShieldCheckIcon},
+    {link:'/customer-dashboard/user-notification',title:'Notifications',icon:BellIcon},
+    {link:'/customer-dashboard/user-preference',title:'Preferences',icon:Cog6ToothIcon},
+    {link:'/customer-dashboard/user-chat',title:'Chat',icon:ChatBubbleLeftRightIcon},
+    {link:'/customer-dashboard/user-announce',title:'Announcement',icon:BellAlertIcon},
+    {link:'/customer-dashboard/user-wishlist',title:'Next Ride',icon:MagnifyingGlassIcon},
+    {link:'/customer-dashboard/user-booking',title:'Statistics',icon:ClipboardDocumentListIcon},
+    {link:'/customer-dashboard/user-payement',title:'Payment',icon:CreditCardIcon},
+    {link:'/customer-dashboard/user-address',title:'Address',icon:MapPinIcon},
+    {link:'#',title:'Log out',icon:ArrowRightStartOnRectangleIcon},
+  ]
+
+  return (
+    <>
+      <section className="bg-white container flex flex-col lg:flex-row">
+        <nav
+          className={`${
+            navOpen ? "translate-x-0 mt-[4.5rem]" : "-translate-x-full"
+          } lg:translate-x-0 fixed lg:static top-0 left-0 w-64 lg:w-[11rem] h-full z-50 transition-transform duration-500 ease-out bg-white flex flex-col justify-center border-r py-2 px-2  shadow-lg lg:shadow-none overflow-y-auto`}
+        >
+            <button
+              onClick={() => setNavOpen(false)}
+              className="lg:hidden absolute top-2 right-2 text-gray-500 hover:text-gray-700 "
+            >
+              <XMarkIcon className="w-6 h-6" />
+            </button>
+          <div className="grow text">
+            <div className="w-full bg-blue-500 text-white title font-bold p-3 rounded-xl flex items-center justify-center hover:shadow-lg 
+            cursor-pointer
+            ">UPGRADE</div>
+            <ul className="py-5 space-y-3">
+              {NavItems.map((navItem,key) =>(
+                <li key={key} onClick={() => setNavOpen(false)}>
+                <Link href={navItem.link}
+                  className={`flex items-center gap-2 rounded-md px-3 py-1 duration-300 ${
+                    path == `${navItem.link}` && "bg-primary text-white"
+                  }`}>
+                  <IconComponent Icon={navItem.icon} className="w-5 h-5 " />
+                  {navItem.title}
+                </Link>
+              </li>
+              ))}
+              
+            </ul>
+          </div>
+        </nav>
+        <div className="flex-grow">
+          <div className="flex items-center w-full justify-between flex-wrap pl-4 py-3 bg-[#E0D9FD]">
+            <div className="flex gap-2 items-center">
+              <button
+                onClick={handleOpen}
+                className="lg:hidden text-gray-500 hover:text-gray-700"
+              >
+                <Bars3Icon className="w-6 h-6" />
+              </button>
+              <div className="avatar-upload__edit">
+                <input type="file" id="imageUpload" accept=".png, .jpg, .jpeg" className="hidden" ref={inputFileRef} onChange={handleFileChange} />
+              </div>
+              <div onClick={handlePencilClick}  className="cursor-pointer border overflow-hidden w-[40px] h-[40px] border-[var(--primary)] rounded-full bg-white grid place-content-center relative mx-auto">
+                <Image
+                  width={40}
+                  height={40}
+                  src={clientDTO.userPictureUrl}
+                  alt="image"
+                  className="rounded-full object-cover"
+                />
+                <div className="w-3 h-3 grid place-content-center rounded-full border-2 white text-white bg-primary absolute bottom-2 right-0">
+                  <CheckIcon className="w-2 h-2" />
+                </div>
+              </div>
+              <div className="font-medium text">
+                <h6 className="font-bold">{clientDTO.name}</h6>
+                <Link href={`mailto:${clientDTO.email}`}>{clientDTO.email}</Link>
+              </div>
+            </div>
+            <a
+              className={`md:text-[1.25rem] text font-bold cursor-pointer ${navOpen? "mt-[3rem]":""} flex bg-white items-center gap-1 md:p-3 p-1  mr-[2%] rounded-md  border-[var(--orange)] border hover:bg-[var(--orange)] hover:text-white hover:shadow-lg text-[var(--orange)] justify-center`}
+              href="/pricing-plan"
+            >
+              <Image src={Driver} alt="logo" className="w-5 h-5" />
+              Become a driver
+            </a>
+          </div>
+          <section
+            className={`${
+              navOpen ? "lg:ml-0" : "ml-0"
+            } transition-all duration-300 ease-out container`}
+          >
+            {children}
+          </section>
+        </div>
+      </section>
+      {navOpen && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+          onClick={() => setNavOpen(false)}
+        ></div>
+      )}
+    </>
+  );
+}
+
+### FILE: ./user-team/page.tsx
+
+"use client";
+import Link from "next/link";
+import React, { ChangeEvent, useRef, useState } from "react";
+
+const Page=() => {
+  const [en1, setEn1] = useState(false);
+  const [en2, setEn2] = useState(false);
+  return (
+    <div>
+      <h1>Titre de la page</h1>
+      <p>Contenu de la page</p>
+    </div>
+  );
+};
+
+export default Page;
+
+
+### FILE: ./user-announce/page.tsx
+
+"use client"
+import {
+  PlusCircleIcon,
+} from "@heroicons/react/24/outline"
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import Published from "@/components/customer/announce/Published";
+import { adsMap } from '@/data/Structure'
+import { AdsMap } from "@/app/type/Ads";
+
+
+
+export default function Page() {
+  const [haveCar, setHaveCar] = useState(false);
+  const [link, setLink] = useState("https://letsgo-pproject-git-master-diroil-james-projects.vercel.app/AnnonceClientSansVehicule");
+  const handleHaveCar = () => {
+    setHaveCar(!haveCar);    
+  };
+
+  useEffect(()=> {
+    setLink(
+      haveCar
+        ? "https://letsgo-pproject-git-master-diroil-james-projects.vercel.app/AnnonceClientAvecVehicule"
+        : "https://letsgo-pproject-git-master-diroil-james-projects.vercel.app/AnnonceClientSansVehicule"
+    );
+  },[haveCar])
+  const [Map, setAdsMap] = useState<AdsMap[]>(adsMap);
+
+  return (
+    <div className="text p-4 md:p-6 lg:p-8 mb-[18.5%]">
+      <section>
+        <div className="flex flex-row items-center gap-4">
+          <Link
+            className="flex items-center mb-3 md:mb-0 cursor-pointer text-primary font-semibold w-full md:w-[15%] hover:text-white hover:bg-primary p-2 md:p-1 justify-center gap-2 border border-primary-500 rounded-xl"
+            href={link}
+          >
+            <PlusCircleIcon className="w-5 h-5" />
+            <span>Create Announce</span>
+          </Link>
+          <div className="flex items-center mb-3 md:mb-0 text-primary font-semibold w-full md:w-[12%] p-2 md:p-1 justify-center gap-2">
+            <input
+              type="checkbox"
+              name="haveCar"
+              id="haveCar"
+              checked={haveCar}
+              onChange={handleHaveCar}
+            />
+            <label htmlFor="haveCar">I have a car</label>
+          </div>
+        </div>
+        <div>
+          <h3 className="text font-bold mt-5">My Announces</h3>
+          <Published ad={Map} setAdsMap={setAdsMap} />
+        </div>
+      </section>
+    </div>
+  );
+}
+
+### FILE: ./user-payement/page.tsx
+
+import React from "react";
+import PaymentMethodChanger from "@/components/customer/payment/PaymentMethodChanger";
+import PlanDisplay from "@/components/customer/payment/PlanDisplay";
+import PaymentHistory from "@/components/customer/payment/PaymentHistory";
+
+const Page=() => {
+  return (
+    <div className="max-w-7xl mx-auto text space-y-8 p-4 md:p-6 lg:p-8">
+      <div>
+        <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-2">Payment</h1>
+        <p className="text-sm md:text-base mb-4">Update your payment information according to your needs</p>
+        <hr className="border-t my-4 md:my-6" />
+        <div className="flex flex-col lg:flex-row items-start justify-between gap-8 lg:gap-12">
+          <div className="w-full lg:w-1/2">
+            <PlanDisplay />
+          </div>
+          <div className="w-full lg:w-1/2">
+            <PaymentMethodChanger />
+          </div>
+        </div>
+      </div>
+      <div>
+        <PaymentHistory />
+      </div>
+    </div>
+  );
+};
+
+export default Page;
