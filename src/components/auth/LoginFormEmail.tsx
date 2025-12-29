@@ -1,4 +1,3 @@
-// src/components/auth/LoginFormEmail.tsx
 "use client";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -15,7 +14,7 @@ interface LoginFormProps {
 
 export default function LoginFormEmail({ onForgottenPasswordClick, onSignUpClick }: LoginFormProps) {
     const router = useRouter();
-    const { checkAuth } = useAuthContext(); // Pour mettre à jour l'état global après login
+    const { checkAuth } = useAuthContext(); 
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
@@ -26,39 +25,54 @@ export default function LoginFormEmail({ onForgottenPasswordClick, onSignUpClick
         setLoading(true);
 
         try {
+            // 1. Appel API
+            console.log("▶️ Tentative de connexion...");
             const response = await authService.login({ username: email.trim(), password });
             
+            console.log("✅ Réponse backend reçue:", response);
+
             const { token, profile } = response;
-            const roles = profile.roles || [];
 
-            // Sauvegarde de base
+            if (!token || !profile) {
+                throw new Error("Réponse du serveur incomplète (token ou profil manquant).");
+            }
+
+            // 2. Sauvegarde Session
             sessionService.saveSession(token, profile);
-            
-            // Mise à jour du contexte React
-            await checkAuth();
+            console.log("✅ Session sauvegardée.");
 
-            // LOGIQUE DE REDIRECTION (Copie du mobile)
-            if (roles.length > 1) {
-                // Plusieurs rôles -> Page de choix
-                console.log("Multi-roles detected -> Redirect to Choose Profile");
-                router.push('/auth/choose-profile');
-            } else if (roles.length === 1) {
-                // Rôle unique -> Redirection directe
-                const role = roles[0];
-                if (role === 'DRIVER') {
-                    router.push('/freelance-dashboard');
-                } else if (role === 'CLIENT') {
-                    router.push('/customer-dashboard');
-                } else {
-                    router.push('/');
+            // 3. Mise à jour Contexte (Protégée pour ne pas bloquer le login)
+            try {
+                if (checkAuth) {
+                    await checkAuth();
+                    console.log("✅ Contexte mis à jour.");
                 }
-                toast.success("Welcome back!");
+            } catch (ctxError) {
+                console.warn("⚠️ checkAuth a échoué (non bloquant):", ctxError);
+            }
+
+            // 4. Redirection
+            const roles = profile.roles || [];
+            console.log(`🔀 Redirection selon les rôles: ${JSON.stringify(roles)}`);
+
+            toast.success("Welcome back!");
+
+            if (roles.length > 1) {
+                router.push('/auth/choose-profile');
+            } else if (roles.includes('DRIVER')) {
+                router.push('/freelance-dashboard');
+            } else if (roles.includes('CLIENT')) {
+                router.push('/customer-dashboard');
             } else {
-                toast.error("No valid profile found.");
+                console.warn("⚠️ Aucun rôle connu détecté, redirection par défaut.");
+                router.push('/freelance-dashboard');
             }
 
         } catch (error: any) {
-            const msg = error.response?.data?.message || "Login failed. Check your credentials.";
+            console.error("❌ ERREUR JS DANS HANDLELOGIN:", error); // <-- Regarde ça dans la console F12
+            
+            // Afficher le vrai message d'erreur si c'est une erreur JS, sinon le message du backend
+            const msg = error.response?.data?.message || error.message || "Login failed.";
             toast.error(msg);
         } finally {
             setLoading(false);
@@ -70,7 +84,7 @@ export default function LoginFormEmail({ onForgottenPasswordClick, onSignUpClick
             <div>
                 <input
                     className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
-                    type="text" // 'text' car ça peut être username ou email
+                    type="text"
                     placeholder="Email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}

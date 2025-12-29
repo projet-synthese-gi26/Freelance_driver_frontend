@@ -1,13 +1,13 @@
 // src/services/planningService.ts
 
 import apiClient from './apiClient';
+import axios from 'axios';
 import { PublicOfferView, mapProductToPublicView } from './announcementService';
 import { Planning as PlanningType, PlanningStatus } from '@/type/planning';
 
-/**
- * Traduit un objet "Product" pour la vue privée Planning (Chauffeur)
- */
- const mapBackendProductToPlanningPrivateView = (product: any): PlanningType => {
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
+const mapBackendProductToPlanningPrivateView = (product: any): PlanningType => {
   return {
     id: product.key?.id || product.id || '',
     title: product.name || 'Sans titre',
@@ -29,10 +29,7 @@ import { Planning as PlanningType, PlanningStatus } from '@/type/planning';
   };
 };
 
-/**
- * Payload pour le backend
- */
- const mapPlanningFormToBackendPayload = (formData: Partial<PlanningType>) => {
+const mapPlanningFormToBackendPayload = (formData: Partial<PlanningType>) => {
   return {
     name: formData.title,
     defaultSellPrice: parseFloat(formData.regularAmount || '0'), 
@@ -61,19 +58,21 @@ import { Planning as PlanningType, PlanningStatus } from '@/type/planning';
 
 
 export const planningService = {
-    // --- RECHERCHE PUBLIQUE ---
+    // --- RECHERCHE PUBLIQUE (Sans Token) ---
 
     getPublishedPlannings: async (): Promise<PublicOfferView[]> => {
-      const response = await apiClient.get('/api/planning/published');
+      // Appel direct sans auth
+      const response = await axios.get(`${API_URL}/api/planning/published`);
       return response.data.map(mapProductToPublicView);
     },
     
     getPlanningsByDriver: async (driverId: string): Promise<PublicOfferView[]> => {
-        const response = await apiClient.get(`/api/planning/user/${driverId}`);
+        // Appel direct sans auth
+        const response = await axios.get(`${API_URL}/api/planning/user/${driverId}`);
         return response.data.map(mapProductToPublicView);
     },
 
-    // --- CLIENT (Mes Réservations) ---
+    // --- CLIENT (Mes Réservations - Avec Token) ---
 
     getMyReservedRides: async (): Promise<PublicOfferView[]> => { 
       try {
@@ -85,9 +84,6 @@ export const planningService = {
       }
     },
     
-    /**
-     * Client demande à réserver un planning
-     */
     requestPlanningBooking: async (planningId: string): Promise<PublicOfferView> => {
       try {
         console.log(`▶️ Client demande à réserver le planning ID: ${planningId}`);
@@ -99,9 +95,6 @@ export const planningService = {
       }
     },
 
-    /**
-     * Client annule une réservation
-     */
     cancelReservation: async (planningId: string): Promise<PublicOfferView> => {
       try {
         console.log(`▶️ Client annule sa réservation pour le planning ID: ${planningId}`);
@@ -113,7 +106,7 @@ export const planningService = {
       }
     },
 
-    // --- CHAUFFEUR (Mes Plannings) ---
+    // --- CHAUFFEUR (Mes Plannings - Avec Token) ---
 
     getMyPlannings: async (): Promise<PlanningType[]> => {
         const response = await apiClient.get('/api/planning');
@@ -136,9 +129,6 @@ export const planningService = {
         await apiClient.delete(`/api/planning/${id}`);
     },
 
-    /**
-     * Chauffeur accepte une réservation
-     */
     confirmPlanningBooking: async (planningId: string, clientId: string): Promise<PublicOfferView> => {
       try {
         console.log(`▶️ Chauffeur confirme la réservation ID: ${planningId}`);

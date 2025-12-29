@@ -1,9 +1,12 @@
 // src/services/announcementService.ts
 
 import apiClient from './apiClient';
+import axios from 'axios'; // Import pour les appels publics
 // Adaptez les chemins d'importation selon votre structure "src/type/..."
 import { Announcement as AnnouncementClientType, AnnouncementStatus } from '@/type/announcement';
 import { Planning as PlanningType } from '@/type/planning';
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 // Interface pour la vue publique
 export interface PublicOfferView {
@@ -32,12 +35,8 @@ export interface PublicOfferView {
 
 // Fonction de mapping (Product -> PublicOfferView)
 export const mapProductToPublicView = (product: any): PublicOfferView => {
-    // console.log("DEBUG_MAP_PUBLIC_VIEW (Web):", JSON.stringify(product, null, 2));
-
     const pickup = product.pickupLocation || 'Non défini';
     const dropoff = product.dropoffLocation || 'Non défini';
-    
-    // Fallback ID robuste
     const id = product.id || product.key?.id || product.resource_id || 'UNKNOWN_ID';
 
     const mappedProduct: PublicOfferView = { 
@@ -63,12 +62,11 @@ export const mapProductToPublicView = (product: any): PublicOfferView => {
         reservedByDriverName: product.reservedByDriverName || undefined, 
         createdAt: product.createdAt || undefined,
     };
-    
     return mappedProduct;
 };
 
 /**
- * Traduit un objet "Product" du backend pour les vues privées (Mes Annonces)
+ * Traduit un objet "Product" du backend pour les vues privées
  */
 const mapBackendProductToPrivateView = (product: any): AnnouncementClientType | PlanningType => {
   return {
@@ -88,7 +86,6 @@ const mapBackendProductToPrivateView = (product: any): AnnouncementClientType | 
     clientId: product.clientId || '',
     clientName: product.clientName || '',
     clientPhoneNumber: product.clientPhoneNumber || '',
-    // Champs spécifiques au planning
     paymentOption: product.metadata?.paymentOption,
     regularAmount: product.metadata?.regularAmount?.toString(),
     discountPercentage: product.metadata?.discountPercentage,
@@ -125,28 +122,22 @@ const mapFormToBackendPayload = (formData: Partial<AnnouncementClientType | Plan
   };
 };
 
-// ==============================================================================
-//                            LE SERVICE
-// ==============================================================================
-
 export const announcementService = {
-    // --- Fonctions de RECHERCHE PUBLIQUE ---
+    // --- Fonctions de RECHERCHE PUBLIQUE (Sans Token) ---
 
     getPublishedAnnouncements: async (): Promise<PublicOfferView[]> => {
-      // apiClient utilise l'URL de base définie dans .env
-      const response = await apiClient.get('/api/announcements');
+      const response = await axios.get(`${API_URL}/api/announcements`);
       return response.data.map(mapProductToPublicView);
     },
 
     getPublishedPlannings: async (): Promise<PublicOfferView[]> => {
-      const response = await apiClient.get('/api/planning/published');
+      const response = await axios.get(`${API_URL}/api/planning/published`);
       return response.data.map(mapProductToPublicView);
     },
 
-    // --- Fonctions de GESTION pour le CLIENT (Mes Annonces) ---
+    // --- Fonctions de GESTION pour le CLIENT (Avec Token) ---
 
     getMyAnnouncements: async (): Promise<AnnouncementClientType[]> => {
-        // apiClient injecte automatiquement le token via les cookies
         const response = await apiClient.get('/api/announcements/my-announcements');
         return response.data.map((p: any) => mapBackendProductToPrivateView(p) as AnnouncementClientType);
     },
@@ -167,7 +158,7 @@ export const announcementService = {
         await apiClient.delete(`/api/announcements/${id}`);
     },
 
-    // --- Fonctions de GESTION pour le CONDUCTEUR (Mes Plannings & Courses) ---
+    // --- Fonctions de GESTION pour le CONDUCTEUR (Avec Token) ---
 
     getMyPlannings: async (): Promise<PlanningType[]> => {
         const response = await apiClient.get('/api/planning');
@@ -191,20 +182,17 @@ export const announcementService = {
     },
     
     getPlanningsByDriver: async (driverId: string): Promise<PublicOfferView[]> => {
-        const response = await apiClient.get(`/api/planning/user/${driverId}`);
+        // Cette route peut être publique selon votre config backend
+        const response = await axios.get(`${API_URL}/api/planning/user/${driverId}`);
         return response.data.map(mapProductToPublicView);
     },
 
-    // --- Fonctions de Réservation ---
+    // --- Fonctions de Réservation (Avec Token) ---
 
-    /**
-     * Conducteur postule à une annonce
-     */
     applyToAnnouncement: async (announcementId: string): Promise<PublicOfferView> => {
       try {
         console.log(`▶️ [announcementService] Conducteur postule à l'annonce ID: ${announcementId}`);
         const response = await apiClient.post(`/api/announcements/${announcementId}/apply`, {});
-        console.log(`✅ [announcementService] Postulation réussie.`);
         return mapProductToPublicView(response.data);
       } catch (error) {
         console.error('Error applying to announcement:', error);
@@ -212,9 +200,6 @@ export const announcementService = {
       }
     },
 
-    /**
-     * Client confirme un chauffeur
-     */
     confirmDriverForAnnouncement: async (announcementId: string, driverId: string): Promise<PublicOfferView> => {
       try {
         console.log(`▶️ Client confirme le chauffeur ${driverId} pour l'annonce ${announcementId}`);
@@ -222,7 +207,6 @@ export const announcementService = {
           `/api/announcements/${announcementId}/confirm?driverId=${driverId}`,
           {}
         );
-        console.log(`✅ Confirmation réussie.`);
         return mapProductToPublicView(response.data);
       } catch (error) {
         console.error('Error confirming driver:', error);
@@ -246,7 +230,6 @@ export const announcementService = {
 
     getMyAcceptedRides: async (): Promise<PublicOfferView[]> => {
         const response = await apiClient.get('/api/announcements/my-rides');
-        console.log("DEBUG: Rides acceptés récupérés");
         return response.data.map(mapProductToPublicView);
     },
     

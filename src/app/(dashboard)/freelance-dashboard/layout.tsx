@@ -67,12 +67,16 @@ export default function RootLayout({
       // 2. Feedback utilisateur
       toast.success("Déconnexion réussie");
       
-      // 3. Redirection vers la page de connexion
-      router.replace('/auth/signin');
+      // 3. Redirection vers la bonne page (D'après ton arborescence src/app/(auth)/login)
+      router.replace('/login'); 
+      
+      // NOTE : Si tu préfères rediriger vers la page d'accueil chauffeur, mets :
+      // router.replace('/driver');
+
     } catch (error) {
       console.error("Erreur lors de la déconnexion", error);
       // Force la redirection même en cas d'erreur
-      router.replace('/auth/signin');
+      router.replace('/login');
     }
   };
 
