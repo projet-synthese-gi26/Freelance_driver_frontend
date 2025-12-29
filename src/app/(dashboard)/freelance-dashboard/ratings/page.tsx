@@ -1,111 +1,127 @@
-import ReviewSection from '@/components/freelance/ReviewSection';
-import { reviews } from '@/data/Structure';
+"use client";
+import React, { useState, useEffect, useCallback } from 'react';
+import Image from 'next/image';
+import { toast } from 'react-hot-toast';
+import { StarIcon, ChatBubbleBottomCenterTextIcon } from '@heroicons/react/24/solid';
 
-const Page = () => {
-  const RecentClients = [
-    { id: '1', name: 'Charlie Durand' },
-    { id: '2', name: 'Diana Lefort' },
-    { id: '3', name: 'Éric Petit' }
-  ];
-  return(
-    <div>
-      <ReviewSection initialReviews={reviews} recentClients={RecentClients}/>
+// SERVICES
+import { reviewService, Review } from '@/service/reviewService';
+import { sessionService } from '@/service/sessionService';
+import { useAuthContext } from '@/components/context/authContext';
+import EmptyJumbotron from '@/components/EmptyJumbotron';
+
+// --- COMPOSANT HEADER STATISTIQUES ---
+const StatsHeader = ({ average, count }: { average: number; count: number }) => (
+    <div className="bg-gradient-to-r from-blue-600 to-blue-400 rounded-xl p-6 mb-8 text-white shadow-lg flex justify-around items-center">
+        <div className="text-center">
+            <p className="text-4xl font-bold">{average.toFixed(1)}</p>
+            <p className="text-sm text-blue-100 uppercase tracking-wide mt-1">Note Moyenne</p>
+        </div>
+        <div className="w-px h-16 bg-white/30"></div>
+        <div className="text-center">
+            <p className="text-4xl font-bold">{count}</p>
+            <p className="text-sm text-blue-100 uppercase tracking-wide mt-1">Avis Reçus</p>
+        </div>
     </div>
-  )
-}
+);
 
-// export const getServerSideProps: GetServerSideProps = async (context) => {
-//   // Ici, vous devriez récupérer les vraies données depuis votre API
-//   const reviews: Review[] = [
-//     {
-//         review_id: "REV001",
-//         user_id: "USR001",
-//         rated_entity_id: "ENT001",
-//         rated_entity_type: "driving_school",
-//         rating: 5,
-//         comment: "Excellente école de conduite, les instructeurs sont très professionnels !",
-//         note: 9,
-//         icon: "star",
-//         like_count: 25,
-//         dislike_count: 2,
-//         created_at: "2023-10-01T10:00:00Z",
-//         update_at: "2023-10-01T12:00:00Z",
-//         is_hidden: false,
-//     },
-//     {
-//         review_id: "REV002",
-//         user_id: "USR002",
-//         rated_entity_id: "ENT002",
-//         rated_entity_type: "syndicate",
-//         rating: 4,
-//         comment: "Bonne expérience, mais il y a quelques améliorations à apporter.",
-//         note: 8,
-//         icon: "thumbs-up",
-//         like_count: 15,
-//         dislike_count: 1,
-//         created_at: "2023-10-02T11:30:00Z",
-//         update_at: "2023-10-02T11:30:00Z",
-//         is_hidden: false,
-//     },
-//     {
-//         review_id: "REV003",
-//         user_id: "USR003",
-//         rated_entity_id: "ENT003",
-//         rated_entity_type: "driving_school",
-//         rating: 3,
-//         comment: "L'école est correcte, mais les horaires sont parfois compliqués.",
-//         note: 6,
-//         icon: "meh",
-//         like_count: 5,
-//         dislike_count: 3,
-//         created_at: "2023-10-03T14:45:00Z",
-//         update_at: "2023-10-03T14:45:00Z",
-//         is_hidden: false,
-//     },
-//     {
-//         review_id: "REV004",
-//         user_id: "USR004",
-//         rated_entity_id: "ENT004",
-//         rated_entity_type: "other",
-//         rating: 2,
-//         comment: "Pas satisfait de l'accueil, je ne recommande pas.",
-//         note: 4,
-//         icon: "thumbs-down",
-//         like_count: 2,
-//         dislike_count: 20,
-//         created_at: "2023-10-04T09:15:00Z",
-//         update_at: "2023-10-04T09:15:00Z",
-//         is_hidden: false,
-//     },
-//     {
-//         review_id: "REV005",
-//         user_id: "USR005",
-//         rated_entity_id: "ENT005",
-//         rated_entity_type: "syndicate",
-//         rating: 5,
-//         comment: "Une très bonne organisation, je me sens soutenu !",
-//         note: 10,
-//         icon: "heart",
-//         like_count: 30,
-//         dislike_count: 0,
-//         created_at: "2023-10-05T16:30:00Z",
-//         update_at: "2023-10-05T16:30:00Z",
-//         is_hidden: false,
-//     }
-// ];
+// --- COMPOSANT CARTE AVIS ---
+const ReviewCard = ({ review }: { review: Review }) => (
+    <div className="bg-white rounded-xl p-6 mb-4 shadow-sm border border-gray-100 hover:shadow-md transition-shadow flex items-start gap-4">
+        <div className="relative w-12 h-12 flex-shrink-0">
+             <Image 
+                src={review.authorProfileImageUrl || "/img/default-avatar.jpeg"} 
+                alt="Avatar" 
+                fill
+                className="rounded-full object-cover border border-gray-200"
+            />
+        </div>
+        <div className="flex-1">
+            <div className="flex justify-between items-start mb-1">
+                <div>
+                    <h3 className="font-bold text-gray-900 text-lg">
+                        {review.authorFirstName} {review.authorLastName}
+                    </h3>
+                    <p className="text-xs text-gray-500">
+                        {new Date(review.createdAt).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}
+                    </p>
+                </div>
+                <div className="flex items-center bg-yellow-50 px-2 py-1 rounded-lg">
+                    <span className="font-bold text-yellow-600 mr-1">{review.score}</span>
+                    <StarIcon className="w-4 h-4 text-yellow-400" />
+                </div>
+            </div>
+            
+            {review.comment ? (
+                <p className="text-gray-600 mt-3 text-sm leading-relaxed bg-gray-50 p-3 rounded-lg border border-gray-100">
+                    "{review.comment}"
+                </p>
+            ) : (
+                <p className="text-gray-400 text-xs italic mt-2">Pas de commentaire écrit.</p>
+            )}
+        </div>
+    </div>
+);
 
-//   const dummyRecentClients: Client[] = [
-//     { id: '1', name: 'Charlie Durand' },
-//     { id: '2', name: 'Diana Lefort' },
-//     { id: '3', name: 'Éric Petit' }
-//   ];
+// --- PAGE PRINCIPALE ---
+const RatingsPage = () => {
+  const { user } = useAuthContext();
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [loading, setLoading] = useState(true);
 
-//   return {
-//     props: {
-//       initialReviews: reviews,
-//       recentClients: dummyRecentClients,
-//     },
-//   };
-// };
+  const loadReviews = useCallback(async () => {
+    if (!user?.userId) return; // Attendre que l'utilisateur soit chargé
+    
+    setLoading(true);
+    try {
+      const data = await reviewService.getReviewsForUser(user.userId);
+      // Tri du plus récent au plus ancien
+      const sorted = data.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+      setReviews(sorted);
+    } catch (error) {
+      console.error(error);
+      toast.error("Impossible de charger vos avis.");
+    } finally {
+      setLoading(false);
+    }
+  }, [user?.userId]);
 
-export default Page;
+  useEffect(() => {
+    loadReviews();
+  }, [loadReviews]);
+
+  // Calculs statistiques
+  const reviewCount = reviews.length;
+  const averageRating = reviewCount > 0 
+    ? reviews.reduce((sum, r) => sum + r.score, 0) / reviewCount 
+    : 0;
+
+  if (loading) return <div className="text-center py-20 text-gray-500">Chargement des avis...</div>;
+
+  return (
+    <div className="p-4 md:p-6 max-w-4xl mx-auto">
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold text-gray-800 mb-2">Mes Avis Clients</h1>
+        <p className="text-gray-500 text-sm">Consultez les retours de vos passagers.</p>
+      </div>
+
+      <StatsHeader average={averageRating} count={reviewCount} />
+
+      {reviews.length > 0 ? (
+        <div className="space-y-4">
+            {reviews.map(review => (
+                <ReviewCard key={review.id} review={review} />
+            ))}
+        </div>
+      ) : (
+        <EmptyJumbotron 
+            title="Aucun avis" 
+            message="Vous n'avez pas encore reçu d'évaluation." 
+            icon="/img/empty-box.png"
+        />
+      )}
+    </div>
+  );
+};
+
+export default RatingsPage;

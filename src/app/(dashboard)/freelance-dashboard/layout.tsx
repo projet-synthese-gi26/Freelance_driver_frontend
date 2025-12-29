@@ -2,30 +2,25 @@
 import { usePathname, useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link"; 
-import IconComponent from "@/components/general/IconComponent";
-import portofolio from "@public/img/cv.png"
-import support from "@public/img/support.png"
 import { toast } from 'react-hot-toast';
+import { useState, MouseEvent, ChangeEvent, useMemo, useEffect, useCallback, useRef } from "react";
+
+// SERVICES & CONTEXT
 import { sessionService } from "@/service/sessionService";
 import { profileService } from "@/service/profileService";
 import { useAuthContext } from "@/components/context/authContext";
 
-import {
-  ChatBubbleLeftRightIcon,
-  BriefcaseIcon,
-  ShieldCheckIcon,
-  UserCircleIcon,
-  ArrowRightStartOnRectangleIcon,
-  Bars3Icon,
-  XMarkIcon,
-  ChartBarIcon,
-  Cog8ToothIcon,
-  StarIcon,
-  BanknotesIcon,
-  ChevronDownIcon,
-} from "@heroicons/react/24/outline";
+// COMPONENTS
+import IconComponent from "@/components/general/IconComponent";
+import { ProfileSwitcher } from "@/components/general/ProfileSwitcher"; // <-- IMPORT DU COMPOSANT
 
-import { useState, MouseEvent, ChangeEvent, useMemo, useEffect, useCallback, useRef } from "react";
+// ICONS
+import portofolio from "@public/img/cv.png"
+import support from "@public/img/support.png"
+import {
+  ChatBubbleLeftRightIcon, BriefcaseIcon, ShieldCheckIcon, UserCircleIcon, ArrowRightStartOnRectangleIcon,
+  Bars3Icon, XMarkIcon, ChartBarIcon, Cog8ToothIcon, StarIcon, BanknotesIcon, ChevronDownIcon
+} from "@heroicons/react/24/outline";
 
 export default function RootLayout({
   children,
@@ -38,6 +33,7 @@ export default function RootLayout({
   const path = usePathname();
   const router = useRouter();
 
+  // Redirection si l'utilisateur n'est pas connecté
   useEffect(() => {
     if (!isLoading && !user) {
       router.replace('/login');
@@ -46,14 +42,8 @@ export default function RootLayout({
 
   const Pendingorders = 0; 
   
-  const handleOpen = (event: MouseEvent<HTMLButtonElement>) => {
-    event.stopPropagation();
-    setNavOpen(!navOpen);
-  };
-
-  const handleLogout = () => {
-      logout(); 
-  };
+  const handleOpen = (event: MouseEvent<HTMLButtonElement>) => setNavOpen(!navOpen);
+  const handleLogout = () => logout();
 
   const NavItems = useMemo(() => [
     {link:'/freelance-dashboard',title:'Personal Info',icon:UserCircleIcon},
@@ -115,84 +105,62 @@ export default function RootLayout({
   }, [openSubMenu, router]);
 
   const inputFileRef = useRef<HTMLInputElement>(null);
-  
-  const handlePencilClick = () => {
-    if (inputFileRef.current) {
-      inputFileRef.current.click();
-    }
-  };
+  const handlePencilClick = () => inputFileRef.current?.click();
 
   const handleFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
       const files = event.target.files;
       if (files && files.length > 0) {
         const file = files[0];
-        const loadingToast = toast.loading("Mise à jour de la photo...");
-        
+        const loadingToast = toast.loading("Updating photo...");
         try {
             const newUrl = await profileService.uploadAvatar(file);
             const updatedContext = await profileService.updateDriverAvatarUrl(newUrl);
-            
             sessionService.saveSessionContext(updatedContext);
-            await checkAuth(); 
-            
-            toast.success("Photo mise à jour !", { id: loadingToast });
+            await checkAuth();
+            toast.success("Photo updated!", { id: loadingToast });
         } catch (error) {
             console.error(error);
-            toast.error("Échec de la mise à jour", { id: loadingToast });
+            toast.error("Update failed.", { id: loadingToast });
         }
       }
   };
 
   const isActive = useCallback((navItem: any) => {
-    if (navItem.link && navItem.link !== '#') {
-      return path === navItem.link;
-    }
-    if (navItem.subItems) {
-      return navItem.subItems.some((subItem: any) => subItem.link === path);
-    }
+    if (navItem.link && navItem.link !== '#') return path === navItem.link;
+    if (navItem.subItems) return navItem.subItems.some((subItem: any) => subItem.link === path);
     return false;
   }, [path]);
 
   useEffect(() => {
     const activeNavItem = NavItems.find(item => isActive(item));
-    if (activeNavItem && activeNavItem.subItems) {
-      setOpenSubMenu(activeNavItem.title);
-    } else {
-      setOpenSubMenu(null);
-    }
+    setOpenSubMenu(activeNavItem && activeNavItem.subItems ? activeNavItem.title : null);
   }, [path, NavItems, isActive]);
 
   if (isLoading || !user) {
       return (
-          <div className="min-h-screen flex items-center justify-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+          <div className="min-h-screen flex items-center justify-center bg-white">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
           </div>
       );
   }
 
-  // --- CORRECTION AFFICHAGE NOM/CONTACT ---
   const driverName = user.driverProfile?.firstName 
     ? `${user.driverProfile.firstName} ${user.driverProfile.lastName}` 
-    : 'Profil Chauffeur';
+    : 'Driver Profile';
   
-  // On affiche le téléphone si l'email n'est pas présent dans le profil chauffeur
-  // On évite strictement d'afficher l'UUID
   const userContact = user.driverProfile?.driver_email || user.driverProfile?.phoneNumber || '';
-  
   const avatarUrl = user.driverProfile?.profileImageUrl || "/img/default-avatar.jpeg";
 
   return (
-    <div className="min-h-[72vh] bg-white">
+    <div className="min-h-screen bg-white">
       <section className="container flex flex-col lg:flex-row">
+        {/* Navigation latérale */}
         <nav
           className={`${
             navOpen ? "translate-x-0 mt-[4.5rem]" : "-translate-x-full"
-          } lg:translate-x-0 fixed lg:static top-0 left-0 w-64 lg:w-[11rem] h-full z-50 transition-transform duration-500 ease-out bg-white flex flex-col justify-center border-r py-2 px-2  shadow-lg lg:shadow-none overflow-y-auto`}
+          } lg:translate-x-0 fixed lg:static top-0 left-0 w-64 lg:w-[13rem] h-full z-50 transition-transform duration-500 ease-out bg-white flex flex-col border-r py-2 px-2 shadow-lg lg:shadow-none`}
         >
-          <button
-            onClick={() => setNavOpen(false)}
-            className="lg:hidden absolute top-2 right-2 text-gray-500 hover:text-gray-700 "
-          >
+          <button onClick={() => setNavOpen(false)} className="lg:hidden absolute top-2 right-2 text-gray-500 hover:text-gray-700">
             <XMarkIcon className="w-6 h-6" />
           </button>
           <div className="grow text">
@@ -252,13 +220,12 @@ export default function RootLayout({
             </ul>
           </div>
         </nav>
+
         <div className="flex-grow">
-          <div className="flex items-center w-full justify-between flex-wrap pl-4 py-3 bg-[#E0D9FD]">
-            <div className="flex gap-2 items-center">
-              <button
-                onClick={handleOpen}
-                className="lg:hidden text-gray-500 hover:text-gray-700"
-              >
+          {/* Header du Dashboard */}
+          <div className="flex items-center w-full justify-between flex-wrap gap-4 pl-4 py-3 bg-[#E0D9FD]">
+            <div className="flex gap-3 items-center">
+              <button onClick={handleOpen} className="lg:hidden text-gray-500 hover:text-gray-700">
                 <Bars3Icon className="w-6 h-6" />
               </button>
               
@@ -266,48 +233,41 @@ export default function RootLayout({
                 <input type="file" id="imageUpload" accept=".png, .jpg, .jpeg" ref={inputFileRef} onChange={handleFileChange} />
               </div>
 
-              <div onClick={handlePencilClick} className="cursor-pointer border overflow-hidden w-[40px] h-[40px] border-[var(--primary)] rounded-full bg-white relative mx-auto">
-                <Image
-                  src={avatarUrl}
-                  alt="avatar"
-                  fill
-                  className="rounded-full object-cover"
-                />
+              <div onClick={handlePencilClick} className="cursor-pointer border-2 border-white overflow-hidden w-[40px] h-[40px] rounded-full bg-white relative mx-auto shadow-sm">
+                <Image src={avatarUrl} alt="avatar" fill className="rounded-full object-cover" />
               </div>
 
-              <div className="font-medium text">
-                <div className="flex gap-2">
-                  <h6 className="font-bold">{driverName}</h6>
-                </div>
-                {/* Affiche le contact (tel ou email) mais jamais l'ID */}
-                {userContact && (
-                   <span className="text-sm text-gray-600">{userContact}</span>
-                )}
+              <div className="font-medium text-sm">
+                <h6 className="font-bold text-gray-800">{driverName}</h6>
+                {userContact && <span className="text-xs text-gray-600">{userContact}</span>}
               </div>
             </div>
             
-            <Link
-              className={`text font-bold cursor-pointer ${navOpen? "mt-[3rem]":""} flex items-center gap-1  p-2  mr-[2%] rounded-md  border-[var(--dark)] border hover:bg-primary hover:text-white justify-center`}
-              href={`/freelance-profile?id=${user.userId}`}
-            >
-              View my profile
-            </Link>
+            {/* --- INTÉGRATION DU PROFILE SWITCHER ICI --- */}
+            <div className="flex items-center gap-3 pr-4">
+                <ProfileSwitcher />
+                
+                <Link
+                  className="text-sm font-bold cursor-pointer flex items-center gap-1.5 p-2 rounded-lg border-2 border-gray-700 hover:bg-gray-700 hover:text-white transition-colors"
+                  href={`/freelance-profile?id=${user.userId}`}
+                >
+                  View Profile
+                </Link>
+            </div>
           </div>
-          <section
-            className={`${
-              navOpen ? "lg:ml-0" : "ml-0"
-            } transition-all duration-300 ease-out container p-4`}
-          >
+          
+          <section className="transition-all duration-300 ease-out container p-4">
             {children}
           </section>
         </div>
       </section>
+
       {navOpen && (
         <div
           className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
           onClick={() => setNavOpen(false)}
         ></div>
       )}
-    </div >
+    </div>
   );
 }

@@ -42,7 +42,7 @@ export default function LoginPage() {
                         </div>
                     </div>
 
-                    <Link href="/customer-dashboard"
+                    <Link href="/driver"
                           className="mt-4 w-full py-2 font-medium text-white bg-gray-600 text rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 text-center"
                     >
                         Go to Home

@@ -1,288 +1,179 @@
 "use client";
-import React, { useState, ChangeEvent, FormEvent } from 'react';
-import { motion } from 'framer-motion';
-import { ChevronDown, Camera, FileText, Calendar, Phone, Mail, MapPin, Star, X, User, Car } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { toast } from 'react-hot-toast';
+import { CloudArrowUpIcon, DocumentTextIcon, CameraIcon } from '@heroicons/react/24/outline';
 import Image from "next/image";
-import ProfilePreview from '@/components/freelance/portofolio/ProfilePreview';
-import {InputField} from '@/components/freelance/portofolio/InputField'
+
+// SERVICES & TYPES
+import { experienceService } from '@/service/experienceService';
+import { mediaService } from '@/service/mediaService';
+import { sessionService } from '@/service/sessionService';
+import { DriverLicense, CV } from '@/type/experience';
+
+// COMPONENTS
 import ProfessionalExperience from '@/components/freelance/portofolio/Experience';
-
-interface FormData {
-  name: string;
-  age: string;
-  height: string;
-  weight: string;
-  phoneNumber: string;
-  password: string;
-  birthday: string;
-  bloodType: string;
-  sexe: string;
-  region: string;
-  address: string;
-  email: string;
-  interests: string;
-  expectations: string;
-  images: string[];
-  pdf?: string;
-}
-
-interface VehicleFormData {
-  brand: string;
-  model: string;
-  numberOfSeats: string;
-  cost: string;
-  description: string;
-  immatriculation: string;
-  title: string;
-  fuelType: string;
-  boxType: string;
-  imageUrl: string;
-}
+import { v4 as uuidv4 } from 'uuid';
 
 const Page = () => {
-  const [formData, setFormData] = useState<FormData>({
-    name: 'John Smith',
-    age: '24',
-    height: '180',
-    weight: '90',
-    phoneNumber: '650344138',
-    password: '180',
-    birthday: '1990-01-01',
-    bloodType: 'A',
-    sexe: 'Masculin',
-    region: 'Centre',
-    address: 'Mimboman-Yaounde',
-    email: 'nom@gmail.com',
-    interests: 'I love to play basketball and tennis. I also play video games and watch movies. I love going to the gym and work-out. I love meeting new people.',
-    expectations: 'I expect to meet my future wife here by meeting new people.',
-    images: [],
-  });
-  
-  const [vehicleFormData, setVehicleFormData] = useState<VehicleFormData>({
-    brand: '',
-    model: '',
-    numberOfSeats: '',
-    cost: '',
-    description: '',
-    immatriculation: '',
-    title: '',
-    fuelType: '',
-    boxType: '',
-    imageUrl: '',
-  });
+  const [license, setLicense] = useState<DriverLicense | null>(null);
+  const [cv, setCv] = useState<CV | null>(null);
+  const [loadingDocs, setLoadingDocs] = useState(true);
+  const [uploading, setUploading] = useState<{license: boolean, cv: boolean}>({ license: false, cv: false });
 
-  const [showVehicleForm, setShowVehicleForm] = useState(false);
+  // Load documents
+  useEffect(() => {
+    const fetchDocs = async () => {
+        try {
+            const [fetchedLicense, fetchedCv] = await Promise.all([
+                experienceService.getDocument<DriverLicense>("f1c2b3d4-e5f6-7890-1234-567890abcdef"), // License Category ID
+                experienceService.getDocument<CV>("a1b2c3d4-e5f6-7890-1234-567890fedcba"), // CV Category ID
+            ]);
+            setLicense(fetchedLicense);
+            setCv(fetchedCv);
+        } catch (error) {
+            console.error("Error loading documents", error);
+        } finally {
+            setLoadingDocs(false);
+        }
+    };
+    fetchDocs();
+  }, []);
 
-  const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+  // Handle License Upload (Image)
+  const handleLicenseUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+      if (e.target.files && e.target.files[0]) {
+          const file = e.target.files[0];
+          setUploading(prev => ({...prev, license: true}));
+          
+          try {
+            const userContext = await sessionService.getUserContext();
+            const driverId = userContext?.id;
+            if(!driverId) throw new Error("Invalid session");
+
+            const resourceId = license?.id || uuidv4();
+            // 1. Upload file
+            const response = await mediaService.uploadFileAndGetResponse(file, 'documents', resourceId);
+            
+            // 2. Save metadata
+            await experienceService.saveDocument(
+                license?.id || null, // null if creation
+                response.url, 
+                "driver-license.jpg", 
+                "f1c2b3d4-e5f6-7890-1234-567890abcdef", 
+                driverId
+            );
+            
+            // 3. Update UI
+            setLicense({ id: resourceId, photoUrl: response.url });
+            toast.success("License updated!");
+          } catch (error) {
+              console.error(error);
+              toast.error("Failed to upload license.");
+          } finally {
+              setUploading(prev => ({...prev, license: false}));
+          }
+      }
   };
 
-  const toggleVehicleForm = () => {
-    setShowVehicleForm(!showVehicleForm);
-  };
+  // Handle CV Upload (PDF)
+  const handleCvUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+      if (e.target.files && e.target.files[0]) {
+          const file = e.target.files[0];
+          if (file.type !== 'application/pdf') {
+              toast.error("Please select a PDF file.");
+              return;
+          }
+          setUploading(prev => ({...prev, cv: true}));
+          
+          try {
+            const userContext = await sessionService.getUserContext();
+            const driverId = userContext?.id;
+            if(!driverId) throw new Error("Invalid session");
 
-  const handleImageUpload = (e: ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      const filesArray = Array.from(e.target.files);
-      const imagePromises = filesArray.map((file) => {
-        return new Promise<string>((resolve) => {
-          const reader = new FileReader();
-          reader.onload = () => {
-            resolve(reader.result as string);
-          };
-          reader.readAsDataURL(file);
-        });
-      });
-  
-      Promise.all(imagePromises).then((images) => {
-        setFormData({ ...formData, images: [...formData.images, ...images] });
-      });
-    }
-  };
-
-  const handlePdfUpload = (e: ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const reader = new FileReader();
-      reader.onload = () => {
-        setFormData({ ...formData, pdf: reader.result as string });
-      };
-      reader.readAsDataURL(e.target.files[0]);
-    }
-  };
-
-  const removeImage = (index: number) => {
-    const newImages = [...formData.images];
-    newImages.splice(index, 1);
-    setFormData({ ...formData, images: newImages });
-  };
-
-  const handleSubmit = (e: FormEvent) => {
-    e.preventDefault();
-    console.log({ ...formData, vehicle: vehicleFormData });
+            const resourceId = cv?.id || uuidv4();
+            const response = await mediaService.uploadFileAndGetResponse(file, 'documents', resourceId);
+            
+            await experienceService.saveDocument(
+                cv?.id || null,
+                response.url, 
+                file.name, 
+                "a1b2c3d4-e5f6-7890-1234-567890fedcba", 
+                driverId
+            );
+            
+            setCv({ id: resourceId, fileUrl: response.url, fileName: file.name });
+            toast.success("CV updated!");
+          } catch (error) {
+              console.error(error);
+              toast.error("Failed to upload CV.");
+          } finally {
+              setUploading(prev => ({...prev, cv: false}));
+          }
+      }
   };
 
   return (
-    <div className="min-h-screen">
-      <section className="grid z-[1] grid-cols-12">
-        <div className="col-span-12">
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5 }}
-            className="py-3 bg-white"
-          >
-            <div className="flex text flex-wrap md:flex-nowrap items-start gap-6 xl:gap-8 mx-3">
-              <div className="w-full md:w-7/12">
-                <div className="p-4">
-                  <form onSubmit={handleSubmit} className="space-y-6">
-                    <div className="grid grid-cols-12 gap-4">
-                      <InputField edit={true} name="name" label="Name" icon={User} placeholder="Enter Your Name" />
-                      <InputField edit={true} name="age" label="Age" icon={User} placeholder="Enter Your Age" />
-                      <InputField edit={true} name="height" label="Height (cm)" icon={User} placeholder="Enter Your Height" />
-                      <InputField edit={true} name="weight" label="Weight (kg)" icon={User} placeholder="Enter Your Weight" />
-                      <InputField edit={true} name="phoneNumber" label="Phone Number" icon={Phone} placeholder="Enter Your Phone Number" />
-                      <InputField edit={true} name="birthday" label="Birthday" icon={Calendar} type="date" />
-                      <InputField edit={true} name="email" label="Email" icon={Mail} type="email" placeholder="Enter Your Email" />
-                      
-                      <motion.div 
-                        className="col-span-12 sm:col-span-6"
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                      >
-                        <label htmlFor="sexe" className="font-semibold block">Gender:</label>
-                        <div className="relative">
-                          <select
-                            name="sexe"
-                            id="sexe"
-                            value={formData.sexe}
-                            onChange={handleInputChange}
-                            className="w-full bg-white border rounded-md  p-1"
-                          >
-                            <option value="Masculin">Male</option>
-                            <option value="Feminin">Female</option>
-                          </select>
-                        </div>
-                      </motion.div>
+    <div className="p-4 md:p-6 max-w-5xl mx-auto space-y-8">
+        <h1 className="text-2xl font-bold text-gray-800 mb-6">My Professional Portfolio</h1>
 
-                      <InputField edit={true} name="region" label="Region" icon={MapPin} placeholder="Enter Your Region" />
-                      <InputField edit={true} name="address" label="Address" icon={MapPin} placeholder="Enter Your Address" />
-
-                      <ProfessionalExperience/>
-
-                      <motion.div 
-                        className="col-span-12"
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                      >
-                        <label htmlFor="interests" className="font-semibold block">Interests:</label>
-                        <textarea
-                          id="interests"
-                          name="interests"
-                          rows={3}
-                          value={formData.interests}
-                          onChange={handleInputChange}
-                          className="w-full bg-white border rounded-md p-2"
-                        ></textarea>
-                      </motion.div>
-
-                      <motion.div 
-                        className="col-span-12"
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                      >
-                        <label htmlFor="expectations" className=" font-semibold block">Expectations:</label>
-                        <textarea
-                          id="expectations"
-                          name="expectations"
-                          rows={3}
-                          value={formData.expectations}
-                          onChange={handleInputChange}
-                          className="w-full bg-white border rounded-md p-2"
-                        ></textarea>
-                      </motion.div>
-
-                      <motion.div 
-                        className="col-span-12"
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                      >
-                        <label htmlFor="images" className=" font-semibold block ">Profile Images:</label>
-                        <div className="relative">
-                          <input
-                            type="file"
-                            name="images"
-                            id="image-upload"
-                            accept="image/*"
-                            multiple
-                            onChange={handleImageUpload}
-                            className="hidden"
-                          />
-                          <label htmlFor="image-upload" className="flex items-center justify-center w-full bg-white border p-2 rounded-md cursor-pointer">
-                            <Camera className="mr-2" size={20} />
-                            <span>Upload Images</span>
-                          </label>
-                        </div>
-                        {formData.images.length > 0 && (
-                          <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 gap-4">
-                            {formData.images.map((image, index) => (
-                              <div key={index} className="relative">
-                                <Image src={image} alt={`Uploaded ${index + 1}`} width={50} height={50} className="w-full h-32 object-cover rounded-lg" />
-                                <button
-                                  type="button"
-                                  onClick={() => removeImage(index)}
-                                  className="absolute top-1 right-1 bg-red-500  rounded-full p-1"
-                                >
-                                  <X size={16} />
-                                </button>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                      </motion.div>
-
-                      <motion.div 
-                        className="col-span-12"
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                      >
-                        <label htmlFor="cv-upload" className=" font-semibold block">CV Upload:</label>
-                        <div className="relative">
-                          <input
-                            type="file"
-                            name="cv-upload"
-                            id="cv-upload"
-                            accept="application/pdf"
-                            onChange={handlePdfUpload}
-                            className="hidden"
-                          />
-                          <label htmlFor="cv-upload" className="flex items-center justify-center w-full bg-white border rounded-md p-2 cursor-pointer">
-                            <FileText className="mr-2" size={20} />
-                            <span>Upload CV</span>
-                          </label>
-                        </div>
-                      </motion.div>
-                      <motion.div 
-                        className="col-span-12"
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                      >
-                        <button
-                          type="submit"
-                          className="w-full border p-2 rounded-md"
-                        >
-                          Save Profile
-                        </button>
-                      </motion.div>
-                    </div>
-                  </form>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Driving License Card */}
+            <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                <h3 className="text-lg font-semibold mb-4 text-gray-800">Driving License</h3>
+                <div className="relative w-full h-48 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300 flex flex-col items-center justify-center overflow-hidden group">
+                    {uploading.license ? (
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                    ) : license?.photoUrl ? (
+                        <>
+                            <Image src={license.photoUrl} alt="License" fill className="object-contain" />
+                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                <label className="cursor-pointer bg-white text-gray-800 px-4 py-2 rounded-lg font-medium hover:bg-gray-100 transition">
+                                    Change
+                                    <input type="file" className="hidden" accept="image/*" onChange={handleLicenseUpload} />
+                                </label>
+                            </div>
+                        </>
+                    ) : (
+                        <label className="cursor-pointer flex flex-col items-center p-4 w-full h-full justify-center hover:bg-gray-100 transition">
+                            <CameraIcon className="w-10 h-10 text-gray-400 mb-2" />
+                            <span className="text-sm text-gray-500">Add a photo</span>
+                            <input type="file" className="hidden" accept="image/*" onChange={handleLicenseUpload} />
+                        </label>
+                    )}
                 </div>
-              </div>
-              <ProfilePreview formData={formData}/>
             </div>
-          </motion.div>
+
+            {/* CV Card */}
+            <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                <h3 className="text-lg font-semibold mb-4 text-gray-800">Curriculum Vitae (CV)</h3>
+                <div className="relative w-full h-48 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300 flex flex-col items-center justify-center group">
+                    {uploading.cv ? (
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                    ) : cv?.fileUrl ? (
+                        <div className="text-center p-4">
+                            <DocumentTextIcon className="w-12 h-12 text-blue-500 mx-auto mb-2" />
+                            <p className="text-sm font-medium text-gray-800 truncate max-w-[200px]">{cv.fileName}</p>
+                            <div className="flex gap-2 justify-center mt-4">
+                                <a href={cv.fileUrl} target="_blank" rel="noopener noreferrer" className="text-xs bg-blue-100 text-blue-700 px-3 py-1 rounded hover:bg-blue-200">View</a>
+                                <label className="cursor-pointer text-xs bg-gray-200 text-gray-700 px-3 py-1 rounded hover:bg-gray-300">
+                                    Replace
+                                    <input type="file" className="hidden" accept="application/pdf" onChange={handleCvUpload} />
+                                </label>
+                            </div>
+                        </div>
+                    ) : (
+                        <label className="cursor-pointer flex flex-col items-center p-4 w-full h-full justify-center hover:bg-gray-100 transition">
+                            <CloudArrowUpIcon className="w-10 h-10 text-gray-400 mb-2" />
+                            <span className="text-sm text-gray-500">Import PDF</span>
+                            <input type="file" className="hidden" accept="application/pdf" onChange={handleCvUpload} />
+                        </label>
+                    )}
+                </div>
+            </div>
         </div>
-      </section>
+
+        {/* Experience List */}
+        <ProfessionalExperience />
     </div>
   );
 };

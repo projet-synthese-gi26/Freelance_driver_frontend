@@ -58,7 +58,7 @@ export default function LoginFormEmail({ onForgottenPasswordClick, onSignUpClick
             toast.success("Welcome back!");
 
             if (roles.length > 1) {
-                router.push('/auth/choose-profile');
+                router.push('/choose-profile');
             } else if (roles.includes('DRIVER')) {
                 router.push('/freelance-dashboard');
             } else if (roles.includes('CLIENT')) {

@@ -1,416 +1,166 @@
-"use client"
-import React, {useEffect, useRef, useState} from 'react';
+"use client";
+import React, { useEffect, useState, useCallback } from 'react';
+import { useSearchParams } from "next/navigation";
+import { toast } from 'react-hot-toast';
 import Select from '@/components/general/CustomSelect';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import { useSearchParams } from "next/navigation";
-import SearchResult from "@/components/search/SearchResultSection";
-import { faLocationCrosshairs } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { createAutocomplete } from "@/scripts/autocomplete"
-import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
+import { faLocationCrosshairs } from '@fortawesome/free-solid-svg-icons';
+import { createAutocomplete } from "@/scripts/autocomplete";
 
-// --- IMPORT DU SERVICE ---
-import { driverSearchService } from '@/service/driverSearchService';
-
+// --- SERVICES & COMPONENTS ---
+import { planningService } from '@/service/planningService'; // Utilise le service des plannings
+import SearchCardFreelance from "@/components/search/SearchCardFreelance";
+import EmptyJumbotron from '@/components/EmptyJumbotron';
 import {
-    meetingPointOptions,
     driverType,
     tripIntention,
-    tripType,
     paymentMethod,
-    pricingMethod,
-    languageOptions,
 } from "@/data/Structure";
 
 const Search = () => {
     const searchParams = useSearchParams();
-    const locationBase = searchParams.get('location');
-    const destinationBase = searchParams.get('destination');
-    const locationRef = useRef(null);
-    const destinationRef = useRef(null);
-    const currentDate = new Date();
+    const locationBase = searchParams.get('location') || '';
     
-    // --- ÉTATS ---
-    const [searchResults, setSearchResults] =  useState([]); // Ancienne variable (peut être supprimée si apiResults remplace tout)
-    
-    // NOUVEL ÉTAT POUR LES RÉSULTATS API
-    const [apiResults, setApiResults] = useState([]);
+    // États pour le formulaire de recherche
+    const [location, setLocation] = useState(locationBase);
+    const [destination, setDestination] = useState('');
+    const [startDate, setStartDate] = useState(null);
+    const [driverTypeValue, setDriverType] = useState(null);
+    const [tripIntentionValue, setTripIntention] = useState(null);
+    const [paymentMethodValue, setPaymentMethod] = useState(null);
+
+    // États pour les données et le chargement
+    const [allPlannings, setAllPlannings] = useState([]);
+    const [filteredPlannings, setFilteredPlannings] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState(null);
 
-    const [location, setLocation] = useState(locationBase || '');
-    const [destination, setDestination] = useState(destinationBase || '');
-    const [iconsLoaded, setIconsLoaded] = useState(false);
-    const [showAdvanced, setShowAdvanced] = useState(false);
-    const [formData, setFormData] = useState({
-        location:"",
-        destination:"",
-        startDate: new Date(),
-        endDate: new Date(),
-        startTime: new Date(),
-        endTime: new Date(),
-        meetupPoint:"",
-        driverType:'',
-        tripType:'',
-        preferredLanguage:'',
-        tripIntention:'',
-        experience:'',
-        averageRating:'',
-        pricingMethod:''
-    });
-
-    // --- CHARGEMENT DES DONNÉES API AU MONTAGE ---
+    // Initialisation Autocomplete
     useEffect(() => {
-        const fetchDrivers = async () => {
-            setIsLoading(true);
-            setError(null);
-            try {
-                console.log("Chargement des conducteurs depuis l'API...");
-                const data = await driverSearchService.getAvailableDrivers();
-                setApiResults(data);
-                // Si vous voulez aussi mettre à jour l'ancien état
-                setSearchResults(data); 
-            } catch (err) {
-                console.error("Erreur chargement conducteurs:", err);
-                setError("Impossible de charger les conducteurs disponibles.");
-            } finally {
-                setIsLoading(false);
-            }
-        };
-
-        fetchDrivers();
-    }, []);
-
-    // --- AUTOCOMPLETE (Inchangé) ---
-    useEffect(() => {
-        const locationAutocomplete = createAutocomplete('location', (selectedValue) => {
-            setLocation(selectedValue);
-        });
-        const destinationAutocomplete = createAutocomplete('destination', (selectedValue) => {
-            setDestination(selectedValue);
-        });
-
-        const timer = setTimeout(() =>{
-            setIconsLoaded(true);
-        }, 100);
-
+        const locAutocomplete = createAutocomplete('location', setLocation);
+        const destAutocomplete = createAutocomplete('destination', setDestination);
         return () => {
-            clearTimeout(timer);
-            if (locationAutocomplete && locationAutocomplete.destroy) locationAutocomplete.destroy();
-            if (destinationAutocomplete && destinationAutocomplete.destroy) destinationAutocomplete.destroy();
+            locAutocomplete?.destroy();
+            destAutocomplete?.destroy();
         };
-
     }, []);
 
-    const handleInputChange = (name, value) => {
-        setFormData(prev => ({ ...prev, [name]: value }));
-    };
-
-
-    const handleSearch = async (e) => {
-        e.preventDefault();
-
-        const searchData = {...formData};
-        searchData["experience"] = Number(searchData["experience"]);
-        ['startDate', 'endDate', 'startTime', 'endTime'].forEach(key => {
-            if (searchData[key] instanceof Date) {
-                searchData[key] = searchData[key].toISOString();
-            }
-        });
-
-        console.log("Données de recherche:", searchData);
-
-        // ICI : Vous pouvez appeler l'API avec des filtres si le backend le supporte
-        // Pour l'instant, on recharge juste la liste complète
+    // Chargement initial des plannings
+    const loadPlannings = useCallback(async () => {
         setIsLoading(true);
         try {
-            const data = await driverSearchService.getAvailableDrivers();
-            // TODO: Appliquer un filtrage côté client ici si l'API renvoie tout
-            setApiResults(data);
-        } catch (err) {
-            console.error(err);
+            const data = await planningService.getPublishedPlannings();
+            const sorted = data.sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
+            setAllPlannings(sorted);
+            setFilteredPlannings(sorted); // Initialement, on affiche tout
+        } catch (error) {
+            console.error(error);
+            toast.error("Erreur de chargement des plannings.");
         } finally {
             setIsLoading(false);
         }
-    };
+    }, []);
 
-    const isToday = (date) => {
-        return date.getDate() === currentDate.getDate() &&
-            date.getMonth() === currentDate.getMonth() &&
-            date.getFullYear() === currentDate.getFullYear();
-    };
+    useEffect(() => {
+        loadPlannings();
+    }, [loadPlannings]);
 
-    const getMinTime = (selectedDate) => {
-        if (isToday(selectedDate)) {
-            return new Date(
-                currentDate.getFullYear(),
-                currentDate.getMonth(),
-                currentDate.getDate(),
-                currentDate.getHours(),
-                Math.ceil(currentDate.getMinutes() / 15) * 15
-            );
+    // Filtrage dynamique
+    const handleSearch = (e) => {
+        e.preventDefault();
+        
+        let filtered = allPlannings;
+
+        if (location) {
+            filtered = filtered.filter(p => p.pickupLocation.toLowerCase().includes(location.toLowerCase()));
         }
-        return new Date(selectedDate.getFullYear(), selectedDate.getMonth(), selectedDate.getDate(), 0, 0);
+        if (destination) {
+            filtered = filtered.filter(p => p.dropoffLocation.toLowerCase().includes(destination.toLowerCase()));
+        }
+        if (startDate) {
+            filtered = filtered.filter(p => new Date(p.startDate) >= startDate);
+        }
+        // ... Ajouter d'autres filtres si besoin
+        
+        setFilteredPlannings(filtered);
     };
-
 
     return (
-        <div className=" text p-2 md:pb-4 flex-col sm:flex-row gap-3 sm:gap-5 text-lg bg-gray-200">
-            <div className="container mx-auto p-6 font-inter">
-                <div className="mb-5 text-center">
-                    <h1 className="font-bold bigtitle text-black mb-3">
-                        Unlock the Freedom of On-Demand Driving
-                    </h1>
-                    <h2 className="title text-black font-medium leading-tight">
-                        Find and book the best driver
-                    </h2>
-                </div>
-
-                <form onSubmit={handleSearch} className="mb-8">
-                    <div className="flex flex-wrap gap-2 lg:{flex flex-wrap gap-1}">
-                        <div className="relative flex-auto w-full md:w-[30%] xl:w-[30%] h-max">
-                            {/* ... (Bloc de champs de formulaire inchangé) ... */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-2">
-                                <div className="relative auto-search-wrapper w-full lg:w-3/4">
-                                    <input
-                                        type="text"
-                                        id="location"
-                                        ref={locationRef}
-                                        value={location}
-                                        onChange={(e) => setLocation(e.target.value)}
-                                        placeholder="Select your location"
-                                        className=" pl-10 border rounded w-full"
-                                    />
-                                    {iconsLoaded && (
-                                        <FontAwesomeIcon
-                                            icon={faLocationCrosshairs}
-                                            className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-                                            style={{width: '15px', height: '15px'}}
-                                        />
-                                    )}
-                                </div>
-
-                                <div className="relative auto-search-wrapper w-full lg:w-3/4">
-                                    <input
-                                        type="text"
-                                        id="destination"
-                                        ref={destinationRef}
-                                        value={destination}
-                                        onChange={(e) => setDestination(e.target.value)}
-                                        placeholder="Select your destination"
-                                        className=" pl-10 border rounded w-full"
-                                    />
-                                    {iconsLoaded && (
-                                        <FontAwesomeIcon
-                                            icon={faLocationCrosshairs}
-                                            className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-                                            style={{width: '15px', height: '15px'}}
-                                        />
-                                    )}
-                                </div>
-
-                                <Select
-                                    options={driverType}
-                                    placeholder="Driver type"
-                                    className="react-select-container"
-                                    classNamePrefix="react-select"
-                                    maxMenuHeight={180}
-                                    onChange={(selectedOption) => handleInputChange('driverType', selectedOption?.value)}
-                                />
-
-                                <Select
-                                    options={paymentMethod}
-                                    placeholder="Payment Method"
-                                    className="react-select-container"
-                                    classNamePrefix="react-select"
-                                    maxMenuHeight={180}
-                                    onChange={(selectedOption) => handleInputChange('driverType', selectedOption?.value)}
-                                />
-
-                                <Select
-                                    options={tripType}
-                                    placeholder="Trip type"
-                                    className="react-select-container"
-                                    classNamePrefix="react-select"
-                                    maxMenuHeight={180}
-                                    onChange={(selectedOption) => handleInputChange('tripType', selectedOption?.value)}
-                                />
-
-                                <Select
-                                    options={meetingPointOptions}
-                                    placeholder="Select meetup point"
-                                    className="react-select-container"
-                                    classNamePrefix="react-select"
-                                    maxMenuHeight={180}
-                                    onChange={(selectedOption) => handleInputChange('meetupPoint', selectedOption?.value)}
-                                />
+        <div className="bg-gray-50 min-h-screen">
+            <div className="container mx-auto p-4 md:p-6">
+                
+                {/* FORMULAIRE DE RECHERCHE */}
+                <div className="bg-white rounded-xl shadow-lg p-6 mb-8 border">
+                    <h2 className="text-xl font-bold mb-4 text-gray-800">Trouver un Chauffeur</h2>
+                    <form onSubmit={handleSearch} className="space-y-4">
+                        {/* Ligne 1: Lieux */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="relative auto-search-wrapper">
+                                <label className="block text-sm font-medium text-gray-600 mb-1">Départ</label>
+                                <input id="location" value={location} onChange={e => setLocation(e.target.value)} placeholder="Ville de départ" className="w-full p-2 border rounded-lg" />
                             </div>
-
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-2">
-                                <div className="flex items-center gap-4">
-                                    <div className="flex items-center gap-2">
-                                        <label className="whitespace-nowrap font-medium">From:</label>
-                                        <DatePicker
-                                            minDate={currentDate}
-                                            selected={formData.startDate}
-                                            onChange={(date) => handleInputChange('startDate', date)}
-                                            dateFormat="dd/MM/yyyy"
-                                            className="px-2 border rounded w-32"
-                                        />
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                        <label className="whitespace-nowrap font-medium">At:</label>
-                                        <DatePicker
-                                            selected={formData.startTime}
-                                            onChange={(time) => handleInputChange('startTime', time)}
-                                            showTimeSelect
-                                            showTimeSelectOnly
-                                            timeIntervals={15}
-                                            timeCaption="Time"
-                                            dateFormat="HH:mm aa"
-                                            className="px-2 border rounded w-24"
-                                            minTime={getMinTime(formData.startDate)}
-                                            maxTime={new Date(formData.startDate.getFullYear(), formData.startDate.getMonth(), formData.startDate.getDate(), 23, 45)}
-                                        />
-                                    </div>
-                                </div>
-                                <div className="flex items-center gap-4">
-                                    <div className="flex items-center gap-2">
-                                        <label className="whitespace-nowrap font-medium">To:</label>
-                                        <DatePicker
-                                            minDate={currentDate}
-                                            selected={formData.endDate}
-                                            onChange={(date) => handleInputChange('endDate', date)}
-                                            dateFormat="dd/MM/yyyy"
-                                            className="px-2 border rounded w-32"
-                                        />
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                        <label className="whitespace-nowrap font-medium">At:</label>
-                                        <DatePicker
-                                            selected={formData.endTime}
-                                            onChange={(time) => handleInputChange('endTime', time)}
-                                            showTimeSelect
-                                            showTimeSelectOnly
-                                            timeIntervals={15}
-                                            timeCaption="Time"
-                                            dateFormat="HH:mm aa"
-                                            className="px-2 border rounded w-24"
-                                            minTime={formData.endDate > formData.startDate ?
-                                                new Date(formData.endDate.getFullYear(), formData.endDate.getMonth(), formData.endDate.getDate(), 0, 0) :
-                                                formData.startTime}
-                                            maxTime={new Date(formData.endDate.getFullYear(), formData.endDate.getMonth(), formData.endDate.getDate(), 23, 45)}
-                                        />
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
-                                <Select
-                                    options={languageOptions}
-                                    placeholder="Preferred language"
-                                    className="react-select-container"
-                                    classNamePrefix="react-select"
-                                    maxMenuHeight={180}
-                                    onChange={(selectedOption) => handleInputChange('preferredLanguage', selectedOption?.value)}
-                                />
-                                <Select
-                                    options={tripIntention}
-                                    placeholder="Trip intention"
-                                    className="react-select-container"
-                                    classNamePrefix="react-select"
-                                    maxMenuHeight={180}
-                                    onChange={(selectedOption) => handleInputChange('tripIntention', selectedOption?.value)}
-                                />
-                            </div>
-                            <div className="flex justify-between items-center">
-                                <button
-                                    type="button"
-                                    onClick={() => setShowAdvanced(!showAdvanced)}
-                                    className="text-blue-600 hover:text-blue-800"
-                                >
-                                    {showAdvanced ? 'Hide advanced options' : 'Show advanced options'}
-                                </button>
-                            </div>
-
-                            {showAdvanced && (
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                                    <input
-                                        type="number"
-                                        placeholder="Experience (years)"
-                                        className="px-2 border rounded"
-                                        onChange={(e) => handleInputChange('experience', e.target.value)}
-                                    />
-                                    <Select
-                                        options={[1, 2, 3, 4, 5].map(n => ({value: n, label: '⭐'.repeat(n)}))}
-                                        placeholder="Average rating"
-                                        className="react-select-container"
-                                        classNamePrefix="react-select"
-                                        maxMenuHeight={180}
-                                        onChange={(selectedOption) => handleInputChange('averageRating', selectedOption?.value)}
-                                    />
-                                    <Select
-                                        options={pricingMethod}
-                                        placeholder="Pricing method"
-                                        className="react-select-container"
-                                        classNamePrefix="react-select"
-                                        maxMenuHeight={180}
-                                        onChange={(selectedOption) => handleInputChange('pricingMethod', selectedOption?.value)}
-                                    />
-                                </div>
-                            )}
-
-                            <div className="w-full flex justify-end">
-                                <button type="submit"
-                                        className="bg-black text-white px-2 py-2 sm:px-4  sm:py-2 rounded-md hover:bg-gray-800 flex items-center justify-center text w-full sm:w-auto">
-                                    Find a driver
-                                </button>
+                            <div className="relative auto-search-wrapper">
+                                <label className="block text-sm font-medium text-gray-600 mb-1">Arrivée</label>
+                                <input id="destination" value={destination} onChange={e => setDestination(e.target.value)} placeholder="Ville d'arrivée" className="w-full p-2 border rounded-lg" />
                             </div>
                         </div>
-                    </div>
-                </form>
 
-                {/* --- AFFICHAGE DES RÉSULTATS --- */}
+                        {/* Ligne 2: Filtres */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-600 mb-1">Date</label>
+                                <DatePicker selected={startDate} onChange={date => setStartDate(date)} dateFormat="dd/MM/yyyy" className="w-full p-2 border rounded-lg" placeholderText="Quand ?" isClearable />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-600 mb-1">Type de Chauffeur</label>
+                                <Select options={driverType} onChange={setDriverType} placeholder="Tous" isClearable />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-600 mb-1">Intention</label>
+                                <Select options={tripIntention} onChange={setTripIntention} placeholder="Toutes" isClearable />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-600 mb-1">Paiement</label>
+                                <Select options={paymentMethod} onChange={setPaymentMethod} placeholder="Tous" isClearable />
+                            </div>
+                        </div>
+
+                        {/* Bouton */}
+                        <div className="flex justify-end">
+                            <button type="submit" className="bg-blue-600 text-white px-8 py-2.5 rounded-lg font-semibold hover:bg-blue-700 transition">
+                                Rechercher
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                {/* --- SECTION DES RÉSULTATS --- */}
                 {isLoading ? (
-                    <div className="text-center py-20">
-                         <p className="text-gray-500 text-xl font-medium">Chargement des conducteurs...</p>
-                    </div>
-                ) : error ? (
-                    <div className="text-center py-20">
-                         <p className="text-red-500">{error}</p>
+                    <div className="text-center py-20 text-gray-500">Chargement...</div>
+                ) : filteredPlannings.length > 0 ? (
+                    <div className="space-y-6">
+                        <p className="text-sm text-gray-600 font-medium">{filteredPlannings.length} chauffeur(s) trouvé(s)</p>
+                        {filteredPlannings.map(planning => (
+                            <SearchCardFreelance key={planning.id} planning={planning} />
+                        ))}
                     </div>
                 ) : (
-                    // On passe apiResults à SearchResult via la prop 'results'
-                    <SearchResult results={apiResults}/>
+                    <EmptyJumbotron 
+                        title="Aucun résultat" 
+                        message="Aucun chauffeur ne correspond à vos critères de recherche pour le moment." 
+                    />
                 )}
             </div>
-
-            <div className="lg:mb-[15rem]"></div>
-
+            
             <style jsx global>{`
                 @import "/styles/css/autocomplete.css";
-
-                .auto-search-wrapper {
-                    width: 100%;
-                }
-
-                .auto-search-wrapper input {
-                    width: 100% !important;
-                    position: relative;
-                }
-
+                .auto-search-wrapper input { width: 100% !important; }
                 .auto-search-wrapper > div {
                     position: absolute !important;
-                    top: 100% !important;
-                    left: 0 !important;
-                    right: 0 !important;
                     z-index: 1000 !important;
                     border: 1px solid #ddd !important;
-                    border-top: none !important;
                     background-color: white !important;
-                    max-height: 200px !important;
-                    overflow-y: auto !important;
-                    margin-top: 0 !important;
                 }
             `}</style>
         </div>
