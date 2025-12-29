@@ -18,7 +18,7 @@ export default function RegisterForm({ onSignInClick }: { onSignInClick: () => v
     const router = useRouter();
     const [loading, setLoading] = useState(false);
     
-    // États du formulaire
+    // États du formulaire de base
     const [role, setRole] = useState<'driver' | 'client'>('driver');
     const [firstName, setFirstName] = useState("");
     const [lastName, setLastName] = useState("");
@@ -27,11 +27,17 @@ export default function RegisterForm({ onSignInClick }: { onSignInClick: () => v
     const [confirmPassword, setConfirmPassword] = useState("");
     const [countryCode, setCountryCode] = useState(countryCodes[0].value);
     const [localPhone, setLocalPhone] = useState("");
+
+    // États supplémentaires (Pour éviter le crash Java NullPointerException)
+    const [companyName, setCompanyName] = useState("");
+    const [companyDescription, setCompanyDescription] = useState("");
+    const [licenseNumber, setLicenseNumber] = useState("");
+    const [vehicleDetails, setVehicleDetails] = useState("");
     
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirm, setShowConfirm] = useState(false);
 
-    // Validation Mot de passe (identique mobile)
+    // Validation Mot de passe
     const checkPasswordStrength = (pwd: string) => {
         if (pwd.length < 8) return "Password too short (min 8 chars)";
         if (!/[A-Z]/.test(pwd)) return "Missing uppercase letter";
@@ -43,15 +49,25 @@ export default function RegisterForm({ onSignInClick }: { onSignInClick: () => v
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         
-        // Validation
+        // Validation des champs de base
         if (!firstName || !lastName || !email || !password || !localPhone) {
-            toast.error("Please fill all fields");
+            toast.error("Please fill all basic fields");
             return;
         }
+
+        // Validation spécifique au Chauffeur
+        if (role === 'driver') {
+            if (!licenseNumber || !vehicleDetails) {
+                toast.error("License number and vehicle details are required for drivers");
+                return;
+            }
+        }
+
         if (password !== confirmPassword) {
             toast.error("Passwords do not match");
             return;
         }
+        
         const pwdError = checkPasswordStrength(password);
         if (pwdError) {
             toast.error(pwdError);
@@ -61,6 +77,9 @@ export default function RegisterForm({ onSignInClick }: { onSignInClick: () => v
         setLoading(true);
         const fullPhone = `${countryCode}${localPhone.trim()}`;
 
+        // CORRECTION MAJEURE ICI :
+        // On s'assure d'envoyer des chaînes vides ("") et non null/undefined
+        // pour éviter le crash backend (NullPointerException sur .trim())
         const requestData: RegistrationRequest = {
             username: email.trim(),
             email: email.trim(),
@@ -68,7 +87,12 @@ export default function RegisterForm({ onSignInClick }: { onSignInClick: () => v
             firstName: firstName.trim(),
             lastName: lastName.trim(),
             phoneNumber: fullPhone,
-            role: role
+            role: role,
+            // Champs optionnels ou spécifiques envoyés comme "" s'ils sont vides
+            companyName: companyName.trim() || "",
+            companyDescription: companyDescription.trim() || "",
+            licenseNumber: licenseNumber.trim() || "",
+            vehicleDetails: vehicleDetails.trim() || ""
         };
 
         try {
@@ -80,9 +104,10 @@ export default function RegisterForm({ onSignInClick }: { onSignInClick: () => v
             }
             
             toast.success("Verification code sent to your email!");
-            router.push('/auth/otp'); // Redirection vers la page OTP
+            router.push('/auth/otp');
 
         } catch (error: any) {
+            console.error("Registration Error:", error);
             const msg = error.response?.data?.message || "Registration failed";
             toast.error(msg);
         } finally {
@@ -115,6 +140,7 @@ export default function RegisterForm({ onSignInClick }: { onSignInClick: () => v
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4">
+                {/* --- Informations Personnelles --- */}
                 <div className="grid grid-cols-2 gap-4">
                     <input className="input-field" placeholder="First Name" value={firstName} onChange={e => setFirstName(e.target.value)} />
                     <input className="input-field" placeholder="Last Name" value={lastName} onChange={e => setLastName(e.target.value)} />
@@ -129,9 +155,62 @@ export default function RegisterForm({ onSignInClick }: { onSignInClick: () => v
                     <input className="input-field w-2/3" type="tel" placeholder="Phone Number" value={localPhone} onChange={e => setLocalPhone(e.target.value)} />
                 </div>
 
-                <div className="relative">
+                {/* --- Informations Spécifiques Chauffeur --- */}
+                {role === 'driver' && (
+                    <div className="p-4 bg-blue-50 rounded-lg space-y-3 border border-blue-100">
+                        <h3 className="text-sm font-semibold text-blue-800 mb-2">Driver Details</h3>
+                        <div className="grid grid-cols-2 gap-4">
+                            <input 
+                                className="input-field" 
+                                placeholder="License Number" 
+                                value={licenseNumber} 
+                                onChange={e => setLicenseNumber(e.target.value)} 
+                            />
+                             <input 
+                                className="input-field" 
+                                placeholder="Vehicle (e.g. Toyota Corolla)" 
+                                value={vehicleDetails} 
+                                onChange={e => setVehicleDetails(e.target.value)} 
+                            />
+                        </div>
+                        <input 
+                            className="input-field w-full" 
+                            placeholder="Company Name (Optional)" 
+                            value={companyName} 
+                            onChange={e => setCompanyName(e.target.value)} 
+                        />
+                         <textarea 
+                            className="input-field w-full h-20 resize-none" 
+                            placeholder="Company Description (Optional)" 
+                            value={companyDescription} 
+                            onChange={e => setCompanyDescription(e.target.value)} 
+                        />
+                    </div>
+                )}
+
+                 {/* --- Informations Spécifiques Client (Optionnel) --- */}
+                 {role === 'client' && (
+                    <div className="p-4 bg-green-50 rounded-lg space-y-3 border border-green-100">
+                         <h3 className="text-sm font-semibold text-green-800 mb-2">Company Details (Optional)</h3>
+                         <input 
+                            className="input-field w-full" 
+                            placeholder="Company Name" 
+                            value={companyName} 
+                            onChange={e => setCompanyName(e.target.value)} 
+                        />
+                         <textarea 
+                            className="input-field w-full h-20 resize-none" 
+                            placeholder="Company Description" 
+                            value={companyDescription} 
+                            onChange={e => setCompanyDescription(e.target.value)} 
+                        />
+                    </div>
+                )}
+
+                {/* --- Mot de passe --- */}
+                <div className="relative pt-2">
                     <input className="input-field w-full" type={showPassword ? "text" : "password"} placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} />
-                    <button type="button" className="absolute right-3 top-3" onClick={() => setShowPassword(!showPassword)}>
+                    <button type="button" className="absolute right-3 top-5" onClick={() => setShowPassword(!showPassword)}>
                         {showPassword ? <EyePassword/> : <NoEyePassword/>}
                     </button>
                 </div>
@@ -143,7 +222,7 @@ export default function RegisterForm({ onSignInClick }: { onSignInClick: () => v
                     </button>
                 </div>
 
-                <button disabled={loading} className="w-full bg-blue-600 text-white py-3 rounded-lg font-bold hover:bg-blue-700 transition disabled:opacity-50">
+                <button disabled={loading} className="w-full bg-blue-600 text-white py-3 rounded-lg font-bold hover:bg-blue-700 transition disabled:opacity-50 mt-4">
                     {loading ? "Processing..." : "Sign Up"}
                 </button>
             </form>
@@ -154,7 +233,7 @@ export default function RegisterForm({ onSignInClick }: { onSignInClick: () => v
 
             <style jsx>{`
                 .input-field {
-                    @apply px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent;
+                    @apply px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm;
                 }
             `}</style>
         </div>
