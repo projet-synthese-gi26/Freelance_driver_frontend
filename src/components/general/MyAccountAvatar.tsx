@@ -1,24 +1,27 @@
+// Composant d'avatar utilisateur avec menu déroulant et déconnexion
 import React, {useState, useEffect, useRef} from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useAuthContext } from '@/components/context/authContext';
-import {handleSignOUt} from "@/components/auth/LogOut";
+
 import { useRouter} from "next/navigation";
 
 export const MyAccountAvatar = () => {
+    // Récupère l'utilisateur authentifié depuis le contexte
     const { authUser } = useAuthContext();
+    // Gère l'ouverture/fermeture du menu
     const [isOpen, setIsOpen] = useState(false);
     const router = useRouter();
+    // Références pour gérer les clics hors menu
     const dropdownRef = useRef<HTMLDivElement>(null);
     const buttonRef = useRef<HTMLButtonElement>(null);
 
+    // Ouvre/ferme le menu
     const toggleDropdown = () => setIsOpen(!isOpen);
 
-    const SignOut = () => {
-        handleSignOUt().then(r => {});
-        router.push('/');
-    }
-
+    // Déconnexion utilisateur : supprime les cookies et redirige vers l'accueil
+   
+    // Ferme le menu si clic en dehors ou touche Échap
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node) &&
@@ -41,10 +44,12 @@ export const MyAccountAvatar = () => {
         };
     }, []);
 
-    const avatarSrc = authUser?.userData?.profile_picture || "dark_avatar.svg"
+    // Avatar par défaut si pas de photo utilisateur
+    const avatarSrc = "dark_avatar.svg"
 
     return (
         <div className="relative" ref={dropdownRef}>
+            {/* Bouton avatar qui ouvre le menu */}
             <button
                 ref={buttonRef}
                 onClick={toggleDropdown}
@@ -64,16 +69,10 @@ export const MyAccountAvatar = () => {
                 <span className="hidden lg:inline font-bold text-[#243757]">My Account</span>
             </button>
 
+            {/* Menu déroulant avec liens et bouton de déconnexion */}
             {isOpen && (
                 <div className="absolute lg:right-0 top-full mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 text-[#243757] font-bold max-h-[80vh] overflow-y-auto">
-                    <div className="px-4 py-2 border-b">
-                        {authUser?.userData?.user_friendly_name ? (
-                            <p className="text-sm font-semibold">{authUser.userData.user_friendly_name}</p>
-                        ) : (
-                            <span></span>
-                        )}
-                        <p className="text-sm text-gray-500 truncate">{authUser?.user_email}</p>
-                    </div>
+                   
                     <Link href="/customer-dashboard/customerId=''#profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                         Profile
                     </Link>
@@ -86,7 +85,8 @@ export const MyAccountAvatar = () => {
                     <Link href="/customer-dashboard/customerId=''#settings" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                         Settings
                     </Link>
-                    <button onClick={SignOut} className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                    {/* Déconnexion */}
+                    <button className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                         Sign Out
                     </button>
                 </div>

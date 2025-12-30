@@ -9,7 +9,10 @@ export interface ExtendedVehicle extends Partial<Omit<Vehicle, 'immatriculation'
   seats?: string;
   luggageCapacity?: string;
   transmission?: string;
-  amenities?: string;
+  
+  //MODIFICATION DE LA LIGNE ICI
+  amenities?: string[];
+  
   size?: string;
   fuelType?: string;
   manufacturer?: string;
@@ -17,7 +20,6 @@ export interface ExtendedVehicle extends Partial<Omit<Vehicle, 'immatriculation'
   registrationExpiryDate?: string;
   vehicleAge?: string;
   avgFuelConsumption?: string;
-  mileageSinceCommission?: string;
   isActive?: boolean;
   images?: string[];
 }

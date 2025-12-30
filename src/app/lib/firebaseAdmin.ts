@@ -1,8 +1,1 @@
-import * as admin from 'firebase-admin';
-import { FIREBASE_CONFIG } from "./constant";
-
-if (!admin.apps.length) {
-  admin.initializeApp(FIREBASE_CONFIG);
-}
-
-export const dbAdmin = admin.firestore();
+// Fichier vide : Firebase Admin n'est plus utilisé dans cette application.

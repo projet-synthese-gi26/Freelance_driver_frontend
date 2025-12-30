@@ -20,7 +20,7 @@ export default function BecomeClientPage() {
                 firstName: user?.driverProfile?.firstName || 'Client',
                 lastName: user?.driverProfile?.lastName || '',
                 phoneNumber: user?.driverProfile?.phoneNumber || '',
-                email: user?.driverProfile?.driver_email || '',
+                email: user?.driverProfile?.contactEmail || '',
                 companyName: companyName || 'Mon Compte Personnel',
                 companyDescription: 'Compte client personnel'
             };

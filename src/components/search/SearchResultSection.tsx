@@ -275,33 +275,8 @@ const SearchResult = ({ results = [] }: SearchResultProps) => {
                         {filteredListings.map((item) => (
                             <SearchCardFreelance
                                 key={item.id}
-                                // MAPPING DES DONNÉES DE L'API VERS LE FORMAT DU COMPOSANT
-                                driverData={{
-                                    driver_id: item.clientId || item.id,
-                                    // Utilisation de clientName ou concatenation si nom/prénom dispo
-                                    driver_first_name: item.clientName || item.authorName || 'Chauffeur',
-                                    driver_last_name: '', 
-                                    // Avatar ou image par défaut
-                                    driver_profile_image: item.profileImageUrl || item.authorImageUrl || '/img/default-avatar.jpeg',
-                                    driverLocation: item.pickupLocation,
-                                    driver_email: '', // Donnée sensible souvent masquée
-                                    driver_phone_number: item.clientPhoneNumber || item.authorPhoneNumber || 'N/A',
-                                    // Champs par défaut pour les tableaux s'ils manquent dans l'objet API
-                                    driver_experiences: [],
-                                    driver_languages: [],
-                                    driver_specialities: [],
-                                    driver_keywords: [],
-                                    // Mock des stats si non fournies
-                                    driver_statistics: { average_rating: 4.5, review_total_number: 0 }
-                                }}
-                                vehicleData={{
-                                    // Valeurs par défaut car le planning API ne contient pas tous les détails techniques du véhicule
-                                    total_seat_number: 4,
-                                    luggage_max_capacity: 0,
-                                    mileage_at_mileage_since_commissioning: 0,
-                                    fuel_type_name: 'Standard',
-                                    transmission_type_name: 'Manuelle'
-                                }}
+                                planning={item}
+                                onActionCompleted={() => {}}
                             />
                         ))}
 

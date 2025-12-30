@@ -63,15 +63,7 @@ export default function ChooseProfilePage() {
                     )}
                 </div>
 
-                <button
-                    onClick={() => {
-                        sessionService.logout();
-                        router.push('/login');
-                    }}
-                    className="mt-8 text-red-500 font-medium hover:underline"
-                >
-                    Log Out
-                </button>
+            
             </div>
         </div>
     );

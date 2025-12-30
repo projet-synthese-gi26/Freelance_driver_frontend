@@ -94,7 +94,7 @@ export const sessionService = {
     return {
         id: context.userId,
         name: context.clientProfile?.firstName || context.driverProfile?.firstName || 'Utilisateur',
-        email: context.clientProfile?.contactEmail || context.driverProfile?.driver_email || '', // Adaptez selon votre modèle exact
+        email: context.clientProfile?.contactEmail || context.driverProfile?.contactEmail || '', // Adaptez selon votre modèle exact
         phoneNumber: context.clientProfile?.phoneNumber || context.driverProfile?.phoneNumber || '',
         roles: context.roles
     };

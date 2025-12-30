@@ -15,6 +15,7 @@ export interface DriverProfile {
   birthDate?: string;
   nationality?: string;
   gender?: string;
+  contactEmail: string;
   language?: string;
   biography?: string;
 }

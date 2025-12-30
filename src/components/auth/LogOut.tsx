@@ -1,20 +1,11 @@
-import {LogOut} from "@/app/api/auth/login";
+
 // import {toast} from "react-toastify";
- import {toast} from "react-hot-toast";
- import Cookies from 'js-cookie';
+import { toast } from "react-hot-toast";
+import Cookies from 'js-cookie';
 
 
-export const handleSignOUt=async ()=>{
-    const {error}=await LogOut();
-    if(error){
-        toast.error(error.message)
-        return;
-
-    }
-
+    // Déconnexion backend non implémentée
     Cookies.remove('authToken');
     Cookies.remove('email');
     Cookies.remove('phone');
-
-    toast.success("You have been logged out successfully!")
-}
+    toast.success("Vous avez été déconnecté (stub, non implémenté côté serveur)");

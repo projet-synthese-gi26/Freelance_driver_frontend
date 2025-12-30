@@ -25,7 +25,7 @@ export const ProtectedButton: React.FC<ProtectedButtonProps> = ({
                                                                     children,
                                                                     ...buttonProps
                                                                 }) => {
-    const { authUser, authUserIsLoading } = useAuthContext();
+    const { authUser } = useAuthContext();
     const { openLoginModal } = useAuthModal();
 
     const router = useRouter();
@@ -42,12 +42,7 @@ export const ProtectedButton: React.FC<ProtectedButtonProps> = ({
         className,style
     );
 
-    if (authUserIsLoading) {
-        return <button
-            className={buttonClasses}
-            disabled {...buttonProps}>{'loading'}</button>;
-    }
-
+    
 
     return (
         <button

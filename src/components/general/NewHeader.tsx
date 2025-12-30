@@ -38,7 +38,7 @@ const NewHeader = () => {
   const isAgencies = pathname.startsWith("/passenger")
 
 
-  const { authUser, authUserIsLoading } = useAuthContext();
+  const { authUser} = useAuthContext();
   const { openLoginModal, openRegisterModal } = useAuthModal();
   const t = useTranslations("Freelance.header");
   const [visible, setVisible] = useState(false);

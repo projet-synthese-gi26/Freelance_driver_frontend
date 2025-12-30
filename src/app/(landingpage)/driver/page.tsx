@@ -29,7 +29,7 @@ import { partners } from "@/data/Structure";
 const NewHero = () => {
   const { openLoginModal, openRegisterModal } = useAuthModal();
 
-  const { authUser, authUserIsLoading } = useAuthContext();
+  const { authUser } = useAuthContext();
   const t = useTranslations("Freelance.hero");
   const benefits = [
     {

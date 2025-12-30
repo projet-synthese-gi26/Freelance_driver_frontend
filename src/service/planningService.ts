@@ -26,6 +26,8 @@ const mapBackendProductToPlanningPrivateView = (product: any): PlanningType => {
     clientName: product.clientName || '',
     clientPhoneNumber: product.clientPhoneNumber || '',
     profileImageUrl: product.clientProfileImageUrl || undefined,
+    isNegotiable: product.isNegotiable ?? false,
+    paymentMethod: product.paymentMethod ?? 'cash',
   };
 };
 
@@ -33,7 +35,7 @@ const mapPlanningFormToBackendPayload = (formData: Partial<PlanningType>) => {
   return {
     name: formData.title,
     defaultSellPrice: parseFloat(formData.regularAmount || '0'), 
-    shortDescription: formData.baggageInfo,
+    // shortDescription: formData.baggageInfo, // Removed because baggageInfo does not exist on PlanningType
     pickupLocation: formData.pickupLocation,
     dropoffLocation: formData.dropoffLocation,
     startDate: formData.startDate,

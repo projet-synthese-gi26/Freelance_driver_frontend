@@ -22,7 +22,7 @@ const Header = () => {
   const isFreelance = pathname.startsWith("/freelance");
   const isInstitutions = pathname.startsWith("/institutions");
 
-  const { authUser, authUserIsLoading } = useAuthContext();
+  const { authUser } = useAuthContext();
   const { openLoginModal, openRegisterModal } = useAuthModal();
   const t = useTranslations("Freelance.header");
   const [visible, setVisible] = useState(false);

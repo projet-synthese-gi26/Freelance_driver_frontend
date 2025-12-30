@@ -38,7 +38,7 @@ import DownloadAppSection from '../DownloadAppSection';
 const NewHero = () => {
   const { openLoginModal,openRegisterModal } = useAuthModal();
 
-  const {authUser,authUserIsLoading} = useAuthContext()
+  const {authUser} = useAuthContext()
   const t = useTranslations("Freelance.hero");
   const benefits = [
     { icon: BanknotesIcon, title: t('P2section1title'), description: t('P2section1desc') },

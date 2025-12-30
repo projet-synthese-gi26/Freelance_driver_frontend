@@ -8,10 +8,15 @@ import logo from "@public/img/MainLogo1.png";
 import { APPLICATION_NAME } from "@/app/auth/Params";
 import {useRouter} from "next/navigation";
 
+interface RegisterFormProps {
+    onSignInClick: () => void;
+}
+
 export default function RegisterPage() {
     const router = useRouter();
 
-    function onSignInClick (callback: () => void): void{
+   
+    function onSignInClick (): void{
         callback();
         router.push('/login');
     }
@@ -38,4 +43,8 @@ export default function RegisterPage() {
             </div>
         </div>
     );
+}
+
+function callback() {
+    throw new Error("Function not implemented.");
 }

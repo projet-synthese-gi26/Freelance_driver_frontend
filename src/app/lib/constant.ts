@@ -1,4 +1,4 @@
-import service from "../../../firebase/serviceAccount";
+
 export const FADE_IN_ANIMATION_SETTINGS = {
     initial: { opacity: 0 },
     animate: { opacity: 1 },
@@ -57,4 +57,4 @@ export const FADE_IN_ANIMATION_SETTINGS = {
     "application/vnd.oasis.opendocument.spreadsheet",
   ];
 
-  export const FIREBASE_CONFIG=service
+ 

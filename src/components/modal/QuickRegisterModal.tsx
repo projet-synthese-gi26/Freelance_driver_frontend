@@ -1,3 +1,4 @@
+"use client";
 import React, { useCallback, useEffect, useState } from "react";
 import RegisterForm from "@/components/auth/RegisterForm";
 
@@ -19,9 +20,9 @@ export default function QuickRegisterModal({ isOpen, onClose }:QuickRegisterModa
     const { openLoginModal } = useAuthModal();
 
 
-    function onSignInClick (callback: () => void): void{
+    //Enlever l'argument a la fonction
+    function onSignInClick (): void{
         onClose();
-        callback();
         openLoginModal();
 
     }

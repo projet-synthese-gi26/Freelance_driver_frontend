@@ -148,7 +148,7 @@ export default function RootLayout({
     ? `${user.driverProfile.firstName} ${user.driverProfile.lastName}` 
     : 'Driver Profile';
   
-  const userContact = user.driverProfile?.driver_email || user.driverProfile?.phoneNumber || '';
+  const userContact = user.driverProfile?.phoneNumber || '';
   const avatarUrl = user.driverProfile?.profileImageUrl || "/img/default-avatar.jpeg";
 
   return (
