@@ -1,6 +1,8 @@
 import React from 'react';
 
 const Amenities = ({ amenities }) => {
+    // Defensive: default to empty array if amenities is undefined/null
+    const safeAmenities = Array.isArray(amenities) ? amenities : [];
     const predefinedAmenities = {
         'Air-conditioned': { icon: 'las la-snowflake' },
         'Comfortable': { icon: 'las la-couch' },
@@ -21,8 +23,8 @@ const Amenities = ({ amenities }) => {
 
     // Fonction pour vérifier si une aménité est incluse
     const isAmenityIncluded = (amenity) => {
-        return amenities.some(item =>
-            item.toLowerCase().split(',').map(a => a.trim()).includes(amenity.toLowerCase())
+        return safeAmenities.some(item =>
+            item && item.toLowerCase().split(',').map(a => a.trim()).includes(amenity.toLowerCase())
         );
     };
 

@@ -1,22 +1,49 @@
+import { ProtectedButton } from '@/components/general/ProtectedButton';
 import Comment from "./Comment";
-import React, {  useState } from "react";
+import React, { useState, useEffect } from "react";
 import {ArrowTopRightOnSquareIcon} from "@heroicons/react/24/outline";
 import MyTable from "./MyTable";
 import CarDetails from "./CarDetails";
 import Information from "./Information";
 import DriverExperiences from './DriverExperienceCard';
+import { experienceService } from '@/service/experienceService';
+import { planningService } from '@/service/planningService';
+import { reviewService } from '@/service/reviewService';
 import {useRouter} from "next/navigation";
 import {v4 as uuidv4} from "uuid";
+import ReviewForm from './ReviewForm';
 
 
 export default function  FreelanceDetailsComponent ({ data,isModal = false })   {
     const router = useRouter();
     const [isModalOpen, setIsModalOpen] = useState(false);
-    let vehicleData;
-    let  driverData;
 
-    vehicleData=data.vehicleData;
-    driverData=data.driverData;
+    let vehicleData = data.vehicleData;
+    let driverData = data.driverData;
+    if (vehicleData && !Array.isArray(vehicleData.illustration_images)) {
+        vehicleData.illustration_images = [];
+    }
+
+    // State for fetched data
+    const [experiences, setExperiences] = useState([]);
+    const [plannings, setPlannings] = useState([]);
+    const [reviews, setReviews] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const driverId = driverData.driver_id || driverData.id;
+        if (!driverId) return;
+        setLoading(true);
+        Promise.all([
+            experienceService.getPortfolioByDriver(driverId),
+            planningService.getPlanningsByDriver(driverId),
+            reviewService.getReviewsForUser(driverId)
+        ]).then(([portfolio, planningsList, reviewsList]) => {
+            setExperiences(portfolio.experiences || []);
+            setPlannings(planningsList || []);
+            setReviews(reviewsList || []);
+        }).finally(() => setLoading(false));
+    }, [data]);
 
     const storeProfileData = (profileId, profileData) => {
         localStorage.setItem(profileId, JSON.stringify(profileData));
@@ -24,26 +51,14 @@ export default function  FreelanceDetailsComponent ({ data,isModal = false })   
 
 
     const OpenFreelanceProfilePage = () => {
-        const profileId = uuidv4();
-
-        const profileData = {
-            vehicleData:vehicleData,
-            driverData:driverData,
-        };
-
-        storeProfileData(profileId, profileData);
-        // const data = {
-        //     vehicleData: JSON.stringify(vehicleData),
-        //     driverData: JSON.stringify(driverData)
-        // };
-        //
-        // const queryString = new URLSearchParams(data).toString();
-        // const url = `/freelance-profile?${queryString}`;
-
-        const url = `/freelance-profile?id=${profileId}`;
-
-
-        window.open(url, '_blank', 'noopener,noreferrer');
+        // Use the driver ID to navigate to the dynamic profile page
+        const driverId = driverData.driver_id || driverData.id;
+        if (driverId) {
+            const url = `/freelance-profile/${driverId}`;
+            window.open(url, '_blank', 'noopener,noreferrer');
+        } else {
+            console.error("Driver ID missing");
+        }
     };
 
     return (
@@ -90,20 +105,49 @@ export default function  FreelanceDetailsComponent ({ data,isModal = false })   
                                 </div>
 
                                 <div className="border border-dashed my-1"></div>
-                                <DriverExperiences driverExperiences={driverData.driver_experiences}/>
+                                <DriverExperiences driverExperiences={experiences}/>
 
 
                                 <div className="border border-dashed my-1"></div>
                                 <div className="items-center">
-                                    {/* <CalendarDaysIcon className="w-5 h-5 text-primary" /> */}
                                     <div className="block text font-semibold clr-neutral-600 mb-1">
-                                        Formation
+                                        Disponibilités (autres plannings publiés)
                                     </div>
-                                    <div className="">{driverData.driver_portfolio.map((item) => (
-                                        <div key={null} className="">
-                                            {item}
+                                    {plannings.length > 0 ? (
+                                        <div className="overflow-x-auto">
+                                            <table className="w-full border-collapse">
+                                                <thead>
+                                                    <tr className="bg-gray-200">
+                                                        <th className="border border-gray-400 px-4 py-2">Départ</th>
+                                                        <th className="border border-gray-400 px-4 py-2">Arrivée</th>
+                                                        <th className="border border-gray-400 px-4 py-2">Date</th>
+                                                        <th className="border border-gray-400 px-4 py-2">Prix</th>
+                                                        <th className="border border-gray-400 px-4 py-2">Book</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {plannings.map((p) => (
+                                                        <tr key={p.id}>
+                                                            <td className="border border-gray-400 px-4 py-2">{p.pickupLocation}</td>
+                                                            <td className="border border-gray-400 px-4 py-2">{p.dropoffLocation}</td>
+                                                            <td className="border border-gray-400 px-4 py-2">{p.startDate}</td>
+                                                            <td className="border border-gray-400 px-4 py-2">{Number(p.cost).toLocaleString()} XAF</td>
+                                                            <td className="border border-gray-400 px-4 py-2">
+                                                                <button
+                                                                    className="bg-blue-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
+                                                                    onClick={() => window.open(`/freelance-booking?id=${p.id}`, '_blank')}
+                                                                >
+                                                                    Book
+                                                                </button>
+                                                            </td>
+                                                        </tr>
+                                                    ))}
+                                                </tbody>
+                                            </table>
                                         </div>
-                                    ))}</div>
+                                    ) : (
+                                        <div className="text-gray-500">Aucune disponibilité/planning publié.</div>
+                                    )}
                                 </div>
 
                                 <div className="border border-dashed my-1"></div>
@@ -130,7 +174,35 @@ export default function  FreelanceDetailsComponent ({ data,isModal = false })   
                             {
 
                             }
-                            <Comment comments={driverData.driver_reviews} isModal={isModal} rated_entity_type={"Driver"} rated_entity_id={driverData.driver_id} commentsPerPage={3}/>
+
+                            {/* Ajout d'un bouton pour écrire un avis, protégé par la connexion */}
+                            <div className="mb-4">
+                                <ProtectedButton
+                                    onProtectedClick={() => setIsModalOpen(true)}
+                                    className="px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700"
+                                >
+                                    Écrire un avis
+                                </ProtectedButton>
+                            </div>
+
+                            {/* Modal d'ajout d'avis */}
+                            {isModalOpen && (
+                                <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
+                                    <div className="bg-white rounded-xl w-full max-w-lg shadow-xl p-6 relative">
+                                        <button 
+                                            onClick={() => setIsModalOpen(false)}
+                                            className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
+                                        >
+                                            <span className="text-xl">×</span>
+                                        </button>
+                                        <h2 className="text-2xl font-bold text-gray-800 mb-4">Votre avis</h2>
+                                        <ReviewForm driverId={driverData.driver_id} onSuccess={() => { setIsModalOpen(false); }} />
+                                    </div>
+                                </div>
+                            )}
+
+                            <Comment comments={reviews} isModal={isModal} rated_entity_type={"Driver"} rated_entity_id={driverData.driver_id} commentsPerPage={10}/>
+
 
                         </div>
                     </div>

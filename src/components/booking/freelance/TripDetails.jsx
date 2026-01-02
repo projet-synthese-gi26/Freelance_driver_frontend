@@ -2,20 +2,22 @@ import React, { useState, useEffect } from "react";
 
 const TripDetails = ({ availability, currency_name, availability_table }) => {
     const [showTable, setShowTable] = useState(false);
-    const [selectedAvailability, setSelectedAvailability] = useState(availability);
+    // Defensive: default to empty object if availability is undefined/null
+    const [selectedAvailability, setSelectedAvailability] = useState(availability || {});
 
     useEffect(() => {
-        setSelectedAvailability(availability);
+        setSelectedAvailability(availability || {});
     }, [availability]);
 
-    const startDate = selectedAvailability.start_date;
-    const endDate = selectedAvailability.end_date;
-    const startTime = selectedAvailability.start_time;
-    const endTime = selectedAvailability.end_time;
-    const price = selectedAvailability.price;
-    const paymentMethod = selectedAvailability.driver_billing_method_name;
+    // Defensive: fallback to empty string or 0 if fields are missing
+    const startDate = selectedAvailability?.start_date || '';
+    const endDate = selectedAvailability?.end_date || '';
+    const startTime = selectedAvailability?.start_time || '';
+    const endTime = selectedAvailability?.end_time || '';
+    const price = selectedAvailability?.price ?? 0;
+    const paymentMethod = selectedAvailability?.driver_billing_method_name || '';
 
-    const availableData = availability_table.filter(row => row.is_available);
+    const availableData = Array.isArray(availability_table) ? availability_table.filter(row => row.is_available) : [];
 
     function formatTime(timeString) {
         return timeString.slice(0, 5);
@@ -46,7 +48,7 @@ const TripDetails = ({ availability, currency_name, availability_table }) => {
         setShowTable(false);
     };
 
-    const isSameDay = startDate === endDate;
+    const isSameDay = startDate === endDate && startDate !== '';
 
     if (!selectedAvailability || Object.keys(selectedAvailability).length === 0) {
         return <div>No availability data</div>;

@@ -10,30 +10,36 @@ function formatDate(dateString) {
 function DriverExperienceCard({ experience }) {
     const startDate = formatDate(experience.start_date);
     const endDate = experience.end_date ? formatDate(experience.end_date) : 'Present';
+    // Defensive: fallback to empty arrays if undefined
+    const driving_skills = Array.isArray(experience.driving_skills) ? experience.driving_skills : [];
+    const transmission_types = Array.isArray(experience.transmission_types) ? experience.transmission_types : [];
+    const vehicle_models = Array.isArray(experience.vehicle_models) ? experience.vehicle_models : [];
+    const experience_illustrations = Array.isArray(experience.experience_illustrations) ? experience.experience_illustrations : [];
+    const experience_references = Array.isArray(experience.experience_references) ? experience.experience_references : [];
 
     return (
         <div className="mb-1 p-2 border rounded-lg shadow-sm text">
             <h3 className="text-lg font-semibold mb-2 text">{`${startDate} - ${endDate}: ${experience.description}`}</h3>
-            <p className="mb-1 text"><strong>Driving skills:</strong> {experience.driving_skills.join(', ')}</p>
-            <p className="mb-1 text"><strong>Transmission types:</strong> {experience.transmission_types.join(', ')}</p>
-            <p className="mb-1 text"><strong>Vehicle models:</strong> {experience.vehicle_models.join(', ')}</p>
+            <p className="mb-1 text"><strong>Driving skills:</strong> {driving_skills.join(', ')}</p>
+            <p className="mb-1 text"><strong>Transmission types:</strong> {transmission_types.join(', ')}</p>
+            <p className="mb-1 text"><strong>Vehicle models:</strong> {vehicle_models.join(', ')}</p>
 
-            {experience.experience_illustrations.length > 0 && (
+            {experience_illustrations.length > 0 && (
                 <div className="mt-2">
                     <h4 className="font-semibold mb-1 text">Illustrations:</h4>
                     <div className="flex flex-wrap gap-2 text">
-                        {experience.experience_illustrations.map((img, index) => (
+                        {experience_illustrations.map((img, index) => (
                             <Image key={index} src={img} alt={`Illustration ${index + 1}`} width={100} height={75} className="rounded" />
                         ))}
                     </div>
                 </div>
             )}
 
-            {experience.experience_references.length > 0 && (
+            {experience_references.length > 0 && (
                 <div className="mt-0">
                     <h4 className="font-semibold mb-1 text">References:</h4>
                     <ul className="list-disc list-inside">
-                        {experience.experience_references.map((ref, index) => (
+                        {experience_references.map((ref, index) => (
                             <li key={index}>
                                 <a href={ref} target="_blank" rel="noopener noreferrer" className="text-blue-600 text hover:underline text">
                                     Reference {index + 1}

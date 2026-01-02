@@ -11,7 +11,7 @@ export default function AvatarInfo({ formData, handleChange, nextStep, prevStep 
 
     useEffect(() => {
         updateAvatarPreview();
-    }, [formData.skinColor, formData.hairStyle, formData.clothingStyle]);
+    }, [formData.skinColor, formData.hairStyle, formData.clothingStyle, updateAvatarPreview]);
 
     const validateForm = () => {
         let isValid = true;

@@ -88,7 +88,7 @@ const SearchResult = ({ results = [] }: SearchResultProps) => {
             
             return true;
         });
-    }, [filters, results]);
+    }, [results]);
 
     const resetFilters = () => {
         setFilters({
@@ -303,7 +303,7 @@ import React, { useState, useMemo } from "react";
 import Select from "@/components/general/CustomSelect";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { carlistings } from "@/data/carlisting";
+// import { carlistings } from "@/data/carlisting";
 import SearchCardFreelance from "@/components/search/SearchCardFreelance";
 
 
@@ -334,7 +334,12 @@ type FilterState = {
 };
 
 
-const SearchResult = () => {
+// Interface pour les props du composant
+interface SearchResultProps {
+    results?: any[]; // Accepte les données de l'API
+}
+
+const SearchResult = ({ results = [] }: SearchResultProps) => {
     const [filters, setFilters] = useState<FilterState>({
         startDate: null,
         endDate: null,
@@ -371,11 +376,14 @@ const SearchResult = () => {
 
 
     const filteredListings = useMemo(() => {
-        return carlistings.filter(car => {
+        const data = Array.isArray(results) ? results : [];
+        return data.filter(item => {
             // Implement your filtering logic here
-            return true; // Placeholder
+            // For now, we just return true as the main filtering is done in the parent page
+            // But we can add client-side filtering here if needed
+            return true; 
         });
-    }, [filters, carlistings]);
+    }, [filters, results]);
 
     const resetFilters = () => {
         setFilters({

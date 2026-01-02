@@ -284,10 +284,35 @@ const Search = () => {
                         match = false;
                     }
                 }
+                
+                // Filter by Start Date
+                if (searchData.startDate) {
+                    const planningDate = new Date(p.startDate);
+                    const searchDate = new Date(searchData.startDate);
+                    // Compare only dates (ignore time)
+                    if (planningDate.setHours(0,0,0,0) < searchDate.setHours(0,0,0,0)) {
+                        match = false;
+                    }
+                }
+
                 return match;
             });
 
             setSearchResults(filtered);
+        } catch (error) {
+            console.error("Search error:", error);
+            toast.error("Erreur lors de la recherche.");
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleFindAll = async () => {
+        setIsLoading(true);
+        try {
+            const allPlannings = await planningService.getPublishedPlannings();
+            setSearchResults(allPlannings);
+            toast.success(`${allPlannings.length} chauffeurs trouvés.`);
         } catch (error) {
             console.error("Search error:", error);
             toast.error("Erreur lors de la recherche.");
@@ -509,13 +534,9 @@ const Search = () => {
                                         maxMenuHeight={180} // Hauteur pour environ 3 éléments
                                         onChange={(selectedOption) => handleInputChange('averageRating', selectedOption?.value)}
                                     />
-                {isLoading ? (
-                    <div className="flex justify-center py-10">
-                        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div>
-                    </div>
-                ) : (
-                    searchResults.length > 0 && <SearchResult results={searchResults}/>
-                )}                       placeholder="Pricing method"
+                                    <Select
+                                        options={pricingMethod}
+                                        placeholder="Pricing method"
                                         className="react-select-container"
                                         classNamePrefix="react-select"
                                         maxMenuHeight={180} // Hauteur pour environ 3 éléments
@@ -524,7 +545,11 @@ const Search = () => {
                                 </div>
                             )}
 
-                            <div className="w-full flex justify-end">
+                            <div className="w-full flex justify-end gap-3">
+                                <button type="button" onClick={handleFindAll}
+                                        className="bg-gray-500 text-white px-2 py-2 sm:px-4 sm:py-2 rounded-md hover:bg-gray-600 flex items-center justify-center text w-full sm:w-auto">
+                                    Find All
+                                </button>
                                 <button type="submit"
                                         className="bg-black text-white px-2 py-2 sm:px-4  sm:py-2 rounded-md hover:bg-gray-800 flex items-center justify-center text w-full sm:w-auto">
 
@@ -535,9 +560,13 @@ const Search = () => {
                     </div>
                 </form>
 
-                {searchResults.length > 0 &&
-                    <SearchResult results={searchResults}/>
-                }
+                {isLoading ? (
+                    <div className="flex justify-center py-10">
+                        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div>
+                    </div>
+                ) : (
+                    searchResults.length > 0 && <SearchResult results={searchResults}/>
+                )}
             </div>
 
             <div className="lg:mb-[15rem]">

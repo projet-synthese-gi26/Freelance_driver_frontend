@@ -26,14 +26,16 @@ interface CommentProps {
 
 const Comment = ({ comments, isModal, rated_entity_id, rated_entity_type,commentsPerPage=3 }: CommentProps) => {
     const [currentPage, setCurrentPage] = useState(1);
+    // Defensive: ensure comments is always an array, memoized
+    const safeComments = useMemo(() => Array.isArray(comments) ? comments : [], [comments]);
 
     const paginatedComments = useMemo(() => {
         const startIndex = (currentPage - 1) * commentsPerPage;
         const endIndex = startIndex + commentsPerPage;
-        return comments.slice(startIndex, endIndex);
-    }, [comments, commentsPerPage, currentPage]);
+        return safeComments.slice(startIndex, endIndex);
+    }, [safeComments, commentsPerPage, currentPage]);
 
-    const totalPages = Math.ceil(comments.length / commentsPerPage);
+    const totalPages = Math.ceil(safeComments.length / commentsPerPage);
 
     const handlePageChange = (newPage: number) => {
         setCurrentPage(newPage);
