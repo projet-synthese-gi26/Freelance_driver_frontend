@@ -23,7 +23,8 @@ const NewHeader = () => {
     passenger: '/passenger',
     agency: '/agency', // optionnel
   };
-  const pathname = usePathname(); // Récupère l'URL actuelle
+
+  const pathname = usePathname() || ""; // fallback to empty string if null
 
   const firstSegment = pathname.split("/")[1];
 
@@ -34,8 +35,8 @@ const NewHeader = () => {
   const isDrivers = pathname.startsWith("/driver");
   const isFreelance = pathname.startsWith("/freelance");
   const isInstitutions = pathname.startsWith("/institution");
-  const isPassengers = pathname.startsWith("/passenger")
-  const isAgencies = pathname.startsWith("/passenger")
+  const isPassengers = pathname.startsWith("/passenger");
+  const isAgencies = pathname.startsWith("/passenger");
 
 
   const { authUser} = useAuthContext();

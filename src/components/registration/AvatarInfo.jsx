@@ -10,8 +10,17 @@ export default function AvatarInfo({ formData, handleChange, nextStep, prevStep 
     const clothingStyles = ['casual', 'formal', 'sporty', 'elegant', 'bohemian'];
 
     useEffect(() => {
-        updateAvatarPreview();
-    }, [formData.skinColor, formData.hairStyle, formData.clothingStyle, updateAvatarPreview]);
+        const skinColor = formData.skinColor || 'light';
+        const hairStyle = formData.hairStyle || 'short';
+        const clothingStyle = formData.clothingStyle || 'casual';
+
+        // Updated DiceBear API endpoint
+        const avatarStyle = 'avataaars';
+        const seed = `${skinColor}-${hairStyle}-${clothingStyle}`;
+        const url = `https://api.dicebear.com/6.x/${avatarStyle}/svg?seed=${seed}`;
+
+        setAvatarUrl(url);
+    }, [formData.skinColor, formData.hairStyle, formData.clothingStyle]);
 
     const validateForm = () => {
         let isValid = true;
@@ -41,18 +50,6 @@ export default function AvatarInfo({ formData, handleChange, nextStep, prevStep 
         }
     };
 
-    const updateAvatarPreview = () => {
-        const skinColor = formData.skinColor || 'light';
-        const hairStyle = formData.hairStyle || 'short';
-        const clothingStyle = formData.clothingStyle || 'casual';
-
-        // Updated DiceBear API endpoint
-        const avatarStyle = 'avataaars';
-        const seed = `${skinColor}-${hairStyle}-${clothingStyle}`;
-        const url = `https://api.dicebear.com/6.x/${avatarStyle}/svg?seed=${seed}`;
-
-        setAvatarUrl(url);
-    };
 
     return (
         <form onSubmit={handleSubmit} className="space-y-6 max-w-md mx-auto">

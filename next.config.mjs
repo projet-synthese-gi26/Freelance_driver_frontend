@@ -30,6 +30,18 @@ const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
   output: "standalone",
+  images: {
+    remotePatterns: [
+      {
+        protocol: "http",
+        hostname: "media-service.pynfi.com",
+      },
+      {
+        protocol: "https",
+        hostname: "media-service.pynfi.com",
+      },
+    ],
+  },
   webpack: (config, { buildId, dev, isServer, defaultLoaders, nextRuntime, webpack }) => {
     return {
       ...config,

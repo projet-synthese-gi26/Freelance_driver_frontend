@@ -1,6 +1,4 @@
-
-
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react'; // <--- AJOUT DE useMemo
 import { StarIcon } from "@heroicons/react/24/solid";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -19,34 +17,39 @@ const SearchCardFreelance = ({ planning }) => {
     const [detailedData, setDetailedData] = useState(null);
     const router = useRouter();
 
-    // Initialisation des données par défaut basées sur le planning
-    let driver_last_name = '';
-    let driver_first_name = '';
-    if (typeof planning.authorName === 'string' && planning.authorName.trim() !== '') {
-        const nameParts = planning.authorName.trim().split(' ');
-        driver_first_name = nameParts[0] || '';
-        driver_last_name = nameParts.slice(1).join(' ') || '';
-    }
-    const initialDriverData = {
-        driver_id: planning.authorId,
-        driver_profile_image: planning.authorImageUrl || "/img/default-avatar.jpeg",
-        driver_last_name,
-        driver_first_name,
-        driverLocation: planning.pickupLocation,
-        driver_experiences: [],
-        driver_languages: [],
-        driver_specialities: [],
-        driver_keywords: [],
-        driver_availability_table: [] // Ajout pour éviter les erreurs dans FreelanceDetailsComponent
-    };
+    // --- CORRECTION ICI : Utilisation de useMemo pour stabiliser l'objet ---
+    const initialDriverData = useMemo(() => {
+        let driver_last_name = '';
+        let driver_first_name = '';
+        
+        if (typeof planning.authorName === 'string' && planning.authorName.trim() !== '') {
+            const nameParts = planning.authorName.trim().split(' ');
+            driver_first_name = nameParts[0] || '';
+            driver_last_name = nameParts.slice(1).join(' ') || '';
+        }
 
-    const initialVehicleData = {
+        return {
+            driver_id: planning.authorId,
+            driver_profile_image: planning.authorImageUrl || "/img/default-avatar.jpeg",
+            driver_last_name,
+            driver_first_name,
+            driverLocation: planning.pickupLocation,
+            driver_experiences: [],
+            driver_languages: [],
+            driver_specialities: [],
+            driver_keywords: [],
+            driver_availability_table: []
+        };
+    }, [planning]); // Se recrée uniquement si 'planning' change
+
+    // --- CORRECTION ICI : Utilisation de useMemo ---
+    const initialVehicleData = useMemo(() => ({
         total_seat_number: "N/A",
         luggage_max_capacity: "N/A",
         mileage_at_mileage_since_commissioning: "N/A",
         fuel_type_name: "N/A",
         transmission_type_name: "N/A"
-    };
+    }), []); // Tableau vide car données statiques par défaut
 
 
     // Fetch vehicle and profile info on mount for card display
@@ -55,9 +58,14 @@ const SearchCardFreelance = ({ planning }) => {
         const fetchCardDetails = async () => {
             setIsLoadingDetails(true);
             try {
-                const profile = await profileService.getPublicDriverProfile(planning.authorId);
-                const vehicles = await vehicleService.getVehiclesByDriver(planning.authorId);
+                // Utilisation de Promise.all pour paralléliser et accélérer
+                const [profile, vehicles] = await Promise.all([
+                    profileService.getPublicDriverProfile(planning.authorId),
+                    vehicleService.getVehiclesByDriver(planning.authorId)
+                ]);
+
                 const mainVehicle = vehicles.length > 0 ? vehicles[0] : null;
+                
                 const mappedDriverData = {
                     ...initialDriverData,
                     driver_id: planning.authorId,
@@ -81,6 +89,7 @@ const SearchCardFreelance = ({ planning }) => {
                     driver_statistics: { average_rating: 0, review_total_number: 0 },
                     driver_reviews: []
                 };
+
                 const mappedVehicleData = mainVehicle ? {
                     total_seat_number: mainVehicle.seats || "N/A",
                     luggage_max_capacity: mainVehicle.loadCapacity || "N/A",
@@ -92,16 +101,13 @@ const SearchCardFreelance = ({ planning }) => {
                     photoUrls: mainVehicle.photoUrls || [],
                     illustration_images: Array.isArray(mainVehicle.illustration_images) ? mainVehicle.illustration_images : []
                 } : {
-                    total_seat_number: "N/A",
-                    luggage_max_capacity: "N/A",
-                    mileage_at_mileage_since_commissioning: "N/A",
-                    fuel_type_name: "N/A",
-                    transmission_type_name: "N/A",
+                    ...initialVehicleData,
                     model: undefined,
                     manufacturer: undefined,
                     photoUrls: [],
                     illustration_images: []
                 };
+
                 if (isMounted) {
                     setDetailedData({ driverData: mappedDriverData, vehicleData: mappedVehicleData });
                 }
@@ -114,43 +120,28 @@ const SearchCardFreelance = ({ planning }) => {
                 if (isMounted) setIsLoadingDetails(false);
             }
         };
+
         fetchCardDetails();
         return () => { isMounted = false; };
-    }, [planning.authorId, initialDriverData]);
+    }, [planning.authorId, initialDriverData, initialVehicleData]); // Dépendances stables grâce à useMemo
 
     // Si on a déjà chargé les détails, on les utilise, sinon on utilise les données initiales
     const driverData = detailedData?.driverData || initialDriverData;
     const vehicleData = detailedData?.vehicleData || initialVehicleData;
 
-    // fetchDetails pour le modal (inutile de rechanger la logique, il suffit d'ouvrir le modal)
-    const fetchDetails = async () => {
-        // Les données sont déjà chargées pour la carte, donc rien à faire ici
+    const handleSeeMore = () => {
         setIsModalOpen(true);
-    };
-
-
-    const handleSeeMore = async () => {
-        await fetchDetails();
-        setIsModalOpen(true);
-    };
-
-    // Ouvre le profil complet dans un nouvel onglet
-    const handleOpenProfile = () => {
-        // Ouvre le nouveau design avec l'id du conducteur
-        window.open(`/freelance-profile/${driverData.driver_id}`, '_blank');
     };
 
     const handleBook = async () => {
-        // Stocker les infos nécessaires dans localStorage et rediriger vers la page booking
         const bookingId = uuidv4();
-        // Récupérer toutes les disponibilités du conducteur
         let allPlannings = [];
         try {
             allPlannings = await planningService.getPlanningsByDriver(planning.authorId);
         } catch (e) {
-            allPlannings = [planning]; // fallback: au moins le planning courant
+            allPlannings = [planning]; 
         }
-        // Mapper les plannings pour compatibilité TripDetails
+        
         const mappedAvailabilities = allPlannings.map(p => ({
             ...p,
             driver_availability_id: p.id,
@@ -162,10 +153,12 @@ const SearchCardFreelance = ({ planning }) => {
             driver_billing_method_name: p.billingMethod || 'daily',
             is_available: true
         }));
+
         const driverDataWithAvailability = {
             ...driverData,
             driver_availability_table: mappedAvailabilities
         };
+
         const bookingData = {
             vehicleData,
             driverData: driverDataWithAvailability,
@@ -177,7 +170,7 @@ const SearchCardFreelance = ({ planning }) => {
     };
 
     return (
-        <div key={planning.id} className="col-span-12 text mb-6">
+        <div className="col-span-12 text mb-6">
             <div className="flex flex-col text md:flex-row rounded-2xl p-6 bg-white shadow-sm border border-gray-100">
 
                 <div className="bg-[#F5F6FF] rounded-xl shrink-0 w-full md:w-48 h-48 md:h-auto mr-0 md:mr-6 mb-4 md:mb-0 overflow-hidden relative">
@@ -186,6 +179,8 @@ const SearchCardFreelance = ({ planning }) => {
                         src={driverData.driver_profile_image}
                         alt={driverData.driver_first_name}
                         className="object-cover transition-transform duration-300 hover:scale-110"
+                        // Ajout d'un placeholder pour éviter le clignotement
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                     />
                 </div>
                 <div className="flex-grow overflow-hidden">
@@ -249,9 +244,7 @@ const SearchCardFreelance = ({ planning }) => {
                 </div>
             </div>
             
-            {/* On ne rend le modal que si on a les données détaillées ou si on veut afficher les données partielles */}
             <RightModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} pageContent={true} data={{ driverData, vehicleData }}>
-                {/* Modal content handled by FreelanceDetailsComponent */}
             </RightModal>
         </div>
     );

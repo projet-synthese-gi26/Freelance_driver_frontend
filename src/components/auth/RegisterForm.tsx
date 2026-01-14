@@ -13,7 +13,7 @@ const countryCodes = [
   { label: 'US (+1)', value: '+1' },
 ];
 
-export default function RegisterForm({ onSignInClick }: { onSignInClick: () => void }) {
+export default function RegisterForm({ onSignInClick, onSuccess }: { onSignInClick: () => void; onSuccess?: () => void }) {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
     
@@ -92,6 +92,11 @@ export default function RegisterForm({ onSignInClick }: { onSignInClick: () => v
             }
             
             toast.success("Verification code sent to your email!");
+            
+            if (onSuccess) {
+                onSuccess();
+            }
+
             router.push('/auth/otp');
 
         } catch (error: any) {

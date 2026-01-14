@@ -43,7 +43,7 @@ export default function  FreelanceDetailsComponent ({ data,isModal = false })   
             setPlannings(planningsList || []);
             setReviews(reviewsList || []);
         }).finally(() => setLoading(false));
-    }, [data]);
+    }, [driverData.driver_id, driverData.id]);
 
     const storeProfileData = (profileId, profileData) => {
         localStorage.setItem(profileId, JSON.stringify(profileData));

@@ -9,7 +9,7 @@ const PaymentStripeForm = () => {
         Amount,
         Currency,
         Reason
-    } = Object.fromEntries(searchParams);
+    } = Object.fromEntries(searchParams || []);
 
     async function createInvoice(formData: FormData) {
         let url: string = "";

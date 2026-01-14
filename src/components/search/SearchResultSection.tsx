@@ -298,7 +298,8 @@ export default SearchResult;
 
 
 "use client";
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
+import { useSearchParams } from "next/navigation"; // Add import
 // import Select from "react-select";
 import Select from "@/components/general/CustomSelect";
 import DatePicker from "react-datepicker";
@@ -340,20 +341,36 @@ interface SearchResultProps {
 }
 
 const SearchResult = ({ results = [] }: SearchResultProps) => {
+    const searchParams = useSearchParams();
+
+    // Initialisation des filtres à partir des paramètres d'URL ou des valeurs par défaut
     const [filters, setFilters] = useState<FilterState>({
-        startDate: null,
-        endDate: null,
-        startTime: null,
-        endTime: null,
-        paymentType: null,
-        experience: null,
-        preferredLanguage:null,
+        startDate: searchParams?.get('startDate') ? new Date(searchParams.get('startDate')!) : null,
+        endDate: searchParams?.get('endDate') ? new Date(searchParams.get('endDate')!) : null,
+        startTime: searchParams?.get('startTime') ? new Date(searchParams.get('startTime')!) : null,
+        endTime: searchParams?.get('endTime') ? new Date(searchParams.get('endTime')!) : null,
+        paymentType: searchParams?.get('paymentMethod') || null,
+        experience: searchParams?.get('experience') || null,
+        preferredLanguage: searchParams?.get('preferredLanguage') || null,
         sortBy: null,
-        amenities: [], // Initialisation comme tableau vide
-        languages: [], // Initialisation comme tableau vide
+        amenities: [],
+        languages: [],
         referringBy: null,
-        priceCategory: null,
+        priceCategory: searchParams?.get('pricingMethod') || null,
     });
+
+    // Mettre à jour les filtres si l'URL change (utile pour la navigation arrière/avant)
+    useEffect(() => {
+        setFilters(prev => ({
+            ...prev,
+            startDate: searchParams?.get('startDate') ? new Date(searchParams.get('startDate')!) : prev.startDate,
+            endDate: searchParams?.get('endDate') ? new Date(searchParams.get('endDate')!) : prev.endDate,
+            paymentType: searchParams?.get('paymentMethod') || prev.paymentType,
+             // ... update other fields as needed, or reset if params missing?
+             // For now, let's assume one-way init or manual change is fine.
+             // But if user searches again, params change.
+        }));
+    }, [searchParams]);
 
     const handleFilterChange = (name: keyof FilterState, value: any) => {
         setFilters(prev => ({ ...prev, [name]: value }));
@@ -378,12 +395,30 @@ const SearchResult = ({ results = [] }: SearchResultProps) => {
     const filteredListings = useMemo(() => {
         const data = Array.isArray(results) ? results : [];
         return data.filter(item => {
-            // Implement your filtering logic here
-            // For now, we just return true as the main filtering is done in the parent page
-            // But we can add client-side filtering here if needed
+            // Logique de filtrage côté client basique
+            if (filters.paymentType && item.paymentOption !== filters.paymentType) {
+                 // Note: vérifier si item.paymentOption correspond aux valeurs de paymentType
+                 // Dans Structure.ts paymentOptions a des valeurs comme 'cash', 'credit_card'
+            }
+
+            // Filtrage par Lieu de départ (si présent dans l'URL mais pas dans FilterState, on peut le lire directement)
+            const departureParam = searchParams?.get('departure');
+            if (departureParam) {
+                 if (!item.pickupLocation?.toLowerCase().includes(departureParam.toLowerCase())) {
+                     return false;
+                 }
+            }
+
+            const destinationParam = searchParams?.get('destination');
+            if (destinationParam) {
+                 if (!item.dropoffLocation?.toLowerCase().includes(destinationParam.toLowerCase())) {
+                     return false;
+                 }
+            }
+            
             return true; 
         });
-    }, [filters, results]);
+    }, [filters, results, searchParams]);
 
     const resetFilters = () => {
         setFilters({

@@ -54,8 +54,8 @@ const CalendarPage: React.FC = () => {
   };
 
   const sortedEvents = useMemo(() => {
-    return eventsMonth.sort((a, b) => dayjs(a.startDateTime).diff(dayjs(b.startDateTime)));
-  }, []);
+    return [...eventsMonth].sort((a, b) => dayjs(a.startDateTime).diff(dayjs(b.startDateTime)));
+  }, [eventsMonth]);
 
   const groupedEvents = useMemo(() => {
     const result: { [year: number]: { [month: number]: Event[] } } = {};

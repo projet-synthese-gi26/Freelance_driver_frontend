@@ -10,9 +10,10 @@ import { useAuthContext } from "@/components/context/authContext";
 interface LoginFormProps {
     onForgottenPasswordClick: (callback: () => void) => void;
     onSignUpClick: (callback: () => void) => void;
+    onSuccess?: () => void;
 }
 
-export default function LoginFormEmail({ onForgottenPasswordClick, onSignUpClick }: LoginFormProps) {
+export default function LoginFormEmail({ onForgottenPasswordClick, onSignUpClick, onSuccess }: LoginFormProps) {
     const router = useRouter();
     const { checkAuth } = useAuthContext(); 
     const [email, setEmail] = useState("");
@@ -56,6 +57,10 @@ export default function LoginFormEmail({ onForgottenPasswordClick, onSignUpClick
             console.log(`🔀 Redirection selon les rôles: ${JSON.stringify(roles)}`);
 
             toast.success("Welcome back!");
+
+            if (onSuccess) {
+                onSuccess();
+            }
 
             if (roles.length > 1) {
                 router.push('/choose-profile');

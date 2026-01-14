@@ -6,7 +6,7 @@ import { useCurrency } from '../app/(pricing)/context/CurrencyContext';
 
 const PlanRecap = () => {
   const searchParams = useSearchParams();
-  const data = searchParams.get("data");
+  const data = searchParams?.get("data");
   const plan = data ? JSON.parse(data) : null;
 
   const router = useRouter();

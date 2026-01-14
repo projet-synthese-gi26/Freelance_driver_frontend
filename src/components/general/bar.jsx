@@ -72,15 +72,15 @@
 //     };
 // }
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import styles from './SearchBar.module.css';
 
 export default function SearchBar() {
     const [query, setQuery] = useState('');
     const [suggestions, setSuggestions] = useState([]);
 
-    const debouncedFetch = useCallback(
-        debounce(async (value) => {
+    const debouncedFetch = useMemo(
+        () => debounce(async (value) => {
             if (value.length < 2) {
                 setSuggestions([]);
                 return;

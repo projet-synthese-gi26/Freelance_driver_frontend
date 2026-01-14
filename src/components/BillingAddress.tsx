@@ -8,7 +8,7 @@ import { useSearchParams } from 'next/navigation';
 
 const BillingAddress = () => {
     const searchParams = useSearchParams();
-    const data = searchParams.get("data");
+    const data = searchParams?.get("data");
     const plan = data ? JSON.parse(data) : null;
 
     const {

@@ -9,19 +9,20 @@ const ShareModal = ({ isOpen, onClose, profileName, profileDescription, profileI
     const [shareCount, setShareCount] = useState(0);
 
     useEffect(() => {
+        const fetchShareCount = async () => {
+            try {
+                const response = await axios.get(`http://localhost:8000/share-count/${driverId}`);
+                setShareCount(response.data.count);
+            } catch (error) {
+                console.error('Erreur lors de la récupération du nombre de partages:', error);
+            }
+        };
+
         if (isOpen) {
             fetchShareCount();
         }
     }, [isOpen, driverId]);
 
-    const fetchShareCount = async () => {
-        try {
-            const response = await axios.get(`http://localhost:8000/share-count/${driverId}`);
-            setShareCount(response.data.count);
-        } catch (error) {
-            console.error('Erreur lors de la récupération du nombre de partages:', error);
-        }
-    };
 
     const incrementShareCount = async () => {
         try {

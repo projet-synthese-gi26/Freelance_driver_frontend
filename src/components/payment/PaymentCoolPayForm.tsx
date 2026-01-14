@@ -3,12 +3,13 @@ import React from "react";
 
 const PaymentCoolPayForm = () => {
     const searchParams = useSearchParams();
+    const paramsObj = searchParams ? Object.fromEntries(searchParams) : {};
     const {
         id,
         Amount,
         Currency,
         Reason
-    } = Object.fromEntries(searchParams);
+    } = paramsObj as { id?: string; Amount?: string; Currency?: string; Reason?: string };
 
     async function createInvoice(formData: FormData) {
         /* 'use server' */

@@ -3,9 +3,10 @@ import React from "react";
 interface LoginFormProps {
     onForgottenPasswordClick: (callback: () => void) => void;
     onSignUpClick: (callback: () => void) => void;
+    onSuccess?: () => void;
 }
 
-export default function LoginFormPhone({ onForgottenPasswordClick, onSignUpClick }: LoginFormProps) {
+export default function LoginFormPhone({ onForgottenPasswordClick, onSignUpClick, onSuccess }: LoginFormProps) {
     return (
         <div style={{ padding: 32, textAlign: 'center' }}>
             <h2>Connexion par téléphone non implémentée</h2>

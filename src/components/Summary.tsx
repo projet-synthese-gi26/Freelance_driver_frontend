@@ -6,15 +6,15 @@ import { useSearchParams } from 'next/navigation';
 
 const Summary = () => {
   const searchParams = useSearchParams();
-  const data = searchParams.get("data");
+  const data = searchParams?.get("data");
   const plan = data ? JSON.parse(data) : null;
   const [promoDiscount, setPromoDiscount] = useState(0);
 
   useEffect(() => {
-    const storedDiscount = searchParams.get("discount");
+    const storedDiscount = searchParams?.get("discount");
     setPromoDiscount(storedDiscount ? Number(storedDiscount) : 0);
     const handlePromoUpdate = () => {
-      const updatedDiscount = searchParams.get("discount");
+      const updatedDiscount = searchParams?.get("discount");
       setPromoDiscount(updatedDiscount ? Number(updatedDiscount) : 0);
     };
 

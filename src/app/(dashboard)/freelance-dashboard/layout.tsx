@@ -43,9 +43,9 @@ export default function RootLayout({
   const Pendingorders = 0; 
   
   const handleOpen = (event: MouseEvent<HTMLButtonElement>) => setNavOpen(!navOpen);
-  const handleLogout = () => logout();
+  const handleLogout = useCallback(() => logout(), [logout]);
 
-  const NavItems = useMemo(() => [
+  /*const NavItems = useMemo(() => [
     {link:'/freelance-dashboard',title:'Personal Info',icon:UserCircleIcon},
     {link:'/freelance-dashboard/security',title:'Security',icon:ShieldCheckIcon},
     {
@@ -82,6 +82,36 @@ export default function RootLayout({
     {link:'/freelance-dashboard/rate_app',title:'Rate App',icon:StarIcon},
     {link:'#',title:'Log out',icon:ArrowRightStartOnRectangleIcon},
   ], []);
+  */
+   const NavItems = useMemo(() => [
+    {link:'/freelance-dashboard',title:'Personal Info',icon:UserCircleIcon},
+    
+    {
+      title:'Business',
+      icon:BriefcaseIcon,
+      subItems: [
+        
+        {link:'/freelance-dashboard/business/address',title:'Address'},
+        {link:'/freelance-dashboard/business/planning',title:'Planning'},
+        {link:'/freelance-dashboard/business/rides',title:'Rides'},
+        {link:'/freelance-dashboard/business/vehicles',title:'Vehicles'},
+        {link:'/freelance-dashboard/business/orders',title:'Orders'},
+      ]
+    },
+    {title:'Portofolio',icon:portofolio,
+      subItems: [
+        {link:'/freelance-dashboard/portofolio',title:'Experience'},
+        
+      ]
+    },
+    
+    {link:'/freelance-dashboard/ratings',title:'Reviews',icon:ChartBarIcon},
+    {title:'Support',icon:support,link:'/freelance-dashboard/support'},
+    {link:'/freelance-dashboard/settings',title:'Settings',icon:Cog8ToothIcon},
+    {link:'/freelance-dashboard/chat',title:'Chat',icon:ChatBubbleLeftRightIcon},
+    {link:'/freelance-dashboard/rate_app',title:'Rate App',icon:StarIcon},
+    {link:'#',title:'Log out',icon:ArrowRightStartOnRectangleIcon},
+  ], []);
 
   const toggleSubMenu = useCallback((navItem: any) => {
     if (navItem.title === 'Log out') {
@@ -102,7 +132,7 @@ export default function RootLayout({
         router.push(navItem.link);
       }
     }
-  }, [openSubMenu, router]);
+  }, [openSubMenu, router, handleLogout]);
 
   const inputFileRef = useRef<HTMLInputElement>(null);
   const handlePencilClick = () => inputFileRef.current?.click();

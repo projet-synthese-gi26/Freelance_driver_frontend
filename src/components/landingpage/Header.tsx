@@ -15,7 +15,7 @@ import { usePathname } from "next/navigation";
 
 
 const Header = () => {
-  const pathname = usePathname(); // Récupère l'URL actuelle
+  const pathname = usePathname() || ""; // fallback to empty string if null
 
   const isHomePage = pathname === "/"; // Vérifie si c'est la page d'accueil
   const isDrivers = pathname.startsWith("/driver");

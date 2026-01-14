@@ -5,7 +5,7 @@ import { useSearchParams } from 'next/navigation';
 
 const PaymentMethod = () => {
     const searchParams = useSearchParams();
-    const data = searchParams.get("data");
+    const data = searchParams?.get("data");
     const plan = data ? JSON.parse(data) : null;
 
     const date = new Date(Date.now());

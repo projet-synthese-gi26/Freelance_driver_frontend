@@ -18,7 +18,7 @@ export const ProfileSwitcher: React.FC = () => {
   const hasClientRole = user.roles.includes('CLIENT');
 
   // 1. Déterminer le rôle ACTIF basé sur l'URL actuelle
-  const isActiveRoleDriver = pathname.startsWith('/freelance-dashboard');
+  const isActiveRoleDriver = pathname?.startsWith('/freelance-dashboard');
 
   // 2. Déterminer le rôle CIBLE (celui vers lequel on veut aller)
   const targetRole = isActiveRoleDriver ? 'CLIENT' : 'DRIVER';

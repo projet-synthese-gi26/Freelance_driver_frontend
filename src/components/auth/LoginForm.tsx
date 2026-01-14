@@ -6,11 +6,13 @@ import LoginFormPhone from "@/components/auth/LoginFormPhone";
 interface LoginFormProps {
   onForgottenPasswordClick: (callback: () => void) => void;
   onSignUpClick: (callback: () => void) => void;
+  onSuccess?: () => void;
 }
 
 export default function LoginForm({
   onForgottenPasswordClick,
   onSignUpClick,
+  onSuccess,
 }: LoginFormProps) {
   const [loginMethod, setLoginMethod] = useState("email");
 
@@ -46,11 +48,13 @@ export default function LoginForm({
         <LoginFormEmail
           onForgottenPasswordClick={onForgottenPasswordClick}
           onSignUpClick={onSignUpClick}
+          onSuccess={onSuccess}
         />
       ) : (
         <LoginFormPhone
           onForgottenPasswordClick={onForgottenPasswordClick}
           onSignUpClick={onSignUpClick}
+          onSuccess={onSuccess}
         />
       )}
     </div>

@@ -62,7 +62,7 @@ export default function QuickLoginModal({ isOpen, onClose }: QuickLoginModalProp
                             <h1 className="title font-bold mb-6 text-center">
                                 Sign in to {APPLICATION_NAME}
                             </h1>
-                            <LoginForm onForgottenPasswordClick={onForgottenPasswordClick} onSignUpClick={onSignUpClick}/>
+                            <LoginForm onForgottenPasswordClick={onForgottenPasswordClick} onSignUpClick={onSignUpClick} onSuccess={onClose}/>
                         </div>
                     </div>
 

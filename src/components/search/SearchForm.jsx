@@ -29,6 +29,7 @@ const SearchForm = () => {
         endTime: new Date(),
         meetupPoint:"",
         driverType:'',
+        paymentMethod:'',
         tripType:'',
         tripIntention:'',
         experience:'',
@@ -52,20 +53,37 @@ const SearchForm = () => {
         e.preventDefault();
 
         const searchData = {...formData};
+        
+        // Include manual controlled inputs
+        searchData.departure = location;
+        searchData.destination = destination;
+        
         searchData["experience"]=Number(searchData["experience"]);
-        // Conversion des objets Date en chaînes pour l'affichage
+        
+        // Convert dates to ISO strings for existing logic (if needed elsewhere)
+        // But for query params, we might want simple strings
         ['startDate', 'endDate', 'startTime', 'endTime'].forEach(key => {
             if (searchData[key] instanceof Date) {
                 searchData[key] = searchData[key].toISOString();
             }
         });
 
+        // Construct query parameters
+        const params = new URLSearchParams();
+        Object.entries(searchData).forEach(([key, value]) => {
+            if (value !== null && value !== undefined && value !== '') {
+                params.append(key, String(value));
+            }
+        });
 
-        router.push("/searchResult")
-
+        router.push(`/searchResult?${params.toString()}`);
         console.log("Search Data:", searchData);
-        // Ici, vous pouvez envoyer searchData à votre API ou effectuer d'autres actions
     };
+
+    const handleFindAll = () => {
+        router.push("/searchResult");
+    };
+
     return (
         <div
             className=" p-2 md:pb-4 flex-col sm:flex-row gap-3 sm:gap-5 text">
@@ -134,7 +152,7 @@ const SearchForm = () => {
                                     className="react-select-container"
                                     classNamePrefix="react-select"
                                     maxMenuHeight={180} // Hauteur pour environ 3 éléments
-                                    onChange={(selectedOption) => handleInputChange('driverType', selectedOption?.value)}
+                                    onChange={(selectedOption) => handleInputChange('paymentMethod', selectedOption?.value)}
                                 />
 
                                 <Select
@@ -259,7 +277,14 @@ const SearchForm = () => {
                                     />
                                 </div>
                             )}
-                            <div className="w-full flex justify-end">
+                            <div className="w-full flex justify-end gap-3">
+                                <button
+                                    type="button"
+                                    onClick={handleFindAll}
+                                    className="bg-white text-black border border-black px-4 py-2 rounded-3xl hover:bg-gray-100"
+                                >
+                                    Find All
+                                </button>
                                 <button className="bg-black text-white px-4 py-2 rounded-3xl hover:bg-gray-800">
                                     Search
                                 </button>

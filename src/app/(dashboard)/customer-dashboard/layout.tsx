@@ -19,7 +19,9 @@ import Driver from "@public/img/driver.png";
 import {
   BellIcon, ClipboardDocumentListIcon, Cog6ToothIcon, BellAlertIcon,
   ChatBubbleLeftRightIcon, CreditCardIcon, MapPinIcon, ShieldCheckIcon, UserCircleIcon,
-  ArrowRightStartOnRectangleIcon, Bars3Icon, XMarkIcon, MagnifyingGlassIcon
+  ArrowRightStartOnRectangleIcon, Bars3Icon, XMarkIcon, MagnifyingGlassIcon,
+  ChartBarIcon,
+  StarIcon
 } from "@heroicons/react/24/outline";
 
 export default function RootLayout({
@@ -62,7 +64,7 @@ export default function RootLayout({
     }
   };
 
-  const NavItems = [
+  /*const NavItems = [
     { link: '/customer-dashboard', title: 'Personal Info', icon: UserCircleIcon },
     { link: '/customer-dashboard/user-security', title: 'Security', icon: ShieldCheckIcon },
     { link: '/customer-dashboard/user-notification', title: 'Notifications', icon: BellIcon },
@@ -74,6 +76,18 @@ export default function RootLayout({
     { link: '/customer-dashboard/user-payement', title: 'Payment', icon: CreditCardIcon },
     { link: '/customer-dashboard/user-address', title: 'Address', icon: MapPinIcon },
   ];
+  */
+
+  const NavItems = [
+    { link: '/customer-dashboard', title: 'Personal Info', icon: UserCircleIcon },
+    { link: '/customer-dashboard/user-chat', title: 'Chat', icon: ChatBubbleLeftRightIcon },
+    { link: '/customer-dashboard/user-announce', title: 'Announcement', icon: BellAlertIcon },
+    { link: '/customer-dashboard/user-wishlist', title: 'Next Ride', icon: MagnifyingGlassIcon },
+    { link: '/customer-dashboard/user-address', title: 'Address', icon: MapPinIcon },
+    { link: '/customer-dashboard/ratings', title: 'Reviews', icon:ChartBarIcon},
+    { link: '/customer-dashboard/rate_app', title: 'Rate App',icon:StarIcon}
+  ];
+
 
   if (isLoading || !user) {
       return (

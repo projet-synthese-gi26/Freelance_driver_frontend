@@ -74,7 +74,7 @@ const Section = ({ title, icon: Icon, children, actionButton }: { title: string,
 export default function DriverProfilePage() {
   const params = useParams();
   const router = useRouter();
-  const driverId = params.id as string;
+  const driverId = params?.id as string;
 
   const [data, setData] = useState<DriverDetailsData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
