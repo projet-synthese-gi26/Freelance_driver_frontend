@@ -43,7 +43,7 @@ export default function OTPPage() {
             console.log("▶️ Envoi OTP...");
             
             // 1. Validation OTP via le service (sauvegarde le token en interne)
-            await authService.finalizeOnboarding(regData, otp);
+            await authService.verifyOtp(regData, otp);
             
             // 2. Nettoyage
             sessionStorage.removeItem('temp_registration_data');

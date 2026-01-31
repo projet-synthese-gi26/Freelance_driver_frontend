@@ -1,3 +1,4 @@
+// src/components/auth/LoginFormEmail.tsx
 "use client";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -15,7 +16,7 @@ interface LoginFormProps {
 
 export default function LoginFormEmail({ onForgottenPasswordClick, onSignUpClick, onSuccess }: LoginFormProps) {
     const router = useRouter();
-    const { checkAuth } = useAuthContext(); 
+    const { checkAuth } = useAuthContext();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
@@ -28,18 +29,25 @@ export default function LoginFormEmail({ onForgottenPasswordClick, onSignUpClick
         try {
             // 1. Appel API
             console.log("▶️ Tentative de connexion...");
-            const response = await authService.login({ username: email.trim(), password });
+            const response = await authService.login({ identifier: email.trim(), password }); // Modified
             
             console.log("✅ Réponse backend reçue:", response);
 
-            const { token, profile } = response;
+            const { accessToken, user, actor, organisation, refreshToken } = response; // Modified
 
-            if (!token || !profile) {
+            if (!accessToken || !user) { // Modified
                 throw new Error("Réponse du serveur incomplète (token ou profil manquant).");
             }
 
             // 2. Sauvegarde Session
-            sessionService.saveSession(token, profile);
+            sessionService.saveSession(accessToken, {  // Modified
+                accessToken,
+                refreshToken,
+                user,
+                actor,
+                organisation,
+                roles: user.roles.map(role => role.roleType) || [],
+            } as UserSessionContext);
             console.log("✅ Session sauvegardée.");
 
             // 3. Mise à jour Contexte (Protégée pour ne pas bloquer le login)
@@ -53,7 +61,7 @@ export default function LoginFormEmail({ onForgottenPasswordClick, onSignUpClick
             }
 
             // 4. Redirection
-            const roles = profile.roles || [];
+            const roles = user.roles || []; // Modified
             console.log(`🔀 Redirection selon les rôles: ${JSON.stringify(roles)}`);
 
             toast.success("Welcome back!");

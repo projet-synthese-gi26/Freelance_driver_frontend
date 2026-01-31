@@ -1,64 +1,180 @@
 // src/type/auth.ts
-/*
 export interface RegistrationRequest {
-  username: string;
   email: string;
+  username: string; // backend : username = email
   password: string;
   firstName: string;
   lastName: string;
-  phoneNumber: string;
-  // Champs contextuels pour la suite
-  role?: 'driver' | 'client'; 
-  companyName?: string;
-  companyDescription?: string;
-  licenseNumber?: string;
-  vehicleDetails?: string;
-}
-
-export interface LoginPayload {
-  username: string; // Le backend mobile utilise 'username', pas 'login'
-  password: string;
-}
-
-export interface AuthResponse {
-  token: string;
-  profile: any; // UserSessionContext
-  chatSession?: any;
-}
-
-*/
-
-// src/type/auth.ts
-
-export interface RegistrationRequest {
-  username: string;
-  email: string;
-  password: string;
-  firstName: string;
-  lastName: string;
-  phoneNumber: string;
-  // Champs contextuels pour la suite
+  phone: string;
   role: 'driver' | 'client'; // Rendre 'role' obligatoire et limiter aux deux valeurs
-  companyName?: string;
-  companyDescription?: string;
-  licenseNumber?: string;
-  vehicleDetails?: string;
+  organisationName?: string; // NEW: Added organisationName
+  organisationDescription?: string; // NEW: Added organisationDescription
+  title?: string; // NEW: Added title
+  address?: string; // NEW: Added address
 }
 
 export interface LoginPayload {
-  username: string; // Le backend mobile utilise 'username', pas 'login'
+  identifier: string; // Changed to identifier (email ou username)
   password: string;
 }
 
-export interface RegisterPayload {
-    email: string;
-    firstName: string;
-    lastName: string;
-    otpCode: string;
+export interface RegisterInitResponse { // NEW
+    // Ajoutez les propriétés nécessaires à la réponse de register-init, par exemple :
+    success: boolean;
+    message?: string;
+}
+
+export interface RefreshTokenRequest {
+    refreshToken: string;
+}
+
+export interface RefreshTokenResponse {
+    accessToken: string;
+    refreshToken?: string;
 }
 
 export interface AuthResponse {
-  token: string;
-  profile: any; // UserSessionContext (à remplacer par le type réel)
-  chatSession?: any;
+    accessToken: string;
+    refreshToken: string;
+    user: { // NEW: Added user
+        id: string;
+        username: string;
+        email: string;
+        phone: string;
+        firstName: string;
+        lastName: string;
+        photoUri?: string;
+        settings?: { // Corrected to optional
+            id: string;
+            userId: string;
+            theme?: string;
+            notificationsEnabled?: boolean;
+            language?: string;
+            longRideEnabled?: boolean;
+            shortRideEnabled?: boolean;
+            privacyEnable?: boolean;
+            allowCalls?: boolean;
+            allowMessages?: boolean;
+            notifyNewRides?: boolean;
+            notifyRatings?: boolean;
+            notifyPracticalTips?: boolean;
+            notifyPromotions?: boolean;
+            notifyPolicyUpdates?: boolean;
+            notifyPeakHourRecommendations?: boolean;
+            receiveEmail?: boolean;
+            receiveSms?: boolean;
+            receivePushNotifications?: boolean;
+            receiveWhatsapp?: boolean;
+            createdAt?: string;
+            updatedAt?: string;
+        };
+        permissions?: string[];
+        roles: { // Corrected to roles array
+            id: string;
+            userId: string;
+            displayName?: string;
+            phoneNumber?: string;
+            emailAddress?: string;
+            avatarUrl?: string;
+            languages?: string[];
+            roleType?: string;
+            reviewableId?: string;
+            reactableId?: string;
+            averageRating?: number;
+            reactionCounts?: { [key: string]: number };
+            reviewableType?: string;
+            reactableType?: string;
+        }[];
+    };
+    actor?: { // NEW: Added actor
+        id: string;
+        userId: string;
+        displayName?: string;
+        phoneNumber?: string;
+        emailAddress?: string;
+        avatarUrl?: string;
+        languages?: string[];
+        roleType?: string;
+        reviewableId?: string;
+        reactableId?: string;
+        averageRating?: number;
+        reactionCounts?: { [key: string]: number };
+        reviewableType?: string;
+        reactableType?: string;
+    };
+    organisation?: { // NEW: Added organisation
+        id: string;
+        actorId?: string;
+        name?: string;
+        description?: string;
+        taxId?: string;
+        logoUrl?: string;
+        code?: string;
+        service?: string;
+        isIndividualBusiness?: boolean;
+        email?: string;
+        websiteUrl?: string;
+        socialNetwork?: string;
+        businessRegistrationNumber?: number;
+        capitalShare?: string;
+        ceoName?: string;
+        yearFounded?: string;
+        keywords?: string[];
+        numberOfEmployees?: number;
+        legalForm?: string;
+        isActive?: boolean;
+        status?: string;
+        createdAt?: string;
+        updatedAt?: string;
+        contacts?: { // NEW: Added contacts
+            id: string;
+            contactableId?: string;
+            contactableType?: string;
+            firstName?: string;
+            lastName?: string;
+            title?: string;
+            isEmailVerified?: boolean;
+            isPhoneNumberVerified?: boolean;
+            isFavorite?: boolean;
+            phoneNumber?: string;
+            secondaryPhoneNumber?: string;
+            faxNumber?: string;
+            email?: string;
+            secondaryEmail?: string;
+            emailVerifiedAt?: string;
+            phoneVerifiedAt?: string;
+            createdAt?: string;
+            updatedAt?: string;
+            deletedAt?: string;
+        }[];
+        address?: { // NEW: Added address
+            id: string;
+            addressableId?: string;
+            addressableType?: string;
+            type?: string;
+            addressLine1?: string;
+            addressLine2?: string;
+            city?: string;
+            state?: string;
+            locality?: string;
+            zipCode?: string;
+            postalCode?: string;
+            poBox?: string;
+            isDefault?: boolean;
+            countryId?: string;
+            neighborhood?: string;
+            informalDescription?: string;
+            latitude?: number;
+            longitude?: number;
+            createdAt?: string;
+            updatedAt?: string;
+            deletedAt?: string;
+        };
+        reviewableId?: string;
+        reactableId?: string;
+        averageRating?: number;
+        reactionCounts?: { [key: string]: number };
+        reviewableType?: string;
+        reactableType?: string;
+    };
 }

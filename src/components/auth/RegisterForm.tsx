@@ -16,7 +16,7 @@ const countryCodes = [
 export default function RegisterForm({ onSignInClick, onSuccess }: { onSignInClick: () => void; onSuccess?: () => void }) {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
-    
+
     // États du formulaire (Seulement les informations de base)
     const [role, setRole] = useState<'driver' | 'client'>('driver');
     const [firstName, setFirstName] = useState("");
@@ -26,7 +26,11 @@ export default function RegisterForm({ onSignInClick, onSuccess }: { onSignInCli
     const [confirmPassword, setConfirmPassword] = useState("");
     const [countryCode, setCountryCode] = useState(countryCodes[0].value);
     const [localPhone, setLocalPhone] = useState("");
-    
+    const [organisationName, setOrganisationName] = useState(""); // NEW: State for organisationName
+    const [organisationDescription, setOrganisationDescription] = useState(""); // NEW: State for organisationDescription
+    const [title, setTitle] = useState(""); // NEW: State for title
+    const [address, setAddress] = useState(""); // NEW: State for address
+
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirm, setShowConfirm] = useState(false);
 
@@ -41,7 +45,7 @@ export default function RegisterForm({ onSignInClick, onSuccess }: { onSignInCli
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        
+
         // Validation simple
         if (!firstName || !lastName || !email || !password || !localPhone) {
             toast.error("Please fill all fields");
@@ -60,44 +64,36 @@ export default function RegisterForm({ onSignInClick, onSuccess }: { onSignInCli
         setLoading(true);
         const fullPhone = `${countryCode}${localPhone.trim()}`;
 
-        // --- C'EST ICI QUE LA MAGIE OPÈRE (Comme sur le Mobile) ---
-        // On prépare les données cachées pour satisfaire le backend Java
-        // et éviter le NullPointerException
+        // --- Préparation des données (comme avant)---
         const requestData: RegistrationRequest = {
-            username: email.trim(),
             email: email.trim(),
+            username: email.trim(), // email as username
             password: password,
             firstName: firstName.trim(),
             lastName: lastName.trim(),
-            phoneNumber: fullPhone,
+            phone: fullPhone,
             role: role,
-            
-            // VALEURS PAR DÉFAUT (Pour éviter le crash Backend)
-            // On envoie des chaînes vides ("") au lieu de null/undefined
-            licenseNumber: "", 
-            vehicleDetails: "",
-            // On génère un nom d'entreprise par défaut comme sur le mobile
-            companyName: `${firstName.trim()} ${lastName.trim()}'s Business`,
-            companyDescription: `Freelance ${role} services.`
+            organisationName: organisationName.trim(), // NEW: Include organisationName
+            organisationDescription: organisationDescription.trim(), // NEW: Include organisationDescription
+            title: title.trim(), // NEW: Include title
+            address: address.trim(), // NEW: Include address
         };
 
         try {
-            console.log("Sending payload:", requestData); // Debug
-            
-            await authService.registerInit(requestData);
-            
-            // On stocke les données complètes (y compris les champs cachés) pour l'étape OTP
-            if (typeof window !== 'undefined') {
-                sessionStorage.setItem('temp_registration_data', JSON.stringify(requestData));
-            }
-            
+            console.log("Sending payload to register-init:", requestData); // Debug
+
+            await authService.registerInit(requestData); // Appeler registerInit
+
+            // Stocker temporairement les données pour la page OTP
+            sessionStorage.setItem('temp_registration_data', JSON.stringify(requestData));
+
             toast.success("Verification code sent to your email!");
-            
+
             if (onSuccess) {
                 onSuccess();
             }
 
-            router.push('/auth/otp');
+            router.push('/auth/otp'); // Rediriger vers la page OTP
 
         } catch (error: any) {
             console.error(error);
@@ -137,9 +133,9 @@ export default function RegisterForm({ onSignInClick, onSuccess }: { onSignInCli
                     <input className="input-field" placeholder="First Name" value={firstName} onChange={e => setFirstName(e.target.value)} />
                     <input className="input-field" placeholder="Last Name" value={lastName} onChange={e => setLastName(e.target.value)} />
                 </div>
-                
+
                 <input className="input-field w-full" type="email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} />
-                
+
                 <div className="flex gap-2">
                     <select className="input-field w-1/3 bg-white" value={countryCode} onChange={e => setCountryCode(e.target.value)}>
                         {countryCodes.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
@@ -160,6 +156,12 @@ export default function RegisterForm({ onSignInClick, onSuccess }: { onSignInCli
                         {showConfirm ? <EyePassword/> : <NoEyePassword/>}
                     </button>
                 </div>
+
+                {/* NEW: Organisation Details */}
+                <input className="input-field w-full" placeholder="Organisation Name" value={organisationName} onChange={e => setOrganisationName(e.target.value)} />
+                <input className="input-field w-full" placeholder="Organisation Description" value={organisationDescription} onChange={e => setOrganisationDescription(e.target.value)} />
+                <input className="input-field w-full" placeholder="Title (e.g., Driver, Owner)" value={title} onChange={e => setTitle(e.target.value)} />
+                <input className="input-field w-full" placeholder="Address" value={address} onChange={e => setAddress(e.target.value)} />
 
                 <button disabled={loading} className="w-full bg-blue-600 text-white py-3 rounded-lg font-bold hover:bg-blue-700 transition disabled:opacity-50 mt-4">
                     {loading ? "Processing..." : "Sign Up"}

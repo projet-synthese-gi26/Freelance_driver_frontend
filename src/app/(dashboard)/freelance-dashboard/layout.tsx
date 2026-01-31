@@ -143,8 +143,7 @@ export default function RootLayout({
         const file = files[0];
         const loadingToast = toast.loading("Updating photo...");
         try {
-            const newUrl = await profileService.uploadAvatar(file);
-            const updatedContext = await profileService.updateDriverAvatarUrl(newUrl);
+            const updatedContext = await profileService.updateProfilePicture(file);
             sessionService.saveSessionContext(updatedContext);
             await checkAuth();
             toast.success("Photo updated!", { id: loadingToast });

@@ -3,8 +3,8 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-hot-toast';
-import { authService } from '@/service/authService';
-import { RegistrationRequest } from '@/type/auth';
+import { authService } from '@/service/authService'; // Assurez-vous de l'import correct
+import { RegistrationRequest, AuthResponse } from '@/type/auth'; // Assurez-vous de l'import correct
 import { useAuthContext } from '@/components/context/authContext';
 
 export default function OTPPage() {
@@ -33,22 +33,21 @@ export default function OTPPage() {
 
         setLoading(true);
         try {
-            const response = await authService.finalizeOnboarding(regData, otp);
-            
-            // Nettoyage
-            sessionStorage.removeItem('temp_registration_data');
-            
-            // Mise à jour du contexte Auth (très important pour que l'app sache qu'on est connecté)
-            await checkAuth();
+            // 1. Verify OTP
+            await authService.verifyOtp(regData, otp);
 
-            toast.success("Account verified successfully!");
-            
+            // 2.  If OTP is valid, redirect and maybe update context
+            if(checkAuth) {
+                await checkAuth();
+            }
+
             // Redirection selon le rôle choisi
             if (regData.role === 'driver') {
                 router.push('/freelance-dashboard');
             } else {
                 router.push('/customer-dashboard');
             }
+
         } catch (error: any) {
             const msg = error.response?.data?.message || "Verification failed";
             toast.error(msg);
@@ -83,8 +82,8 @@ export default function OTPPage() {
                 >
                     {loading ? "Verifying..." : "Verify & Finish"}
                 </button>
-                
-                <button 
+
+                <button
                     onClick={() => router.back()}
                     className="mt-4 text-gray-500 hover:text-gray-700 text-sm"
                 >

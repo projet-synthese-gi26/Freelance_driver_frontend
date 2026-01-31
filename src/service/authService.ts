@@ -1,61 +1,72 @@
-
 // src/service/authService.ts
 import apiClient from './apiClient';
-import { LoginPayload, RegistrationRequest, AuthResponse } from '@/type/auth';
+import { LoginPayload, RegistrationRequest, AuthResponse, RegisterInitResponse, RefreshTokenRequest, RefreshTokenResponse } from '@/type/auth';
 import { sessionService } from './sessionService';
 import { UserSessionContext } from '@/type/profile';
 
 export const authService = {
-  /**
-   * Étape 1 Inscription : Envoi des données initiales.
-   * Déclenche l'envoi de l'OTP par email.
-   */
-  registerInit: async (data: RegistrationRequest) => {
-    console.log("▶️ [authService] Register Init via /api/register");
-    // Le backend attend username = email
-    const payload = { ...data, username: data.email };
-    const response = await apiClient.post('/api/register', payload);
-    return response.data;
-  },
+    /**
+     * Étape 1 Inscription : Envoi des données initiales et envoi OTP
+     */
+    registerInit: async (data: RegistrationRequest): Promise<RegisterInitResponse> => { // NEW
+        console.log("▶️ [authService] registerInit via /api/v1/auth/register-init");
+        const response = await apiClient.post<RegisterInitResponse>('/api/v1/auth/register-init', data);
+        return response.data;
+    },
 
-  /**
-   * Étape 2 Inscription : Vérification OTP et Création finale du compte.
-   */
-  finalizeOnboarding: async (data: RegistrationRequest, otp: string) => {
-    const endpoint = data.role === 'driver' 
-      ? '/api/onboarding/driver' 
-      : '/api/onboarding/client';
-    
-    console.log(`▶️ [authService] Finalizing onboarding via ${endpoint}`);
-    
-    const payload = { ...data, otp };
-    const response = await apiClient.post<AuthResponse>(endpoint, payload);
-    
-    // Si succès, on sauvegarde la session immédiatement comme sur mobile
-    if (response.data.token && response.data.profile) {
-      sessionService.saveSession(response.data.token, response.data.profile);
-    }
-    
-    return response.data;
-  },
+    refreshToken: async (refreshToken: string): Promise<RefreshTokenResponse> => {
+        console.log("▶️ [authService] refreshToken via /api/auth/refresh");
+        const payload: RefreshTokenRequest = { refreshToken };
+        const response = await apiClient.post<RefreshTokenResponse>('/api/auth/refresh', payload);
+        sessionService.setTokens(response.data.accessToken, response.data.refreshToken);
+        return response.data;
+    },
 
-  /**
-   * Connexion classique.
-   */
-  login: async (credentials: LoginPayload): Promise<AuthResponse> => {
-    console.log("▶️ [authService] Login via /api/auth/login");
-    const response = await apiClient.post<AuthResponse>('/api/auth/login', credentials);
-    
-    // Note: On ne sauvegarde pas la session ici si on veut gérer 
-    // la logique "Choix du profil" dans le composant, 
-    // mais on peut le faire si le token est valide pour tous les rôles.
-    // Pour l'instant, on retourne les data brutes pour que le composant décide.
-    
-    return response.data;
-  },
+    /**
+     * Étape 2: Vérification OTP et creation de l'utilisateur si le code est correct
+     */
+    verifyOtp: async (data: RegistrationRequest, otp: string): Promise<AuthResponse> => {  // NEW
+        console.log("▶️ [authService] verifyOtp via /api/v1/auth/verify-otp");
+        const payload = { ...data, otp }; // Assurez-vous que le backend attend ces données
+        const response = await apiClient.post<AuthResponse>('/api/v1/auth/verify-otp', payload);
 
-  logout: () => {
-    sessionService.clearUserData();
-    window.location.href = '/login';
-  }
+         // Sauvegarde la session immédiatement
+        if (response.data.accessToken && response.data.user) {
+            sessionService.saveSession(response.data.accessToken, { // Modified
+                accessToken: response.data.accessToken,
+                refreshToken: response.data.refreshToken,
+                user: response.data.user,
+                actor: response.data.actor,
+                organisation: response.data.organisation,
+                roles: response.data.user.roles.map(role => role.roleType) || [],
+            } as UserSessionContext);
+        }
+        return response.data;
+    },
+
+    /**
+     * Connexion classique.
+     */
+    login: async (credentials: LoginPayload): Promise<AuthResponse> => {
+        console.log("▶️ [authService] Login via /api/auth/login");
+        const response = await apiClient.post<AuthResponse>('/api/auth/login', credentials);
+        // Sauvegarde la session immédiatement
+        if (response.data.accessToken && response.data.user) {
+            sessionService.saveSession(response.data.accessToken, { // Modified
+                accessToken: response.data.accessToken,
+                refreshToken: response.data.refreshToken,
+                user: response.data.user,
+                actor: response.data.actor,
+                organisation: response.data.organisation,
+                roles: response.data.user.roles.map(role => role.roleType) || [],
+            } as UserSessionContext);
+        }
+
+        return response.data;
+    },
+
+    logout: () => {
+        sessionService.clearUserData();
+        window.location.href = '/login';
+    },
 };

@@ -4,6 +4,7 @@ import Cookies from 'js-cookie';
 import { UserSessionContext } from '@/type/profile';
 
 const TOKEN_KEY = 'authToken';
+const REFRESH_TOKEN_KEY = 'refreshToken';
 const PROFILE_KEY = 'userProfile';
 
 export const sessionService = {
@@ -12,6 +13,10 @@ export const sessionService = {
    */
   getAuthToken: () => {
     return Cookies.get(TOKEN_KEY);
+  },
+
+  getRefreshToken: () => {
+    return Cookies.get(REFRESH_TOKEN_KEY);
   },
 
   /**
@@ -52,11 +57,22 @@ export const sessionService = {
     // 'secure: true' est recommandé en production (HTTPS)
     Cookies.set(TOKEN_KEY, token, { expires: 7, sameSite: 'Strict' });
 
+    if (context.refreshToken) {
+      Cookies.set(REFRESH_TOKEN_KEY, context.refreshToken, { expires: 7, sameSite: 'Strict' });
+    }
+
     // 2. Sauvegarder le profil dans le localStorage
     if (typeof window !== 'undefined') {
         localStorage.setItem(PROFILE_KEY, JSON.stringify(context));
     }
     console.log("✅ [sessionService] Session sauvegardée avec succès (Token + Profil).");
+  },
+
+  setTokens: (accessToken: string, refreshToken?: string) => {
+    Cookies.set(TOKEN_KEY, accessToken, { expires: 7, sameSite: 'Strict' });
+    if (refreshToken) {
+      Cookies.set(REFRESH_TOKEN_KEY, refreshToken, { expires: 7, sameSite: 'Strict' });
+    }
   },
 
   /**
@@ -105,6 +121,7 @@ export const sessionService = {
    */
   clearUserData: () => {
     Cookies.remove(TOKEN_KEY);
+    Cookies.remove(REFRESH_TOKEN_KEY);
     if (typeof window !== 'undefined') {
         localStorage.removeItem(PROFILE_KEY);
         localStorage.removeItem('userData');
@@ -117,5 +134,19 @@ export const sessionService = {
    */
   isLoggedIn: () => {
       return !!Cookies.get(TOKEN_KEY);
+  },
+
+  isAccessTokenExpired: () => {
+    const token = Cookies.get(TOKEN_KEY);
+    if (!token) return true;
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      if (!payload?.exp) return false;
+      const now = Math.floor(Date.now() / 1000);
+      return payload.exp <= now + 30;
+    } catch (error) {
+      console.error("Erreur parsing token:", error);
+      return true;
+    }
   }
 };
