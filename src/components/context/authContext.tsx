@@ -85,7 +85,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             toast.success("Connexion réussie !");
             
             // Redirection
-            if (response.profile?.roles?.includes('DRIVER')) {
+            const roles = response.user?.roles?.map(role => role.roleType).filter(Boolean) as string[] | undefined;
+
+            if (roles?.includes('DRIVER')) {
                 router.push('/freelance-dashboard');
             } else {
                 router.push('/customer-dashboard');

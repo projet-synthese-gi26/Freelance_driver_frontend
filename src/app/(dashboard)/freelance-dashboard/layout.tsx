@@ -178,7 +178,7 @@ export default function RootLayout({
     : 'Driver Profile';
   
   const userContact = user.driverProfile?.phoneNumber || '';
-  const avatarUrl = user.driverProfile?.profileImageUrl || "/img/default-avatar.jpeg";
+  const avatarUrl = user.driverProfile?.profileImageUrl || "/white-silhouette-avatar.png";
 
   return (
     <div className="min-h-screen bg-white">

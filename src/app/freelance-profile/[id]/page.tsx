@@ -141,7 +141,7 @@ export default function DriverProfilePage() {
   const driverProfile = data.profileContext.driverProfile;
   const driverData = {
     driver_id: driverProfile.id,
-    driver_profile_image: driverProfile.profileImageUrl || "/img/default-avatar.jpeg",
+    driver_profile_image: driverProfile.profileImageUrl || "/white-silhouette-avatar.png",
     driver_last_name: driverProfile.lastName,
     driver_first_name: driverProfile.firstName,
     driverLocation: data.addresses[0]?.city || '',

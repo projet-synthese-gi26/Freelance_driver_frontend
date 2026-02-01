@@ -1,5 +1,20 @@
 // src/type/profile.ts
 
+export interface DriverProfile {
+  id: string;
+  firstName: string;
+  lastName: string;
+  nickname?: string;
+  birthDate?: string;
+  phoneNumber?: string;
+  nationality?: string;
+  gender?: string;
+  language?: string;
+  biography?: string;
+  vehicleDetails?: string;
+  profileImageUrl?: string;
+}
+
 // Ce type représente le contexte de session complet reçu après la connexion
 // et aussi la réponse pour le profil public d'un utilisateur.
 export interface UserSessionContext {

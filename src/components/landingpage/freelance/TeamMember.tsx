@@ -28,9 +28,9 @@ const TeamMember = ({photo,name,title,role,twitter,facebook,linkedin}:Profile) =
         </div>
       </div>
       <div className='flex flex-row space-x-4'>
-        <Link href={twitter}><Image src={twit} alt='profile' width={20}/></Link>
-        <Link href={linkedin}><Image src={link} alt='profile' width={20}/></Link>
-        <Link href={facebook}><Image src={face} alt='profile' width={20}/></Link>
+        <Link href={twitter}><Image src={twit} alt='profile' width={20} height={20}/></Link>
+        <Link href={linkedin}><Image src={link} alt='profile' width={20} height={20}/></Link>
+        <Link href={facebook}><Image src={face} alt='profile' width={20} height={20}/></Link>
       </div>
     </div>
   )

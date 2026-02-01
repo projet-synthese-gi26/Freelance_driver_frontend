@@ -37,35 +37,27 @@ const Page = () => {
         const loadInitialData = () => {
             const context = sessionService.getUserSessionContext() as any;
             
-            if (context) {
-                console.log("📦 [1/3] Contexte brut:", context);
+            if (context?.user) {
+                console.log("📦 [1/2] Contexte brut:", context);
 
-                // LOGIQUE DE MAPPING CLIENT (Basée sur vos logs)
-                // Dans vos logs, les données sont dans context.clientProfile
-                const cp = context.clientProfile;
-                
-                if (cp) {
-                    console.log("🎯 [2/3] Données Client trouvées:", cp);
+                const mappedData: DriverDTO = {
+                    ...driverDTO,
+                    first_name: context.user.firstName || '',
+                    last_name: context.user.lastName || '',
+                    driver_email: context.actor?.emailAddress || context.user.email || '',
+                    driver_phone_number: context.actor?.phoneNumber || context.user.phone || '',
+                    driver_gender: '',
+                    driver_language: '',
+                    driver_bio: '',
+                    date_of_birth: '',
+                    friendly_name: context.actor?.displayName || '',
+                    user_id: context.user.id || ''
+                };
 
-                    const mappedData: DriverDTO = {
-                        ...driverDTO,
-                        first_name: cp.firstName || '',
-                        last_name: cp.lastName || '',
-                        driver_email: cp.contactEmail || context.email || '',
-                        driver_phone_number: cp.phoneNumber || '',
-                        driver_gender: cp.gender || '',
-                        driver_language: cp.language || '',
-                        driver_bio: cp.bio || '',
-                        date_of_birth: cp.birthDate || '',
-                        friendly_name: cp.nickname || '',
-                        user_id: context.userId || ''
-                    };
-
-                    console.log("📝 [3/3] Mapping Final pour l'écran:", mappedData);
-                    setFormData(mappedData);
-                } else {
-                    console.error("❌ Erreur: clientProfile est introuvable dans le contexte.");
-                }
+                console.log("📝 [2/2] Mapping Final pour l'écran:", mappedData);
+                setFormData(mappedData);
+            } else {
+                console.error("❌ Erreur: user est introuvable dans le contexte.");
             }
             setLoading(false);
         };

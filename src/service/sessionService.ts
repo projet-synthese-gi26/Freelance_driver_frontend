@@ -16,7 +16,18 @@ export const sessionService = {
   },
 
   getRefreshToken: () => {
-    return Cookies.get(REFRESH_TOKEN_KEY);
+    const cookieToken = Cookies.get(REFRESH_TOKEN_KEY);
+    if (cookieToken) return cookieToken;
+    if (typeof window === 'undefined') return undefined;
+    const profileString = localStorage.getItem(PROFILE_KEY);
+    if (!profileString) return undefined;
+    try {
+      const context: UserSessionContext = JSON.parse(profileString);
+      return context.refreshToken;
+    } catch (error) {
+      console.error("Erreur parsing refresh token:", error);
+      return undefined;
+    }
   },
 
   /**

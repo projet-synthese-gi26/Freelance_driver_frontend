@@ -61,7 +61,7 @@ export default function LoginFormEmail({ onForgottenPasswordClick, onSignUpClick
             }
 
             // 4. Redirection
-            const roles = user.roles || []; // Modified
+            const roles = user.roles?.map(role => role.roleType).filter(Boolean) as string[] | undefined;
             console.log(`🔀 Redirection selon les rôles: ${JSON.stringify(roles)}`);
 
             toast.success("Welcome back!");
@@ -70,11 +70,11 @@ export default function LoginFormEmail({ onForgottenPasswordClick, onSignUpClick
                 onSuccess();
             }
 
-            if (roles.length > 1) {
+            if ((roles?.length || 0) > 1) {
                 router.push('/choose-profile');
-            } else if (roles.includes('DRIVER')) {
+            } else if (roles?.includes('DRIVER')) {
                 router.push('/freelance-dashboard');
-            } else if (roles.includes('CLIENT')) {
+            } else if (roles?.includes('CLIENT')) {
                 router.push('/customer-dashboard');
             } else {
                 console.warn("⚠️ Aucun rôle connu détecté, redirection par défaut.");

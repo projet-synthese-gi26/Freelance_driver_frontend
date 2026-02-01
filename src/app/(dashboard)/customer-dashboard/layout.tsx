@@ -102,7 +102,7 @@ export default function RootLayout({
     : 'Passenger Profile';
   
   const userContact = user.clientProfile?.contactEmail || user.clientProfile?.phoneNumber || '';
-  const avatarUrl = user.clientProfile?.profileImageUrl || "/img/default-avatar.jpeg";
+  const avatarUrl = user.clientProfile?.profileImageUrl || "/white-silhouette-avatar.png";
 
   return (
     <>

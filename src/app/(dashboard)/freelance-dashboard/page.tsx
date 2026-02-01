@@ -91,26 +91,71 @@ export default function PersonalInfoPage() {
 
     // Chargement initial des données utilisateur
     useEffect(() => {
-        if (user && user.driverProfile) {
-            setDriverProfile(user.driverProfile);
-            setFormData({
-                firstName: user.driverProfile.firstName || '',
-                lastName: user.driverProfile.lastName || '',
-                nickname: user.driverProfile.nickname || '',
-                birthDate: user.driverProfile.birthDate || '',
-                phoneNumber: user.driverProfile.phoneNumber || '',
-                nationality: user.driverProfile.nationality || '',
-                gender: user.driverProfile.gender || '',
-                language: user.driverProfile.language || '',
-                biography: user.driverProfile.biography || '',
-                vehicleDetails: user.driverProfile.vehicleDetails || '',
-                profileImageUrl: user.driverProfile.profileImageUrl || '',
-            });
-            setLoading(false);
-        } else if (user && !user.driverProfile) {
-            // User exists but no driver profile, still mark loading as false
-            setLoading(false);
-        }
+        const loadProfile = async () => {
+            if (user?.driverProfile) {
+                setDriverProfile(user.driverProfile);
+                setFormData({
+                    firstName: user.driverProfile.firstName || '',
+                    lastName: user.driverProfile.lastName || '',
+                    nickname: user.driverProfile.nickname || '',
+                    birthDate: user.driverProfile.birthDate || '',
+                    phoneNumber: user.driverProfile.phoneNumber || '',
+                    nationality: user.driverProfile.nationality || '',
+                    gender: user.driverProfile.gender || '',
+                    language: user.driverProfile.language || '',
+                    biography: user.driverProfile.biography || '',
+                    vehicleDetails: user.driverProfile.vehicleDetails || '',
+                    profileImageUrl: user.driverProfile.profileImageUrl || '',
+                });
+                setLoading(false);
+                return;
+            }
+
+            if (!user) {
+                setLoading(false);
+                return;
+            }
+
+            try {
+                const context = await profileService.getDriverProfile();
+                const actor = context.actor as any;
+                const profileFromApi: DriverProfile = {
+                    id: actor?.id || '',
+                    firstName: context.user?.firstName || '',
+                    lastName: context.user?.lastName || '',
+                    nickname: actor?.displayName || '',
+                    birthDate: '',
+                    phoneNumber: actor?.phoneNumber || context.user?.phone || '',
+                    nationality: '',
+                    gender: '',
+                    language: actor?.languages?.[0] || '',
+                    biography: '',
+                    vehicleDetails: '',
+                    profileImageUrl: context.user?.photoUri || actor?.avatarUrl || '',
+                } as DriverProfile;
+
+                setDriverProfile(profileFromApi);
+                setFormData({
+                    firstName: profileFromApi.firstName || '',
+                    lastName: profileFromApi.lastName || '',
+                    nickname: profileFromApi.nickname || '',
+                    birthDate: profileFromApi.birthDate || '',
+                    phoneNumber: profileFromApi.phoneNumber || '',
+                    nationality: profileFromApi.nationality || '',
+                    gender: profileFromApi.gender || '',
+                    language: profileFromApi.language || '',
+                    biography: profileFromApi.biography || '',
+                    vehicleDetails: profileFromApi.vehicleDetails || '',
+                    profileImageUrl: profileFromApi.profileImageUrl || '',
+                });
+            } catch (error) {
+                console.error("❌ Erreur récupération profil chauffeur:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        loadProfile();
     }, [user]);
 
     const handleInputChange = (field: keyof DriverProfileFormData, value: string) => {
@@ -157,13 +202,13 @@ export default function PersonalInfoPage() {
             const loadingToast = toast.loading("Téléversement de la photo...");
 
             try {
-                const newAvatarUrl = await profileService.uploadAvatar(file);
-                const updatedContext = await profileService.updateDriverAvatarUrl(newAvatarUrl);
+                const updatedContext = await profileService.updateProfilePicture(file);
 
                 sessionService.saveSessionContext(updatedContext);
                 await checkAuth();
 
                 // Mettre à jour localement l'URL de l'image de profil dans formData
+                const newAvatarUrl = updatedContext.user?.photoUri || updatedContext.actor?.avatarUrl || '';
                 setFormData(prev => ({ ...prev, profileImageUrl: newAvatarUrl }));
 
                 toast.success("Photo de profil mise à jour !", { id: loadingToast });
@@ -198,9 +243,11 @@ export default function PersonalInfoPage() {
             <div className="flex flex-col items-center mb-8">
                 <div className="relative w-32 h-32">
                     <Image
-                        src={formData.profileImageUrl || "/img/default-avatar.jpeg"}
+                        src={formData.profileImageUrl || "/white-silhouette-avatar.png"}
                         alt="Profile"
                         fill
+                        sizes="128px"
+                        priority
                         className="rounded-full object-cover border-4 border-white shadow-lg"
                     />
                     {editable && (

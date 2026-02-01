@@ -22,6 +22,22 @@ apiClient.interceptors.request.use(
       if (refreshToken) {
         const response = await refreshClient.post('/api/auth/refresh', { refreshToken });
         sessionService.setTokens(response.data.accessToken, response.data.refreshToken);
+        const currentContext = sessionService.getUserSessionContext();
+        if (currentContext && response.data?.user) {
+          sessionService.saveSessionContext({
+            ...currentContext,
+            accessToken: response.data.accessToken,
+            refreshToken: response.data.refreshToken ?? currentContext.refreshToken,
+            user: response.data.user,
+          });
+        }
+      }
+    }
+
+    if (typeof FormData !== 'undefined' && config.data instanceof FormData) {
+      if (config.headers) {
+        delete config.headers['Content-Type'];
+        delete config.headers['content-type'];
       }
     }
 
