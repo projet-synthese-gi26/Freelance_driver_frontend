@@ -10,9 +10,10 @@ interface BillingAddressProps {
     onSelect: (id: string) => void;
     onDelete: (id: string) => void;
     onUpdateSuccess: () => void;
+    scope?: 'client' | 'driver';
 }
 
-const BillingAddress = ({ addresses, selectedId, onSelect, onDelete, onUpdateSuccess }: BillingAddressProps) => {
+const BillingAddress = ({ addresses, selectedId, onSelect, onDelete, onUpdateSuccess, scope = 'client' }: BillingAddressProps) => {
     return (
         <div className="flex flex-col gap-4">
             {addresses.map((address) => (
@@ -42,10 +43,13 @@ const BillingAddress = ({ addresses, selectedId, onSelect, onDelete, onUpdateSuc
                                 className="cursor-pointer flex-grow"
                                 htmlFor={`billing-address-${address.id}`}>
                                 <span className="block font-bold text-gray-800 text-lg mb-1">
-                                    {address.title}
+                                    {address.type || 'Address'}
                                 </span>
                                 <span className="block text-gray-500 text-sm">
-                                    {address.street}, {address.city} {address.zipCode}, {address.country}
+                                    {address.addressLine1}
+                                    {address.city ? `, ${address.city}` : ''}
+                                    {address.state ? ` ${address.state}` : ''}
+                                    {address.zipCode ? ` ${address.zipCode}` : ''}
                                 </span>
                             </label>
                         </div>
@@ -57,6 +61,7 @@ const BillingAddress = ({ addresses, selectedId, onSelect, onDelete, onUpdateSuc
                                 status='update' 
                                 addressToEdit={address} 
                                 onSuccess={onUpdateSuccess} 
+                                scope={scope}
                             />
                             
                             <button 

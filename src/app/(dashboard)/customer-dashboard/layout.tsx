@@ -81,7 +81,10 @@ export default function RootLayout({
     { link: '/customer-dashboard', title: 'Personal Info', icon: UserCircleIcon },
     { link: '/customer-dashboard/user-chat', title: 'Chat', icon: ChatBubbleLeftRightIcon },
     { link: '/customer-dashboard/user-announce', title: 'Announcement', icon: BellAlertIcon },
+    { link: '/customer-dashboard/user-contacts', title: 'Contacts', icon: UserCircleIcon },
+    { link: '/customer-dashboard/user-security', title: 'Security', icon: ShieldCheckIcon },
     { link: '/customer-dashboard/user-wishlist', title: 'Next Ride', icon: MagnifyingGlassIcon },
+    { link: '/customer-dashboard/user-vehicles', title: 'Vehicles', icon: MapPinIcon },
     { link: '/customer-dashboard/user-address', title: 'Address', icon: MapPinIcon },
     { link: '/customer-dashboard/ratings', title: 'Reviews', icon:ChartBarIcon},
     { link: '/customer-dashboard/rate_app', title: 'Rate App',icon:StarIcon}
@@ -155,7 +158,7 @@ export default function RootLayout({
               </div>
               
               <div onClick={handlePencilClick} className="cursor-pointer border-2 border-white overflow-hidden w-[40px] h-[40px] rounded-full bg-white relative mx-auto shadow-sm">
-                <Image src={avatarUrl} alt="avatar" fill className="rounded-full h-full w-full object-cover" />
+                <Image src={avatarUrl} alt="avatar" fill sizes="40px" className="rounded-full h-full w-full object-cover" />
               </div>
 
               <div className="font-medium text">

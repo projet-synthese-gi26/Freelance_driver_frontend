@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { toast } from 'react-hot-toast';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import { planningService } from '@/service/planningService';
-import { Planning } from '@/type/planning';
+import { Planning, PlanningPayload, PaymentOption, PricingMethod, TripIntention, TripType } from '@/type/planning';
 import { UserSessionContext } from '@/type/profile';
+import { CAMEROON_REGIONS } from '@/data/cameroonLocations';
 
 interface Props {
     isOpen: boolean;
@@ -15,23 +16,77 @@ interface Props {
 
 export default function PlanningFormModal({ isOpen, onClose, planningToEdit, onSuccess, user }: Props) {
     const [loading, setLoading] = useState(false);
-    const [formData, setFormData] = useState<Partial<Planning>>({
+    const [formData, setFormData] = useState<PlanningPayload>({
         title: '',
-        pickupLocation: '',
+        departureLocation: '',
         dropoffLocation: '',
         startDate: new Date().toISOString().split('T')[0],
         startTime: '08:00',
         endDate: new Date().toISOString().split('T')[0],
         endTime: '18:00',
-        regularAmount: '',
+        tripType: 'ONE_WAY',
+        meetupPoint: '',
+        tripIntention: 'PASSENGERS',
+        pricingMethod: 'FIXED',
+        negotiable: true,
+        paymentOption: 'CASH',
+        regularAmount: '0',
         discountPercentage: '0',
-        paymentOption: 'fixed',
-        status: 'Draft'
+        discountedAmount: '0',
+        status: 'Draft',
     });
+
+    const [departureRegion, setDepartureRegion] = useState('');
+    const [departureDepartment, setDepartureDepartment] = useState('');
+    const [departureArrondissement, setDepartureArrondissement] = useState('');
+    const [arrivalRegion, setArrivalRegion] = useState('');
+    const [arrivalDepartment, setArrivalDepartment] = useState('');
+    const [arrivalArrondissement, setArrivalArrondissement] = useState('');
+
+    const buildLocation = (region: string, department: string, arrondissement: string) =>
+        [region, department, arrondissement].filter(Boolean).join(' / ');
+
+    const getDepartments = (regionName: string) =>
+        CAMEROON_REGIONS.find(region => region.name === regionName)?.departments ?? [];
+
+    const getArrondissements = (regionName: string, departmentName: string) =>
+        getDepartments(regionName).find(dep => dep.name === departmentName)?.arrondissements ?? [];
+
+    const setDepartureLocation = (region: string, department: string, arrondissement: string) => {
+        setFormData(prev => ({
+            ...prev,
+            departureLocation: buildLocation(region, department, arrondissement),
+        }));
+    };
+
+    const setArrivalLocation = (region: string, department: string, arrondissement: string) => {
+        setFormData(prev => ({
+            ...prev,
+            dropoffLocation: buildLocation(region, department, arrondissement),
+        }));
+    };
 
     useEffect(() => {
         if (planningToEdit) {
-            setFormData(planningToEdit);
+            const { id, orgId, clientId, clientName, clientPhoneNumber, profileImageUrl, reservedById, paymentMethod, createdAt, updatedAt, metadata, reviewableType, reactableType, reviewableId, reactableId, averageRating, reactionCounts, assetId, ownerId, ...payload } = planningToEdit;
+            const toDateInput = (value?: string) => (value ? value.split('T')[0] : '');
+            const toTimeInput = (value?: string) => (value ? value.slice(0, 5) : '');
+            const toParts = (value?: string) => (value ? value.split(' / ') : []);
+            const [depRegion = '', depDepartment = '', depArrondissement = ''] = toParts(payload.departureLocation);
+            const [arrRegion = '', arrDepartment = '', arrArrondissement = ''] = toParts(payload.dropoffLocation);
+            setFormData({
+                ...payload,
+                startDate: toDateInput(payload.startDate),
+                endDate: toDateInput(payload.endDate),
+                startTime: toTimeInput(payload.startTime),
+                endTime: toTimeInput(payload.endTime),
+            });
+            setDepartureRegion(depRegion);
+            setDepartureDepartment(depDepartment);
+            setDepartureArrondissement(depArrondissement);
+            setArrivalRegion(arrRegion);
+            setArrivalDepartment(arrDepartment);
+            setArrivalArrondissement(arrArrondissement);
         }
     }, [planningToEdit]);
 
@@ -44,20 +99,43 @@ export default function PlanningFormModal({ isOpen, onClose, planningToEdit, onS
         e.preventDefault();
         setLoading(true);
 
+        const formatTime = (value: string) => (value && value.length === 5 ? `${value}:00` : value);
+        const toOffsetDateTime = (dateValue: string, timeValue: string) => {
+            if (!dateValue || !timeValue) return '';
+            const iso = new Date(`${dateValue}T${formatTime(timeValue)}`).toISOString();
+            return iso;
+        };
+
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const startDate = new Date(formData.startDate);
+        const endDate = new Date(formData.endDate);
+        if (startDate < today) {
+            toast.error("Start date cannot be before today.");
+            setLoading(false);
+            return;
+        }
+        if (endDate < startDate) {
+            toast.error("End date cannot be before start date.");
+            setLoading(false);
+            return;
+        }
+
         // Calcul montant réduit
         const regular = parseFloat(formData.regularAmount || '0');
         const discount = parseFloat(formData.discountPercentage || '0');
         const discounted = (regular * (1 - discount / 100)).toFixed(2);
 
-        const payload = {
+        const payload: PlanningPayload = {
             ...formData,
+            startDate: toOffsetDateTime(formData.startDate, formData.startTime),
+            endDate: toOffsetDateTime(formData.endDate, formData.endTime),
+            startTime: formatTime(formData.startTime),
+            endTime: formatTime(formData.endTime),
             discountedAmount: discounted,
-            clientId: user?.userId,
-            clientName: user?.driverProfile?.firstName || 'Chauffeur',
-            clientPhoneNumber: user?.driverProfile?.phoneNumber,
-            // Assurer que le statut est conservé en édition, sinon Draft par défaut en création
-            status: planningToEdit ? formData.status : 'Draft', 
+            status: planningToEdit ? formData.status : 'Draft',
         };
+        console.log("▶️ [PlanningFormModal] Payload create/update:", payload);
 
         try {
             if (planningToEdit && planningToEdit.id) {
@@ -69,8 +147,12 @@ export default function PlanningFormModal({ isOpen, onClose, planningToEdit, onS
             }
             onSuccess();
             onClose();
-        } catch (error) {
-            console.error(error);
+        } catch (error: any) {
+            console.error("❌ [PlanningFormModal] Save failed", {
+                message: error?.message,
+                status: error?.response?.status,
+                data: error?.response?.data,
+            });
             toast.error("Erreur lors de la sauvegarde.");
         } finally {
             setLoading(false);
@@ -106,26 +188,116 @@ export default function PlanningFormModal({ isOpen, onClose, planningToEdit, onS
                     </div>
 
                     {/* Locations */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 gap-4">
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Départ</label>
-                            <input
-                                name="pickupLocation"
-                                value={formData.pickupLocation}
-                                onChange={handleChange}
-                                required
-                                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-                            />
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Departure</label>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                <select
+                                    className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                                    value={departureRegion}
+                                    onChange={(e) => {
+                                        const region = e.target.value;
+                                        setDepartureRegion(region);
+                                        setDepartureDepartment('');
+                                        setDepartureArrondissement('');
+                                        setDepartureLocation(region, '', '');
+                                    }}
+                                    required
+                                >
+                                    <option value="">Select region</option>
+                                    {CAMEROON_REGIONS.map(region => (
+                                        <option key={region.name} value={region.name}>{region.name}</option>
+                                    ))}
+                                </select>
+                                <select
+                                    className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                                    value={departureDepartment}
+                                    onChange={(e) => {
+                                        const department = e.target.value;
+                                        setDepartureDepartment(department);
+                                        setDepartureArrondissement('');
+                                        setDepartureLocation(departureRegion, department, '');
+                                    }}
+                                    disabled={!departureRegion}
+                                    required
+                                >
+                                    <option value="">Select department</option>
+                                    {getDepartments(departureRegion).map(dep => (
+                                        <option key={dep.name} value={dep.name}>{dep.name}</option>
+                                    ))}
+                                </select>
+                                <select
+                                    className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                                    value={departureArrondissement}
+                                    onChange={(e) => {
+                                        const arrondissement = e.target.value;
+                                        setDepartureArrondissement(arrondissement);
+                                        setDepartureLocation(departureRegion, departureDepartment, arrondissement);
+                                    }}
+                                    disabled={!departureDepartment}
+                                    required
+                                >
+                                    <option value="">Select arrondissement</option>
+                                    {getArrondissements(departureRegion, departureDepartment).map(arr => (
+                                        <option key={arr} value={arr}>{arr}</option>
+                                    ))}
+                                </select>
+                            </div>
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Arrivée</label>
-                            <input
-                                name="dropoffLocation"
-                                value={formData.dropoffLocation}
-                                onChange={handleChange}
-                                required
-                                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-                            />
+                            <label className="block text-sm font-medium text-gray-700 mb-2">Arrival</label>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                <select
+                                    className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                                    value={arrivalRegion}
+                                    onChange={(e) => {
+                                        const region = e.target.value;
+                                        setArrivalRegion(region);
+                                        setArrivalDepartment('');
+                                        setArrivalArrondissement('');
+                                        setArrivalLocation(region, '', '');
+                                    }}
+                                    required
+                                >
+                                    <option value="">Select region</option>
+                                    {CAMEROON_REGIONS.map(region => (
+                                        <option key={region.name} value={region.name}>{region.name}</option>
+                                    ))}
+                                </select>
+                                <select
+                                    className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                                    value={arrivalDepartment}
+                                    onChange={(e) => {
+                                        const department = e.target.value;
+                                        setArrivalDepartment(department);
+                                        setArrivalArrondissement('');
+                                        setArrivalLocation(arrivalRegion, department, '');
+                                    }}
+                                    disabled={!arrivalRegion}
+                                    required
+                                >
+                                    <option value="">Select department</option>
+                                    {getDepartments(arrivalRegion).map(dep => (
+                                        <option key={dep.name} value={dep.name}>{dep.name}</option>
+                                    ))}
+                                </select>
+                                <select
+                                    className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                                    value={arrivalArrondissement}
+                                    onChange={(e) => {
+                                        const arrondissement = e.target.value;
+                                        setArrivalArrondissement(arrondissement);
+                                        setArrivalLocation(arrivalRegion, arrivalDepartment, arrondissement);
+                                    }}
+                                    disabled={!arrivalDepartment}
+                                    required
+                                >
+                                    <option value="">Select arrondissement</option>
+                                    {getArrondissements(arrivalRegion, arrivalDepartment).map(arr => (
+                                        <option key={arr} value={arr}>{arr}</option>
+                                    ))}
+                                </select>
+                            </div>
                         </div>
                     </div>
 
@@ -154,12 +326,12 @@ export default function PlanningFormModal({ isOpen, onClose, planningToEdit, onS
                         <h3 className="font-semibold text-gray-800 mb-3">Tarification</h3>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Type de prix</label>
-                                <select name="paymentOption" value={formData.paymentOption} onChange={handleChange} className="w-full p-2 border rounded-lg">
-                                    <option value="fixed">Prix Fixe</option>
-                                    <option value="per_km">Par Km</option>
-                                    <option value="per_hour">Par Heure</option>
-                                    <option value="per_day">Par Jour</option>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Méthode de tarification</label>
+                                <select name="pricingMethod" value={formData.pricingMethod} onChange={handleChange} className="w-full p-2 border rounded-lg" required>
+                                    <option value="FIXED">Prix fixe</option>
+                                    <option value="PER_KM">Par Km</option>
+                                    <option value="PER_HOUR">Par Heure</option>
+                                    <option value="PER_DAY">Par Jour</option>
                                 </select>
                             </div>
                             <div>
@@ -170,6 +342,46 @@ export default function PlanningFormModal({ isOpen, onClose, planningToEdit, onS
                                 <label className="block text-sm font-medium text-gray-700 mb-1">Réduction (%)</label>
                                 <input type="number" name="discountPercentage" value={formData.discountPercentage} onChange={handleChange} className="w-full p-2 border rounded-lg" placeholder="0" />
                             </div>
+                        </div>
+                    </div>
+
+                    <div className="border-t pt-4 mt-4">
+                        <h3 className="font-semibold text-gray-800 mb-3">Détails du trajet</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Type de trajet</label>
+                                <select name="tripType" value={formData.tripType} onChange={handleChange} className="w-full p-2 border rounded-lg" required>
+                                    <option value="ONE_WAY">Aller simple</option>
+                                    <option value="ROUND_TRIP">Aller-retour</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Point de rendez-vous</label>
+                                <input name="meetupPoint" value={formData.meetupPoint} onChange={handleChange} className="w-full p-2 border rounded-lg" placeholder="Ex: Total Bonamoussadi" required />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Intention</label>
+                                <select name="tripIntention" value={formData.tripIntention} onChange={handleChange} className="w-full p-2 border rounded-lg" required>
+                                    <option value="PASSENGERS">Passagers</option>
+                                    <option value="PACKAGES">Colis</option>
+                                    <option value="BOTH">Passagers & colis</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Paiement</label>
+                                <select name="paymentOption" value={formData.paymentOption} onChange={handleChange} className="w-full p-2 border rounded-lg">
+                                    <option value="CASH">Cash</option>
+                                    <option value="MOBILE_MONEY">Mobile Money</option>
+                                    <option value="CARD">Carte</option>
+                                    <option value="TRANSFER">Virement</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div className="mt-4">
+                            <label className="inline-flex items-center gap-2 text-sm font-medium text-gray-700">
+                                <input type="checkbox" checked={formData.negotiable} onChange={(e) => setFormData(prev => ({ ...prev, negotiable: e.target.checked }))} />
+                                Prix négociable
+                            </label>
                         </div>
                     </div>
 

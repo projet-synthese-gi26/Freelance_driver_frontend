@@ -4,18 +4,11 @@ import { toast } from 'react-hot-toast';
 import { Camera, X } from 'lucide-react';
 import Image from 'next/image';
 import { vehicleService } from '@/service/vehicleService';
-import { sessionService } from '@/service/sessionService';
-import { Vehicle } from '@/type/vehicle';
-import { v4 as uuidv4 } from 'uuid';
+import { Vehicle, VehiclePayload } from '@/type/vehicle';
 
-// OPTIONS (Identiques au mobile)
 const VEHICLE_OPTIONS = {
-  manufacturers: ["Toyota", "Honda", "Ford", "Volkswagen", "BMW", "Mercedes-Benz", "Audi", "Hyundai"],
-  transmissions: ["Manual", "Automatic", "Semi-automatic"],
-  fuelTypes: ["Petrol", "Diesel", "Hybrid", "Electric"],
-  categories: ["Compact", "Sedan", "SUV", "Minivan", "Utility"],
+  brands: ["Toyota", "Honda", "Ford", "Volkswagen", "BMW", "Mercedes-Benz", "Audi", "Hyundai"],
   seats: ["2", "4", "5", "7", "8", "9"],
-  amenities: ["Air conditioning", "Bluetooth", "GPS", "Backup camera", "Heated seats", "Sunroof"],
 };
 
 interface AddVehicleFormProps {
@@ -28,18 +21,18 @@ const AddVehicleForm: React.FC<AddVehicleFormProps> = ({ vehicleToEdit, onSucces
   const [loading, setLoading] = useState(false);
   
   // Initialisation du formulaire
-  const [formData, setFormData] = useState<Partial<Vehicle>>({
-    photoUrls: [],
-    model: "",
-    manufacturer: "Toyota",
-    seats: "5",
-    transmission: "Automatic",
-    fuelType: "Petrol",
-    category: "Sedan",
-    serialNumber: "",
-    tankCapacity: "",
-    loadCapacity: "",
-    amenities: [],
+  const [formData, setFormData] = useState<VehiclePayload>({
+    brand: "Toyota",
+    totalSeatNumber: 5,
+    vehicleSerialNumber: "",
+    registrationNumber: "",
+    registrationExpiryDate: "",
+    tankCapacity: 0,
+    luggageMaxCapacity: 0,
+    averageFuelConsumptionPerKm: 0,
+    mileageAtStart: 0,
+    mileageSinceCommissioning: 0,
+    vehicleAgeAtStart: 0,
   });
 
   // Fichiers sélectionnés pour l'upload (spécifique web)
@@ -48,21 +41,38 @@ const AddVehicleForm: React.FC<AddVehicleFormProps> = ({ vehicleToEdit, onSucces
 
   useEffect(() => {
     if (vehicleToEdit) {
-      setFormData(vehicleToEdit);
-      setPreviewUrls(vehicleToEdit.photoUrls || []);
+      setFormData({
+        brand: vehicleToEdit.brand || '',
+        totalSeatNumber: vehicleToEdit.totalSeatNumber || 0,
+        vehicleSerialNumber: vehicleToEdit.vehicleSerialNumber || '',
+        registrationNumber: vehicleToEdit.registrationNumber || '',
+        registrationExpiryDate: vehicleToEdit.registrationExpiryDate || '',
+        tankCapacity: vehicleToEdit.tankCapacity || 0,
+        luggageMaxCapacity: vehicleToEdit.luggageMaxCapacity || 0,
+        averageFuelConsumptionPerKm: vehicleToEdit.averageFuelConsumptionPerKm || 0,
+        mileageAtStart: vehicleToEdit.mileageAtStart || 0,
+        mileageSinceCommissioning: vehicleToEdit.mileageSinceCommissioning || 0,
+        vehicleAgeAtStart: vehicleToEdit.vehicleAgeAtStart || 0,
+        vehicleMakeId: vehicleToEdit.vehicleMakeId || null,
+        vehicleModelId: vehicleToEdit.vehicleModelId || null,
+        transmissionTypeId: vehicleToEdit.transmissionTypeId || null,
+        manufacturerId: vehicleToEdit.manufacturerId || null,
+        vehicleSizeId: vehicleToEdit.vehicleSizeId || null,
+        vehicleTypeId: vehicleToEdit.vehicleTypeId || null,
+        fuelTypeId: vehicleToEdit.fuelTypeId || null,
+        vehicleSerialPhoto: vehicleToEdit.vehicleSerialPhoto || null,
+        registrationPhoto: vehicleToEdit.registrationPhoto || null,
+      });
+      if (vehicleToEdit.vehicleId) {
+        vehicleService.getVehicleImages(vehicleToEdit.vehicleId).then(images => {
+          setPreviewUrls(images.map(img => img.imagePath));
+        });
+      }
     }
   }, [vehicleToEdit]);
 
-  const handleChange = (field: keyof Vehicle, value: any) => {
+  const handleChange = (field: keyof VehiclePayload, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
-  };
-
-  const handleToggleAmenity = (amenity: string) => {
-    const current = formData.amenities || [];
-    const updated = current.includes(amenity)
-      ? current.filter(a => a !== amenity)
-      : [...current, amenity];
-    handleChange('amenities', updated);
   };
 
   const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -77,17 +87,12 @@ const AddVehicleForm: React.FC<AddVehicleFormProps> = ({ vehicleToEdit, onSucces
   };
 
   const removeImage = (index: number) => {
-    // Si l'image est une URL existante (backend)
-    if (index < (formData.photoUrls?.length || 0)) {
-        const newPhotoUrls = [...(formData.photoUrls || [])];
-        newPhotoUrls.splice(index, 1);
-        setFormData(prev => ({...prev, photoUrls: newPhotoUrls}));
-    } else {
-        // C'est un nouveau fichier local
-        const localIndex = index - (formData.photoUrls?.length || 0);
+    if (index < previewUrls.length) {
         const newFiles = [...selectedFiles];
-        newFiles.splice(localIndex, 1);
-        setSelectedFiles(newFiles);
+        if (index < newFiles.length) {
+          newFiles.splice(index, 1);
+          setSelectedFiles(newFiles);
+        }
     }
     
     // Mettre à jour l'affichage
@@ -99,55 +104,33 @@ const AddVehicleForm: React.FC<AddVehicleFormProps> = ({ vehicleToEdit, onSucces
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     
-    if (!formData.model || !formData.manufacturer) {
-        toast.error("Le modèle et la marque sont obligatoires.");
+    if (!formData.brand) {
+        toast.error("Brand is required.");
         return;
     }
 
     setLoading(true);
     try {
-        const userContext = await sessionService.getUserContext();
-        const driverId = userContext?.id;
-        
-        if (!driverId) {
-            toast.error("Erreur session. Veuillez vous reconnecter.");
-            return;
-        }
-
-        // 1. Préparer l'ID du véhicule
-        const vehicleId = vehicleToEdit?.id || uuidv4();
-        
-        // 2. Upload des nouvelles images
-        let uploadedUrls: string[] = [];
-        if (selectedFiles.length > 0) {
-            const uploadPromises = selectedFiles.map(file => 
-                vehicleService.uploadVehiclePhoto(file, vehicleId)
-            );
-            uploadedUrls = await Promise.all(uploadPromises);
-        }
-        
-        // 3. Fusionner les URLs (anciennes + nouvelles)
-        const finalPhotoUrls = [...(formData.photoUrls || []), ...uploadedUrls];
-        
-        const vehicleData = {
-            ...formData,
-            id: vehicleId,
-            photoUrls: finalPhotoUrls
-        };
-
-        // 4. Sauvegarder le véhicule
-        if (vehicleToEdit) {
-            await vehicleService.updateVehicle(vehicleId, vehicleData, driverId);
-            toast.success("Véhicule mis à jour !");
+        let createdVehicle: Vehicle | null = null;
+        if (vehicleToEdit?.vehicleId) {
+            createdVehicle = await vehicleService.updateVehicle(vehicleToEdit.vehicleId, formData);
+            toast.success("Vehicle updated.");
         } else {
-            await vehicleService.createVehicle(vehicleData, driverId);
-            toast.success("Véhicule créé !");
+            createdVehicle = await vehicleService.createVehicle(formData);
+            toast.success("Vehicle created.");
+        }
+
+        if (createdVehicle && selectedFiles.length > 0) {
+            const uploadPromises = selectedFiles.map(file => 
+                vehicleService.uploadVehicleImage(createdVehicle!.vehicleId, file)
+            );
+            await Promise.all(uploadPromises);
         }
 
         onSuccess();
     } catch (error) {
         console.error("Erreur sauvegarde:", error);
-        toast.error("Erreur lors de la sauvegarde.");
+        toast.error("Unable to save vehicle.");
     } finally {
         setLoading(false);
     }
@@ -156,7 +139,7 @@ const AddVehicleForm: React.FC<AddVehicleFormProps> = ({ vehicleToEdit, onSucces
   return (
     <div className="bg-white p-6 rounded-lg shadow-sm">
       <h2 className="text-2xl font-bold mb-6 text-gray-800">
-        {vehicleToEdit ? 'Modifier le véhicule' : 'Ajouter un véhicule'}
+        {vehicleToEdit ? 'Edit vehicle' : 'Add vehicle'}
       </h2>
       
       <form onSubmit={handleSubmit} className="space-y-6">
@@ -179,7 +162,7 @@ const AddVehicleForm: React.FC<AddVehicleFormProps> = ({ vehicleToEdit, onSucces
                 ))}
                 <label className="w-24 h-24 flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
                     <Camera className="w-6 h-6 text-blue-500 mb-1" />
-                    <span className="text-xs text-gray-500">Ajouter</span>
+                    <span className="text-xs text-gray-500">Add</span>
                     <input type="file" multiple accept="image/*" className="hidden" onChange={handleImageChange} />
                 </label>
             </div>
@@ -188,90 +171,117 @@ const AddVehicleForm: React.FC<AddVehicleFormProps> = ({ vehicleToEdit, onSucces
         {/* Informations Principales */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-                <label className="block font-medium text-gray-700 mb-1">Marque</label>
+                <label className="block font-medium text-gray-700 mb-1">Brand</label>
                 <select 
-                    value={formData.manufacturer}
-                    onChange={(e) => handleChange('manufacturer', e.target.value)}
+                    value={formData.brand || ''}
+                    onChange={(e) => handleChange('brand', e.target.value)}
                     className="w-full p-2 border rounded-lg bg-gray-50"
                 >
-                    {VEHICLE_OPTIONS.manufacturers.map(m => <option key={m} value={m}>{m}</option>)}
+                    {VEHICLE_OPTIONS.brands.map(m => <option key={m} value={m}>{m}</option>)}
                 </select>
             </div>
             <div>
-                <label className="block font-medium text-gray-700 mb-1">Modèle</label>
+                <label className="block font-medium text-gray-700 mb-1">Registration Number</label>
                 <input 
                     type="text" 
-                    value={formData.model}
-                    onChange={(e) => handleChange('model', e.target.value)}
+                    value={formData.registrationNumber || ''}
+                    onChange={(e) => handleChange('registrationNumber', e.target.value)}
                     className="w-full p-2 border rounded-lg"
-                    placeholder="Ex: Yaris"
+                    placeholder="ABC-123"
                     required
                 />
             </div>
         </div>
 
-        {/* Spécifications */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Catégorie</label>
-                <select className="w-full p-2 border rounded-lg bg-gray-50" value={formData.category} onChange={e => handleChange('category', e.target.value)}>
-                    {VEHICLE_OPTIONS.categories.map(o => <option key={o} value={o}>{o}</option>)}
-                </select>
-            </div>
-            <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Transmission</label>
-                <select className="w-full p-2 border rounded-lg bg-gray-50" value={formData.transmission} onChange={e => handleChange('transmission', e.target.value)}>
-                    {VEHICLE_OPTIONS.transmissions.map(o => <option key={o} value={o}>{o}</option>)}
-                </select>
-            </div>
-            <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Carburant</label>
-                <select className="w-full p-2 border rounded-lg bg-gray-50" value={formData.fuelType} onChange={e => handleChange('fuelType', e.target.value)}>
-                    {VEHICLE_OPTIONS.fuelTypes.map(o => <option key={o} value={o}>{o}</option>)}
-                </select>
-            </div>
-            <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Places</label>
-                <select className="w-full p-2 border rounded-lg bg-gray-50" value={formData.seats} onChange={e => handleChange('seats', e.target.value)}>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Seats</label>
+                <select
+                  className="w-full p-2 border rounded-lg bg-gray-50"
+                  value={formData.totalSeatNumber?.toString() || ''}
+                  onChange={e => handleChange('totalSeatNumber', Number(e.target.value))}
+                >
                     {VEHICLE_OPTIONS.seats.map(o => <option key={o} value={o}>{o}</option>)}
                 </select>
+            </div>
+            <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Registration expiry</label>
+                <input
+                  type="date"
+                  className="w-full p-2 border rounded-lg bg-gray-50"
+                  value={formData.registrationExpiryDate ? formData.registrationExpiryDate.split('T')[0] : ''}
+                  onChange={e => handleChange('registrationExpiryDate', e.target.value)}
+                />
+            </div>
+            <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Tank capacity (L)</label>
+                <input
+                  type="number"
+                  className="w-full p-2 border rounded-lg"
+                  value={formData.tankCapacity ?? 0}
+                  onChange={e => handleChange('tankCapacity', Number(e.target.value))}
+                />
+            </div>
+            <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Luggage capacity</label>
+                <input
+                  type="number"
+                  className="w-full p-2 border rounded-lg"
+                  value={formData.luggageMaxCapacity ?? 0}
+                  onChange={e => handleChange('luggageMaxCapacity', Number(e.target.value))}
+                />
             </div>
         </div>
 
         {/* Autres détails */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Immatriculation</label>
-                <input type="text" value={formData.serialNumber} onChange={e => handleChange('serialNumber', e.target.value)} className="w-full p-2 border rounded-lg" />
+                <label className="block text-sm font-medium text-gray-700 mb-1">Serial number</label>
+                <input
+                  type="text"
+                  value={formData.vehicleSerialNumber || ''}
+                  onChange={e => handleChange('vehicleSerialNumber', e.target.value)}
+                  className="w-full p-2 border rounded-lg"
+                />
             </div>
             <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Réservoir (L)</label>
-                <input type="number" value={formData.tankCapacity} onChange={e => handleChange('tankCapacity', e.target.value)} className="w-full p-2 border rounded-lg" />
+                <label className="block text-sm font-medium text-gray-700 mb-1">Mileage at start</label>
+                <input
+                  type="number"
+                  value={formData.mileageAtStart ?? 0}
+                  onChange={e => handleChange('mileageAtStart', Number(e.target.value))}
+                  className="w-full p-2 border rounded-lg"
+                />
             </div>
             <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Charge (Kg)</label>
-                <input type="number" value={formData.loadCapacity} onChange={e => handleChange('loadCapacity', e.target.value)} className="w-full p-2 border rounded-lg" />
+                <label className="block text-sm font-medium text-gray-700 mb-1">Vehicle age at start</label>
+                <input
+                  type="number"
+                  value={formData.vehicleAgeAtStart ?? 0}
+                  onChange={e => handleChange('vehicleAgeAtStart', Number(e.target.value))}
+                  className="w-full p-2 border rounded-lg"
+                />
             </div>
         </div>
 
-        {/* Équipements */}
-        <div>
-            <label className="block font-medium text-gray-700 mb-2">Équipements</label>
-            <div className="flex flex-wrap gap-2">
-                {VEHICLE_OPTIONS.amenities.map(amenity => (
-                    <button
-                        key={amenity}
-                        type="button"
-                        onClick={() => handleToggleAmenity(amenity)}
-                        className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${
-                            formData.amenities?.includes(amenity)
-                                ? 'bg-blue-100 text-blue-700 border border-blue-200'
-                                : 'bg-gray-100 text-gray-600 border border-gray-200 hover:bg-gray-200'
-                        }`}
-                    >
-                        {amenity}
-                    </button>
-                ))}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Average fuel consumption per km</label>
+                <input
+                  type="number"
+                  value={formData.averageFuelConsumptionPerKm ?? 0}
+                  onChange={e => handleChange('averageFuelConsumptionPerKm', Number(e.target.value))}
+                  className="w-full p-2 border rounded-lg"
+                />
+            </div>
+            <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Mileage since commissioning</label>
+                <input
+                  type="number"
+                  value={formData.mileageSinceCommissioning ?? 0}
+                  onChange={e => handleChange('mileageSinceCommissioning', Number(e.target.value))}
+                  className="w-full p-2 border rounded-lg"
+                />
             </div>
         </div>
 
@@ -283,7 +293,7 @@ const AddVehicleForm: React.FC<AddVehicleFormProps> = ({ vehicleToEdit, onSucces
                 className="px-6 py-2.5 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 font-medium transition-colors"
                 disabled={loading}
             >
-                Annuler
+                Cancel
             </button>
             <button
                 type="submit"
@@ -291,7 +301,7 @@ const AddVehicleForm: React.FC<AddVehicleFormProps> = ({ vehicleToEdit, onSucces
                 disabled={loading}
             >
                 {loading && <span className="animate-spin h-4 w-4 mr-2 border-2 border-white border-t-transparent rounded-full"></span>}
-                {vehicleToEdit ? 'Mettre à jour' : 'Enregistrer'}
+                {vehicleToEdit ? 'Update' : 'Save'}
             </button>
         </div>
       </form>

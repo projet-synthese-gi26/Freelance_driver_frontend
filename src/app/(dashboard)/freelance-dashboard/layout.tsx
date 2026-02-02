@@ -85,6 +85,7 @@ export default function RootLayout({
   */
    const NavItems = useMemo(() => [
     {link:'/freelance-dashboard',title:'Personal Info',icon:UserCircleIcon},
+    {link:'/freelance-dashboard/security',title:'Security',icon:ShieldCheckIcon},
     
     {
       title:'Business',
@@ -92,6 +93,7 @@ export default function RootLayout({
       subItems: [
         
         {link:'/freelance-dashboard/business/address',title:'Address'},
+        {link:'/freelance-dashboard/business/contacts',title:'Contacts'},
         {link:'/freelance-dashboard/business/planning',title:'Planning'},
         {link:'/freelance-dashboard/business/rides',title:'Rides'},
         {link:'/freelance-dashboard/business/vehicles',title:'Vehicles'},
@@ -263,7 +265,7 @@ export default function RootLayout({
               </div>
 
               <div onClick={handlePencilClick} className="cursor-pointer border-2 border-white overflow-hidden w-[40px] h-[40px] rounded-full bg-white relative mx-auto shadow-sm">
-                <Image src={avatarUrl} alt="avatar" fill className="rounded-full object-cover" />
+                <Image src={avatarUrl} alt="avatar" fill sizes="40px" className="rounded-full object-cover" />
               </div>
 
               <div className="font-medium text-sm">

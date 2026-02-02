@@ -1,10 +1,12 @@
 // src/services/announcementService.ts
 
 import apiClient from './apiClient';
-import axios from 'axios'; // Import pour les appels publics
-// Adaptez les chemins d'importation selon votre structure "src/type/..."
-import { Announcement as AnnouncementClientType, AnnouncementStatus } from '@/type/announcement';
-import { Planning as PlanningType } from '@/type/planning';
+import axios from 'axios';
+import {
+  Announcement,
+  AnnouncementRequestPayload,
+  AnnouncementStatus,
+} from '@/type/announcement';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -65,62 +67,65 @@ export const mapProductToPublicView = (product: any): PublicOfferView => {
     return mappedProduct;
 };
 
-/**
- * Traduit un objet "Product" du backend pour les vues privées
- */
-const mapBackendProductToPrivateView = (product: any): AnnouncementClientType | PlanningType => {
-  return {
-    id: product.key?.id || product.id || '',
-    title: product.name || 'Sans titre',
-    pickupLocation: product.pickupLocation || '',
-    dropoffLocation: product.dropoffLocation || '',
-    startDate: product.startDate || '',
-    startTime: product.startTime || '',
-    endDate: product.endDate || '',
-    endTime: product.endTime || '',
-    cost: product.defaultSellPrice?.toString() || '0',
-    baggageInfo: product.shortDescription || '',
-    status: product.status || 'Draft',
-    isNegotiable: product.isNegotiable || false,
-    paymentMethod: product.paymentMethod || 'cash',
-    clientId: product.clientId || '',
-    clientName: product.clientName || '',
-    clientPhoneNumber: product.clientPhoneNumber || '',
-    paymentOption: product.metadata?.paymentOption,
-    regularAmount: product.metadata?.regularAmount?.toString(),
-    discountPercentage: product.metadata?.discountPercentage,
-    discountedAmount: product.metadata?.discountedAmount?.toString(),
-  };
-};
+const mapBackendAnnonceToAnnouncement = (data: any): Announcement => ({
+  id: data.id,
+  orgId: data.orgId ?? null,
+  clientId: data.clientId ?? null,
+  clientName: data.clientName ?? null,
+  clientPhoneNumber: data.clientPhoneNumber ?? null,
+  profileImageUrl: data.profileImageUrl ?? null,
+  title: data.title ?? '',
+  departureLocation: data.departureLocation ?? '',
+  dropoffLocation: data.dropoffLocation ?? '',
+  startDate: data.startDate ?? '',
+  startTime: data.startTime ?? '',
+  endDate: data.endDate ?? '',
+  endTime: data.endTime ?? '',
+  reservedById: data.reservedById ?? null,
+  paymentMethod: data.paymentMethod ?? null,
+  status: data.status ?? 'Draft',
+  createdAt: data.createdAt ?? null,
+  updatedAt: data.updatedAt ?? null,
+  tripType: data.tripType ?? 'ONE_WAY',
+  meetupPoint: data.meetupPoint ?? '',
+  tripIntention: data.tripIntention ?? 'PASSENGERS',
+  pricingMethod: data.pricingMethod ?? 'FIXED',
+  metadata: data.metadata ?? [],
+  cost: data.cost?.toString?.() ?? '',
+  baggageInfo: data.baggageInfo ?? '',
+  negotiable: Boolean(data.negotiable),
+  reviewableType: data.reviewableType,
+  reactableType: data.reactableType,
+  reviewableId: data.reviewableId,
+  reactableId: data.reactableId,
+  averageRating: data.averageRating,
+  reactionCounts: data.reactionCounts,
+  assetId: data.assetId,
+  ownerId: data.ownerId,
+});
 
-/**
- * Prépare le payload pour le backend
- */
-const mapFormToBackendPayload = (formData: Partial<AnnouncementClientType | PlanningType>) => {
-  return {
-    name: formData.title,
-    defaultSellPrice: parseFloat((formData as AnnouncementClientType).cost || (formData as PlanningType).regularAmount || '0'),
-    shortDescription: (formData as AnnouncementClientType).baggageInfo,
-    pickupLocation: formData.pickupLocation,
-    dropoffLocation: formData.dropoffLocation,
-    startDate: formData.startDate,
-    startTime: formData.startTime,
-    endDate: formData.endDate,
-    endTime: formData.endTime,
-    status: formData.status,
-    isNegotiable: formData.isNegotiable,
-    paymentMethod: formData.paymentMethod,
-    clientId: formData.clientId,
-    clientName: formData.clientName,
-    clientPhoneNumber: formData.clientPhoneNumber,
-    metadata: { 
-        paymentOption: (formData as PlanningType).paymentOption || 'fixed',
-        regularAmount: (formData as PlanningType).regularAmount || '0',
-        discountPercentage: (formData as PlanningType).discountPercentage || '0',
-        discountedAmount: (formData as PlanningType).discountedAmount || '0',
-    },
-  };
-};
+const mapAnnouncementToPayload = (
+  payload: Partial<AnnouncementRequestPayload>
+): AnnouncementRequestPayload => ({
+  title: payload.title ?? '',
+  departureLocation: payload.departureLocation ?? '',
+  dropoffLocation: payload.dropoffLocation ?? '',
+  startDate: payload.startDate ?? '',
+  startTime: payload.startTime ?? '',
+  endDate: payload.endDate ?? '',
+  endTime: payload.endTime ?? '',
+  status: payload.status ?? 'Draft',
+  reservedById: payload.reservedById ?? undefined,
+  tripType: payload.tripType ?? 'ONE_WAY',
+  meetupPoint: payload.meetupPoint ?? '',
+  tripIntention: payload.tripIntention ?? 'PASSENGERS',
+  pricingMethod: payload.pricingMethod ?? 'FIXED',
+  isNegotiable: payload.isNegotiable ?? payload.negotiable ?? false,
+  negotiable: payload.negotiable ?? payload.isNegotiable ?? false,
+  paymentMethod: payload.paymentMethod ?? '',
+  cost: payload.cost ?? '',
+  baggageInfo: payload.baggageInfo ?? '',
+});
 
 export const announcementService = {
     // --- Fonctions de RECHERCHE PUBLIQUE (Sans Token) ---
@@ -137,54 +142,25 @@ export const announcementService = {
 
     // --- Fonctions de GESTION pour le CLIENT (Avec Token) ---
 
-    getMyAnnouncements: async (): Promise<AnnouncementClientType[]> => {
-        const response = await apiClient.get('/api/announcements/my-announcements');
-        return response.data.map((p: any) => mapBackendProductToPrivateView(p) as AnnouncementClientType);
+    getMyAnnouncements: async (): Promise<Announcement[]> => {
+        const response = await apiClient.get('/api/v1/client/annonces');
+        return response.data.map((annonce: any) => mapBackendAnnonceToAnnouncement(annonce));
     },
     
-    createAnnouncement: async (announcement: Partial<AnnouncementClientType>): Promise<AnnouncementClientType> => {
-        const payload = mapFormToBackendPayload(announcement);
-        const response = await apiClient.post('/api/announcements', payload);
-        return mapBackendProductToPrivateView(response.data) as AnnouncementClientType;
+    createAnnouncement: async (announcement: Partial<AnnouncementRequestPayload>): Promise<Announcement> => {
+        const payload = mapAnnouncementToPayload(announcement);
+        const response = await apiClient.post('/api/v1/client/annonces', payload);
+        return mapBackendAnnonceToAnnouncement(response.data);
     },
 
-    updateAnnouncement: async (id: string, announcement: Partial<AnnouncementClientType>): Promise<AnnouncementClientType> => {
-        const payload = mapFormToBackendPayload(announcement);
-        const response = await apiClient.put(`/api/announcements/${id}`, payload);
-        return mapBackendProductToPrivateView(response.data) as AnnouncementClientType;
+    updateAnnouncement: async (id: string, announcement: Partial<AnnouncementRequestPayload>): Promise<Announcement> => {
+        const payload = mapAnnouncementToPayload(announcement);
+        const response = await apiClient.put(`/api/v1/client/annonces/${id}`, payload);
+        return mapBackendAnnonceToAnnouncement(response.data);
     },
 
     deleteAnnouncement: async (id: string): Promise<void> => {
-        await apiClient.delete(`/api/announcements/${id}`);
-    },
-
-    // --- Fonctions de GESTION pour le CONDUCTEUR (Avec Token) ---
-
-    getMyPlannings: async (): Promise<PlanningType[]> => {
-        const response = await apiClient.get('/api/planning');
-        return response.data.map((p: any) => mapBackendProductToPrivateView(p) as PlanningType);
-    },
-
-    createPlanning: async (planning: Partial<PlanningType>): Promise<PlanningType> => {
-        const payload = mapFormToBackendPayload(planning);
-        const response = await apiClient.post('/api/planning', payload);
-        return mapBackendProductToPrivateView(response.data) as PlanningType;
-    },
-
-    updatePlanning: async (id: string, planning: Partial<PlanningType>): Promise<PlanningType> => {
-        const payload = mapFormToBackendPayload(planning);
-        const response = await apiClient.put(`/api/planning/${id}`, payload);
-        return mapBackendProductToPrivateView(response.data) as PlanningType;
-    },
-
-    deletePlanning: async (id: string): Promise<void> => {
-        await apiClient.delete(`/api/planning/${id}`);
-    },
-    
-    getPlanningsByDriver: async (driverId: string): Promise<PublicOfferView[]> => {
-        // Cette route peut être publique selon votre config backend
-        const response = await axios.get(`${API_URL}/api/planning/user/${driverId}`);
-        return response.data.map(mapProductToPublicView);
+        await apiClient.delete(`/api/v1/client/annonces/${id}`);
     },
 
     // --- Fonctions de Réservation (Avec Token) ---

@@ -1,71 +1,78 @@
-// app/types/announcement.ts
+export type AnnouncementStatus =
+  | 'Draft'
+  | 'Published'
+  | 'PendingConfirmation'
+  | 'PendingDriverConfirmation'
+  | 'Confirmed'
+  | 'Ongoing'
+  | 'Terminated'
+  | 'Expired'
+  | 'Cancelled';
 
-/*
-export type AnnouncementStatus = 'Draft' | 'Published' | 'Confirmed' | 'Terminated' | 'Expired' | 'Cancelled' | 'Ongoing' | 'PendingConfirmation' | 'PendingDriverConfirmation'; // <-- AJOUT DE 'PendingDriverConfirmation'
+export type TripType = 'ONE_WAY' | 'ROUND_TRIP';
+export type TripIntention = 'PASSENGERS' | 'PACKAGES' | 'BOTH';
+export type PricingMethod = 'FIXED' | 'PER_KM' | 'PER_HOUR' | 'PER_DAY';
 
 export interface Announcement {
   id: string;
+  orgId?: string | null;
+  clientId?: string | null;
+  clientName?: string | null;
+  clientPhoneNumber?: string | null;
+  profileImageUrl?: string | null;
   title: string;
-  
-  pickupLocation: string;
+  departureLocation: string;
   dropoffLocation: string;
   startDate: string;
   startTime: string;
   endDate: string;
   endTime: string;
-  
-  cost: string;
-  isNegotiable: boolean;
-  paymentMethod: string;
-
-  baggageInfo: string;
+  reservedById?: string | null;
+  paymentMethod?: string | null;
   status: AnnouncementStatus;
-  
-  clientId: string;
-  clientName: string;
-  createdAt?: string;
-  updatedAt?: string;
-  clientPhoneNumber?: string;
-  profileImageUrl?: string; // Image du client qui a posté
-}
-  */
-
-// PATH: /home/mbogneng-junior/freelance-driver (Copie)/frontend/app/types/announcement.ts
-
-// --- MODIFICATION ICI : Utiliser un type string literal ---
-export type AnnouncementStatus = 
-  'Draft' | 
-  'Published' | 
-  'PendingConfirmation' | // Pour les annonces (client accepte chauffeur)
-  'PendingDriverConfirmation' | // Pour les plannings (chauffeur accepte client)
-  'Confirmed' | 
-  'Ongoing' | 
-  'Terminated' | 
-  'Expired' | 
-  'Cancelled';
-
-export interface Announcement {
-  id: string;
-  title: string;
-  
-  pickupLocation: string;
-  dropoffLocation: string;
-  startDate: string;
-  startTime: string;
-  endDate: string;
-  endTime: string;
-  
+  createdAt?: string | null;
+  updatedAt?: string | null;
+  tripType: TripType;
+  meetupPoint: string;
+  tripIntention: TripIntention;
+  pricingMethod: PricingMethod;
+  metadata?: unknown[];
   cost: string;
-  isNegotiable: boolean;
-  paymentMethod: string;
-
   baggageInfo: string;
-  status: AnnouncementStatus; // Utilise le type string literal
+  negotiable: boolean;
+  reviewableType?: string;
+  reactableType?: string;
+  reviewableId?: string;
+  reactableId?: string;
+  averageRating?: number;
+  reactionCounts?: Record<string, number>;
+  assetId?: string;
+  ownerId?: string;
+}
+
+export type AnnouncementPayload = Omit<
+  Announcement,
+  | 'id'
+  | 'orgId'
+  | 'clientId'
+  | 'clientName'
+  | 'clientPhoneNumber'
+  | 'profileImageUrl'
   
-  clientId: string;
-  clientName: string;
-  createdAt?: string;
-  updatedAt?: string;
-  clientPhoneNumber?: string;
-  profileImageUrl?: string; // Image du client qui a posté
+  | 'createdAt'
+  | 'updatedAt'
+  | 'metadata'
+  | 'reviewableType'
+  | 'reactableType'
+  | 'reviewableId'
+  | 'reactableId'
+  | 'averageRating'
+  | 'reactionCounts'
+  | 'assetId'
+  | 'ownerId'
+>;
+
+export interface AnnouncementRequestPayload extends Omit<AnnouncementPayload, 'negotiable'> {
+  negotiable?: boolean;
+  isNegotiable?: boolean;
 }

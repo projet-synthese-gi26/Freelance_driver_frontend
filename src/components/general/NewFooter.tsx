@@ -100,16 +100,16 @@ const NewFooter = () => {
 
             <div className="flex space-x-4">
               <Link href="https://twitter.com/yowyob" className="hover:opacity-75 transition-opacity">
-                <Image src={twitter} alt="Twitter" width={24} height={24}/>
+                <Image src={twitter} alt="Twitter" width={24} height={24} className="w-6 h-auto" />
               </Link>
               <Link href="https://www.facebook.com/YowyobInc" className="hover:opacity-75 transition-opacity">
-                <Image src={facebook} alt="Facebook" width={24} height={24}/>
+                <Image src={facebook} alt="Facebook" width={24} height={24} className="w-6 h-auto" />
               </Link>
               <Link href="https://www.instagram.com/yowyob" className="hover:opacity-75 transition-opacity">
-                <Image src={instagram} alt="Instagram" width={24} height={24}/>
+                <Image src={instagram} alt="Instagram" width={24} height={24} className="w-6 h-auto" />
               </Link>
               <Link href="https://linkedin.com/yowyob" className="hover:opacity-75 transition-opacity">
-                <Image src={linkedin} alt="LinkedIn" width={24} height={24}/>
+                <Image src={linkedin} alt="LinkedIn" width={24} height={24} className="w-6 h-auto" />
               </Link>
             </div>
           </div>

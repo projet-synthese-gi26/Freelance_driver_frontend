@@ -20,7 +20,7 @@ const Page = () => {
     const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
     const [locationInfo, setLocationInfo] = useState<string>("");
 
-    // Fonction de chargement des adresses depuis l'API
+    // Load addresses from the API
     const loadAddresses = useCallback(async () => {
         setLoading(true);
         try {
@@ -34,7 +34,7 @@ const Page = () => {
                 const newSelectedId = currentSelectionExists ? selectedAddressId : data[0].id;
                 setSelectedAddressId(newSelectedId);
                 const selected = data.find(a => a.id === newSelectedId);
-                setLocationInfo(selected?.country || "N/A");
+                setLocationInfo(selected?.city || selected?.state || "N/A");
             } else {
                 setLocationInfo("No address defined");
             }
@@ -47,50 +47,50 @@ const Page = () => {
     }, [selectedAddressId]); // On garde selectedAddressId pour re-évaluer la sélection
 
     useEffect(() => {
-        // On attend que l'utilisateur soit chargé avant de récupérer ses adresses
+        // Wait for user to load before fetching addresses
         if (!isUserLoading && user) {
             loadAddresses();
         }
     }, [isUserLoading, user, loadAddresses]);
 
-    // Gestion de la sélection
+    // Handle selection
     const handleSelectAddress = (id: string) => {
         setSelectedAddressId(id);
         const selected = addresses.find(a => a.id === id);
-        if (selected) setLocationInfo(selected.country);
+        if (selected) setLocationInfo(selected.city || selected.state || "N/A");
     };
 
-    // Gestion de la suppression via l'API
+    // Handle delete via API
     const handleDeleteAddress = async (id: string) => {
-        if (!confirm("Voulez-vous vraiment supprimer cette adresse ?")) return;
+        if (!confirm("Are you sure you want to delete this address?")) return;
         
         try {
             await addressService.deleteAddress(id);
-            toast.success("Adresse supprimée.");
+            toast.success("Address deleted.");
             // Si l'adresse supprimée était sélectionnée, on désélectionne
             if (selectedAddressId === id) setSelectedAddressId(null);
             await loadAddresses(); // Recharger la liste
         } catch (error) {
-            toast.error("Erreur lors de la suppression.");
+            toast.error("Error while deleting address.");
         }
     };
     
-    // Si l'utilisateur est en cours de chargement, afficher un loader
+    // If the user is loading, display a loader
     if (isUserLoading || loading) {
         return (
             <div className="p-6 text-center">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-                <p className="mt-4 text-gray-500">Chargement de vos adresses...</p>
+                <p className="mt-4 text-gray-500">Loading your addresses...</p>
             </div>
         );
     }
     
     return (
       <div className="p-4 md:p-6 text rounded-2xl bg-white shadow-lg mb-[20%]">
-        <h3 className="mb-4 title font-bold text-2xl flex-grow border-b pb-4"> Mes Adresses </h3>
+        <h3 className="mb-4 title font-bold text-2xl flex-grow border-b pb-4"> My Addresses </h3>
         
         <p className="text-sm text-gray-500 mb-6">
-          Gérez vos adresses de facturation et d'expédition. L'adresse sélectionnée sera utilisée par défaut.
+          Manage your billing and shipping addresses. The selected address will be used by default.
         </p>
 
         <ul className="flex flex-col gap-6">
@@ -105,8 +105,8 @@ const Page = () => {
                     />
                 ) : (
                     <EmptyJumbotron 
-                        title="Aucune adresse" 
-                        message="Vous n'avez pas encore ajouté d'adresse." 
+                        title="No address" 
+                        message="You haven't added any address yet." 
                     />
                 )}
             </li>
@@ -121,26 +121,26 @@ const Page = () => {
 
         <div className="mt-8 pt-6 border-t border-gray-100">
           <div className="flex gap-2 items-center mb-2">
-            <p className="text-sm font-semibold text-gray-600"> Localisation fiscale </p>
+            <p className="text-sm font-semibold text-gray-600"> Tax location </p>
             <Link
               href="#"
               className="text-sm text-blue-600 hover:underline font-medium">
-              Plus d'infos
+              More info
             </Link>
           </div>
           <h5 className="text-gray-700 font-bold text-lg">
-            {locationInfo} - 20.00% TVA
+            {locationInfo} - 20.00% VAT
           </h5>
         </div>
         
         <div className="mt-2">
           <p className="text-sm text-gray-500 mb-1">
-            Votre localisation fiscale détermine les taxes appliquées à vos factures.
+            Your tax location determines the taxes applied to your invoices.
           </p>
           <Link
             href="#"
             className="text-sm text-blue-600 hover:underline font-medium">
-            Comment corriger ma localisation ?
+            How do I correct my tax location?
           </Link>
         </div>
       </div>

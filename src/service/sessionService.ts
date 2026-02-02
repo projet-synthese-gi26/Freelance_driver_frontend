@@ -12,7 +12,18 @@ export const sessionService = {
    * Récupère le token d'authentification depuis les cookies.
    */
   getAuthToken: () => {
-    return Cookies.get(TOKEN_KEY);
+    const cookieToken = Cookies.get(TOKEN_KEY);
+    if (cookieToken) return cookieToken;
+    if (typeof window === 'undefined') return undefined;
+    const profileString = localStorage.getItem(PROFILE_KEY);
+    if (!profileString) return undefined;
+    try {
+      const context: UserSessionContext = JSON.parse(profileString);
+      return context.accessToken;
+    } catch (error) {
+      console.error("Erreur parsing access token:", error);
+      return undefined;
+    }
   },
 
   getRefreshToken: () => {

@@ -20,11 +20,11 @@ const Page = () => {
   const loadVehicles = useCallback(async () => {
     setLoading(true);
     try {
-      const data = await vehicleService.getAllVehicles();
+      const data = await vehicleService.getVehicles();
       setVehicles(data);
     } catch (error) {
       console.error(error);
-      toast.error("Impossible de charger vos véhicules.");
+      toast.error("Unable to load vehicles.");
     } finally {
       setLoading(false);
     }
@@ -40,14 +40,14 @@ const Page = () => {
   };
 
   const handleDeleteClick = async (vehicle: Vehicle) => {
-    if (!confirm(`Voulez-vous vraiment supprimer la ${vehicle.model} ?`)) return;
+    if (!confirm(`Are you sure you want to delete this vehicle?`)) return;
 
     try {
-        await vehicleService.deleteVehicle(vehicle.id);
-        setVehicles(prev => prev.filter(v => v.id !== vehicle.id));
-        toast.success("Véhicule supprimé.");
+        await vehicleService.deleteVehicle(vehicle.vehicleId);
+        setVehicles(prev => prev.filter(v => v.vehicleId !== vehicle.vehicleId));
+        toast.success("Vehicle deleted.");
     } catch (error) {
-        toast.error("Erreur lors de la suppression.");
+        toast.error("Error while deleting vehicle.");
     }
   };
 
@@ -73,7 +73,7 @@ const Page = () => {
   return (
     <div className='p-4 md:p-6 max-w-7xl mx-auto'>
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-2xl font-bold text-gray-800">Mes Véhicules</h1>
+        <h1 className="text-2xl font-bold text-gray-800">My Vehicles</h1>
         <button
             onClick={() => {
                 setSelectedVehicle(null);
@@ -82,23 +82,23 @@ const Page = () => {
             className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition shadow-sm"
         >
             <PlusIcon className="w-5 h-5" />
-            <span>Nouveau Véhicule</span>
+            <span>New Vehicle</span>
         </button>
       </div>
 
       {loading ? (
-        <div className="text-center py-20 text-gray-500">Chargement...</div>
+        <div className="text-center py-20 text-gray-500">Loading...</div>
       ) : vehicles.length === 0 ? (
         <EmptyJumbotron 
-            title="Aucun véhicule" 
-            message="Vous n'avez pas encore ajouté de véhicule à votre flotte." 
+            title="No vehicles" 
+            message="You haven't added any vehicles yet." 
             icon="/img/car-placeholder.png" // Assurez-vous d'avoir une icône ou utilisez celle par défaut
         />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {vehicles.map(vehicle => (
                 <VehicleCard 
-                    key={vehicle.id}
+                    key={vehicle.vehicleId}
                     vehicle={vehicle}
                     onEdit={handleEditClick}
                     onDelete={handleDeleteClick}

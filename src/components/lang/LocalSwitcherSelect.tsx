@@ -23,38 +23,14 @@ export default function LocaleSwitcherSelect({
                                              }: Props) {
   const t = useTranslations("Freelance.footer");
   const [isPending, startTransition] = useTransition();
-  const [lang, setLang] = useState(t("language"));
-  const [langD, setLangD] = useState(t("languageDark"));
+  const [lang, setLang] = useState('English');
+  const [langD, setLangD] = useState('EN');
 
   useEffect(() => {
     // Function to update language state based on locale
-    const updateLanguage = (locale: string) => {
-      switch (locale) {
-        case 'en':
-          setLangD('EN');
-          setLang('English');
-          break;
-        case 'fr':
-          setLangD('FR');
-          setLang('Français');
-          break;
-        case 'de':
-          setLangD('DE');
-          setLang('Deutsch');
-          break;
-        case 'es':
-          setLangD('ES');
-          setLang('Spanish');
-          break;
-        default:
-          setLangD(t("languageDark"));
-          setLang(t("language"));
-      }
-    };
-
-    // Update language state when the defaultValue changes
-    updateLanguage(defaultValue);
-  }, [defaultValue, t]);
+    setLang('English');
+    setLangD('EN');
+  }, [defaultValue]);
 
   function onChange(value: string) {
     const locale = value as Locale;

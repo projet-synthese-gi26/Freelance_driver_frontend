@@ -12,23 +12,25 @@ import { toast } from 'react-hot-toast';
 
 // SERVICES
 import { addressService } from '@/service/addressService';
-import { sessionService } from '@/service/sessionService';
-import { Address } from '@/type/address';
-import { parseAddress } from './AdressParser';
+import { Address, AddressPayload } from '@/type/address';
 
 // Type pour le formulaire (basé sur Address)
 type AddressFormData = {
-    title: string;
-    street: string;
+    type: string;
+    addressLine1: string;
+    addressLine2: string;
     city: string;
+    state: string;
     zipCode: string;
-    country: string;
+    neighborhood: string;
+    isDefault: boolean;
 };
 
 interface BillingFormProps {
     status: 'add' | 'update';
     addressToEdit?: Address;
     onSuccess: () => void;
+    scope?: 'client' | 'driver';
 }
 
 interface Suggestion {
@@ -36,7 +38,7 @@ interface Suggestion {
     address: any;
 }
 
-const BillingForm = ({ status, addressToEdit, onSuccess }: BillingFormProps) => {
+const BillingForm = ({ status, addressToEdit, onSuccess, scope = 'client' }: BillingFormProps) => {
     const theme = useTheme();
     const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
     const [open, setOpen] = useState(false);
@@ -48,16 +50,19 @@ const BillingForm = ({ status, addressToEdit, onSuccess }: BillingFormProps) => 
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     // Watch pour l'autocomplétion
-    const streetValue = watch('street');
+    const streetValue = watch('addressLine1');
 
     // Pré-remplir le formulaire en mode édition
     useEffect(() => {
         if (open && status === 'update' && addressToEdit) {
-            setValue('title', addressToEdit.title);
-            setValue('street', addressToEdit.street);
-            setValue('city', addressToEdit.city);
-            setValue('zipCode', addressToEdit.zipCode);
-            setValue('country', addressToEdit.country);
+            setValue('type', addressToEdit.type || '');
+            setValue('addressLine1', addressToEdit.addressLine1 || '');
+            setValue('addressLine2', addressToEdit.addressLine2 || '');
+            setValue('city', addressToEdit.city || '');
+            setValue('state', addressToEdit.state || '');
+            setValue('zipCode', addressToEdit.zipCode || '');
+            setValue('neighborhood', addressToEdit.neighborhood || '');
+            setValue('isDefault', Boolean(addressToEdit.isDefault));
         } else if (open && status === 'add') {
             reset(); // Réinitialiser pour un nouvel ajout
         }
@@ -88,14 +93,12 @@ const BillingForm = ({ status, addressToEdit, onSuccess }: BillingFormProps) => 
     }, [streetValue]);
 
     const handleSelectSuggestion = (suggestion: Suggestion) => {
-        const parsed = parseAddress(suggestion.display_name); // Assurez-vous que votre fonction parseAddress est compatible
-        // Ou utiliser directement les champs de nominatim
         const addr = suggestion.address;
         
-        setValue('street', addr.road || addr.pedestrian || suggestion.display_name.split(',')[0]);
+        setValue('addressLine1', addr.road || addr.pedestrian || suggestion.display_name.split(',')[0]);
         setValue('city', addr.city || addr.town || addr.village || '');
         setValue('zipCode', addr.postcode || '');
-        setValue('country', addr.country || '');
+        setValue('state', addr.state || '');
         
         setSuggestions([]); // Fermer la liste
     };
@@ -104,28 +107,39 @@ const BillingForm = ({ status, addressToEdit, onSuccess }: BillingFormProps) => 
     const onSubmit = async (data: AddressFormData) => {
         setIsSubmitting(true);
         try {
-            // Récupérer l'ID utilisateur
-            const userContext = await sessionService.getUserContext();
-            const userId = userContext?.id;
-
-            if (!userId) {
-                toast.error("Utilisateur non connecté.");
-                return;
-            }
+            const payload: AddressPayload = {
+                addressableType: 'ORGANISATION',
+                type: data.type || null,
+                addressLine1: data.addressLine1,
+                addressLine2: data.addressLine2 || null,
+                city: data.city || null,
+                state: data.state || null,
+                zipCode: data.zipCode || null,
+                neighborhood: data.neighborhood || null,
+                isDefault: data.isDefault || false,
+            };
 
             if (status === 'add') {
-                await addressService.createAddress(data, userId);
-                toast.success("Adresse ajoutée !");
+                if (scope === 'driver') {
+                    await addressService.createDriverAddress(payload);
+                } else {
+                    await addressService.createAddress(payload);
+                }
+                toast.success("Address added.");
             } else if (status === 'update' && addressToEdit) {
-                await addressService.updateAddress(addressToEdit.id, data, userId);
-                toast.success("Adresse mise à jour !");
+                if (scope === 'driver') {
+                    await addressService.updateDriverAddress(addressToEdit.id, payload);
+                } else {
+                    await addressService.updateAddress(addressToEdit.id, payload);
+                }
+                toast.success("Address updated.");
             }
             
             onSuccess(); // Recharger la liste parente
             handleClose();
         } catch (error) {
             console.error("Erreur sauvegarde:", error);
-            toast.error("Une erreur est survenue.");
+            toast.error("Something went wrong.");
         } finally {
             setIsSubmitting(false);
         }
@@ -178,9 +192,9 @@ const BillingForm = ({ status, addressToEdit, onSuccess }: BillingFormProps) => 
                         
                         {/* Titre */}
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Title (e.g., Home, Work)</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Type (e.g., Home, Work)</label>
                             <input
-                                {...register('title', { required: true })}
+                                {...register('type', { required: true })}
                                 placeholder="Home"
                                 className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
                             />
@@ -188,10 +202,10 @@ const BillingForm = ({ status, addressToEdit, onSuccess }: BillingFormProps) => 
 
                         {/* Rue avec Autocomplétion */}
                         <div className="relative">
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Address / Street</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Address line 1</label>
                             <div className="relative">
                                 <input
-                                    {...register('street', { required: true })}
+                                    {...register('addressLine1', { required: true })}
                                     placeholder="123 Main St"
                                     autoComplete="off"
                                     className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
@@ -229,22 +243,43 @@ const BillingForm = ({ status, addressToEdit, onSuccess }: BillingFormProps) => 
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Postal Code</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">State</label>
                                 <input
-                                    {...register('zipCode', { required: true })}
+                                    {...register('state')}
                                     className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
                                 />
                             </div>
                         </div>
 
-                        {/* Pays */}
+                        <div className="grid grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Postal Code</label>
+                                <input
+                                    {...register('zipCode')}
+                                    className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Neighborhood</label>
+                                <input
+                                    {...register('neighborhood')}
+                                    className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                                />
+                            </div>
+                        </div>
+
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Country</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Address line 2 (optional)</label>
                             <input
-                                {...register('country', { required: true })}
+                                {...register('addressLine2')}
                                 className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
                             />
                         </div>
+
+                        <label className="flex items-center gap-3 text-sm font-medium text-gray-700">
+                            <input type="checkbox" {...register('isDefault')} className="accent-blue-600" />
+                            Set as default address
+                        </label>
                     </form>
                 </DialogContent>
 

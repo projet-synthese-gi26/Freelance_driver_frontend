@@ -10,6 +10,10 @@ export default function LocaleSwitcher({status}:props) {
     const t = useTranslations('LocaleSwitcher');
     const locale = useLocale();
 
+    if (locale === 'en') {
+        return null;
+    }
+
     return (
 
 
@@ -20,18 +24,7 @@ export default function LocaleSwitcher({status}:props) {
                     value: 'en',
                     label: 'English'
                 },
-                {
-                    value: 'fr',
-                    label: 'Français'
-                },
-                {
-                    value: 'de',
-                    label: 'Deutsh'
-                },
-                {
-                    value: 'es',
-                    label: 'Spanish'
-                }
+                
             ]}
             label={t('label')}
             status={status}

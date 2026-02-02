@@ -50,4 +50,34 @@ apiClient.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
+apiClient.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const originalRequest = error?.config;
+    if (error?.response?.status === 401 && !originalRequest?._retry) {
+      originalRequest._retry = true;
+      const refreshToken = sessionService.getRefreshToken();
+      if (refreshToken) {
+        const response = await refreshClient.post('/api/auth/refresh', { refreshToken });
+        sessionService.setTokens(response.data.accessToken, response.data.refreshToken);
+        const currentContext = sessionService.getUserSessionContext();
+        if (currentContext && response.data?.user) {
+          sessionService.saveSessionContext({
+            ...currentContext,
+            accessToken: response.data.accessToken,
+            refreshToken: response.data.refreshToken ?? currentContext.refreshToken,
+            user: response.data.user,
+          });
+        }
+        originalRequest.headers = {
+          ...(originalRequest.headers || {}),
+          Authorization: `Bearer ${response.data.accessToken}`,
+        };
+        return apiClient(originalRequest);
+      }
+    }
+    return Promise.reject(error);
+  }
+);
+
 export default apiClient;

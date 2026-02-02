@@ -16,11 +16,14 @@ import EmptyJumbotron from '@/components/EmptyJumbotron';
 // ONGLETS DE STATUT
 const STATUS_TABS = [
     { id: 'All', label: 'Tous', color: 'bg-blue-600' },
-    { id: 'Draft', label: 'Brouillon', color: 'bg-gray-500' },
-    { id: 'Published', label: 'Publié', color: 'bg-green-600' },
-    { id: 'Confirmed', label: 'Confirmé', color: 'bg-blue-500' },
-    { id: 'Ongoing', label: 'En cours', color: 'bg-orange-500' },
-    { id: 'Expired', label: 'Expiré', color: 'bg-gray-400' }
+    { id: 'Draft', label: 'Draft', color: 'bg-gray-500' },
+    { id: 'Published', label: 'Published', color: 'bg-green-600' },
+    { id: 'PendingConfirmation', label: 'Pending', color: 'bg-yellow-500' },
+    { id: 'PendingDriverConfirmation', label: 'Driver Pending', color: 'bg-yellow-500' },
+    { id: 'Confirmed', label: 'Confirmed', color: 'bg-blue-500' },
+    { id: 'Ongoing', label: 'Ongoing', color: 'bg-orange-500' },
+    { id: 'Terminated', label: 'Terminated', color: 'bg-gray-600' },
+    { id: 'Expired', label: 'Expired', color: 'bg-gray-400' }
 ];
 
 const Page = () => {
@@ -57,7 +60,7 @@ const Page = () => {
         const matchesTab = activeTab === 'All' || p.status === activeTab;
         const matchesSearch = searchQuery === '' || 
           (p.title?.toLowerCase().includes(searchQuery.toLowerCase()) || 
-           p.pickupLocation?.toLowerCase().includes(searchQuery.toLowerCase()));
+           p.departureLocation?.toLowerCase().includes(searchQuery.toLowerCase()));
         return matchesTab && matchesSearch;
     });
 
@@ -78,7 +81,29 @@ const Page = () => {
         setPlannings(prev => prev.map(p => p.id === data.id ? { ...p, status: newStatus } : p));
         
         try {
-            await planningService.updatePlanning(data.id, { ...data, status: newStatus });
+            const {
+                id,
+                orgId,
+                clientId,
+                clientName,
+                clientPhoneNumber,
+                profileImageUrl,
+                reservedById,
+                paymentMethod,
+                createdAt,
+                updatedAt,
+                metadata,
+                reviewableType,
+                reactableType,
+                reviewableId,
+                reactableId,
+                averageRating,
+                reactionCounts,
+                assetId,
+                ownerId,
+                ...payload
+            } = data;
+            await planningService.updatePlanning(data.id, { ...payload, status: newStatus });
             toast.success(action === 'publish' ? 'Planning publié !' : 'Planning retiré.');
         } catch (error) {
             toast.error("Erreur lors de la mise à jour.");
@@ -101,12 +126,12 @@ const Page = () => {
     return (
         <div className="p-4 md:p-6 max-w-7xl mx-auto">
             <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
-                <h1 className="text-2xl font-bold text-gray-800">Gestion des Plannings</h1>
+                <h1 className="text-2xl font-bold text-gray-800">Planning Management</h1>
                 <button 
                     onClick={handleAddNew}
                     className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition shadow-sm"
                 >
-                    <PlusIcon className="w-5 h-5 mr-2" /> Nouveau Planning
+                    <PlusIcon className="w-5 h-5 mr-2" /> New Planning
                 </button>
             </div>
 
@@ -115,7 +140,7 @@ const Page = () => {
                 <div className="relative">
                     <input 
                         type="text" 
-                        placeholder="Rechercher un planning..." 
+                        placeholder="Search a planning..." 
                         className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
@@ -146,7 +171,7 @@ const Page = () => {
 
             {/* Liste */}
             {loading ? (
-                <div className="text-center py-20">Chargement...</div>
+                <div className="text-center py-20">Loading...</div>
             ) : filteredPlannings.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {filteredPlannings.map(planning => (
@@ -161,8 +186,8 @@ const Page = () => {
                 </div>
             ) : (
                 <EmptyJumbotron 
-                    title="Aucun planning" 
-                    message="Vous n'avez aucun planning correspondant à vos critères." 
+                    title="No planning" 
+                    message="You have no plannings matching your criteria." 
                 />
             )}
 

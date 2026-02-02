@@ -20,7 +20,7 @@ const TeamMember = ({photo,name,title,role,twitter,facebook,linkedin}:Profile) =
   return (
     <div className='flex flex-col items-center'>
       <div className='flex flex-col items-center pt-10 pb-4'>
-        <Image src={photo} alt='profile' width={100}/>
+        <Image src={photo} alt='profile' width={100} height={100} className="w-[100px] h-auto" />
         <div className='flex flex-col items-center'>
           <p className='font-bold pt-4'>{name}</p>
           <p className='font-medium'>{title}</p>
@@ -28,9 +28,9 @@ const TeamMember = ({photo,name,title,role,twitter,facebook,linkedin}:Profile) =
         </div>
       </div>
       <div className='flex flex-row space-x-4'>
-        <Link href={twitter}><Image src={twit} alt='profile' width={20} height={20}/></Link>
-        <Link href={linkedin}><Image src={link} alt='profile' width={20} height={20}/></Link>
-        <Link href={facebook}><Image src={face} alt='profile' width={20} height={20}/></Link>
+        <Link href={twitter}><Image src={twit} alt='profile' width={20} height={20} className="w-5 h-auto" /></Link>
+        <Link href={linkedin}><Image src={link} alt='profile' width={20} height={20} className="w-5 h-auto" /></Link>
+        <Link href={facebook}><Image src={face} alt='profile' width={20} height={20} className="w-5 h-auto" /></Link>
       </div>
     </div>
   )

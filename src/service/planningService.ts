@@ -1,147 +1,79 @@
 // src/services/planningService.ts
 
 import apiClient from './apiClient';
-import axios from 'axios';
-import { PublicOfferView, mapProductToPublicView } from './announcementService';
-import { Planning as PlanningType, PlanningStatus } from '@/type/planning';
+import { Planning, PlanningPayload } from '@/type/planning';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
+const mapBackendPlanning = (planning: any): Planning => ({
+  id: planning.id,
+  orgId: planning.orgId ?? null,
+  clientId: planning.clientId ?? null,
+  clientName: planning.clientName ?? null,
+  clientPhoneNumber: planning.clientPhoneNumber ?? null,
+  profileImageUrl: planning.profileImageUrl ?? null,
+  title: planning.title ?? '',
+  departureLocation: planning.departureLocation ?? '',
+  dropoffLocation: planning.dropoffLocation ?? '',
+  startDate: planning.startDate ?? '',
+  startTime: planning.startTime ?? '',
+  endDate: planning.endDate ?? '',
+  endTime: planning.endTime ?? '',
+  reservedById: planning.reservedById ?? null,
+  paymentMethod: planning.paymentMethod ?? null,
+  status: planning.status,
+  createdAt: planning.createdAt ?? null,
+  updatedAt: planning.updatedAt ?? null,
+  tripType: planning.tripType,
+  meetupPoint: planning.meetupPoint ?? '',
+  tripIntention: planning.tripIntention,
+  pricingMethod: planning.pricingMethod,
+  metadata: planning.metadata ?? [],
+  paymentOption: planning.paymentOption,
+  regularAmount: planning.regularAmount?.toString() ?? '0',
+  discountPercentage: planning.discountPercentage?.toString() ?? '0',
+  discountedAmount: planning.discountedAmount?.toString() ?? '0',
+  negotiable: Boolean(planning.negotiable ?? planning.isNegotiable),
+  reviewableType: planning.reviewableType,
+  reactableType: planning.reactableType,
+  reviewableId: planning.reviewableId,
+  reactableId: planning.reactableId,
+  averageRating: planning.averageRating ?? 0,
+  reactionCounts: planning.reactionCounts ?? {},
+  assetId: planning.assetId,
+  ownerId: planning.ownerId,
+});
 
-const mapBackendProductToPlanningPrivateView = (product: any): PlanningType => {
-  return {
-    id: product.key?.id || product.id || '',
-    title: product.name || 'Sans titre',
-    pickupLocation: product.pickupLocation || '',
-    dropoffLocation: product.dropoffLocation || '',
-    startDate: product.startDate || '',
-    startTime: product.startTime || '',
-    endDate: product.endDate || '',
-    endTime: product.endTime || '',
-    paymentOption: product.metadata?.paymentOption,
-    regularAmount: product.metadata?.regularAmount?.toString(),
-    discountPercentage: product.metadata?.discountPercentage,
-    discountedAmount: product.metadata?.discountedAmount?.toString(),
-    status: product.status as PlanningStatus || 'Draft',
-    clientId: product.clientId || '',
-    clientName: product.clientName || '',
-    clientPhoneNumber: product.clientPhoneNumber || '',
-    profileImageUrl: product.clientProfileImageUrl || undefined,
-    isNegotiable: product.isNegotiable ?? false,
-    paymentMethod: product.paymentMethod ?? 'cash',
-  };
-};
-
-const mapPlanningFormToBackendPayload = (formData: Partial<PlanningType>) => {
-  return {
-    name: formData.title,
-    defaultSellPrice: parseFloat(formData.regularAmount || '0'), 
-    // shortDescription: formData.baggageInfo, // Removed because baggageInfo does not exist on PlanningType
-    pickupLocation: formData.pickupLocation,
-    dropoffLocation: formData.dropoffLocation,
-    startDate: formData.startDate,
-    startTime: formData.startTime,
-    endDate: formData.endDate,
-    endTime: formData.endTime,
-    status: formData.status,
-    isNegotiable: false,
-    paymentMethod: 'cash',
-    clientId: formData.clientId,
-    clientName: formData.clientName,
-    clientPhoneNumber: formData.clientPhoneNumber,
-    clientProfileImageUrl: formData.profileImageUrl,
-    metadata: { 
-        paymentOption: formData.paymentOption || 'fixed',
-        regularAmount: formData.regularAmount || '0',
-        discountPercentage: formData.discountPercentage || '0',
-        discountedAmount: formData.discountedAmount || '0',
-    },
-  };
-};
-
+const mapPlanningPayload = (planning: PlanningPayload) => ({
+  ...planning,
+  isNegotiable: planning.negotiable,
+  regularAmount: planning.regularAmount?.toString() ?? '0',
+  discountPercentage: planning.discountPercentage?.toString() ?? '0',
+  discountedAmount: planning.discountedAmount?.toString() ?? '0',
+});
 
 export const planningService = {
-    // --- RECHERCHE PUBLIQUE (Sans Token) ---
+  getMyPlannings: async (): Promise<Planning[]> => {
+    const response = await apiClient.get('/api/v1/driver/plannings');
+    return response.data.map(mapBackendPlanning);
+  },
 
-    getPublishedPlannings: async (): Promise<PublicOfferView[]> => {
-      // Appel direct sans auth
-      const response = await axios.get(`${API_URL}/api/planning/published`);
-      return response.data.map(mapProductToPublicView);
-    },
-    
-    getPlanningsByDriver: async (driverId: string): Promise<PublicOfferView[]> => {
-        // Appel direct sans auth
-        const response = await axios.get(`${API_URL}/api/planning/user/${driverId}`);
-        return response.data.map(mapProductToPublicView);
-    },
+  getPlanningById: async (id: string): Promise<Planning> => {
+    const response = await apiClient.get(`/api/v1/driver/plannings/${id}`);
+    return mapBackendPlanning(response.data);
+  },
 
-    // --- CLIENT (Mes Réservations - Avec Token) ---
+  createPlanning: async (planning: PlanningPayload): Promise<Planning> => {
+    const payload = mapPlanningPayload(planning);
+    const response = await apiClient.post('/api/v1/driver/plannings', payload);
+    return mapBackendPlanning(response.data);
+  },
 
-    getMyReservedRides: async (): Promise<PublicOfferView[]> => { 
-      try {
-        const response = await apiClient.get('/api/planning/my-reservations');
-        return response.data.map(mapProductToPublicView);
-      } catch (error) {
-        console.error('Error fetching client reservations:', error);
-        throw error;
-      }
-    },
-    
-    requestPlanningBooking: async (planningId: string): Promise<PublicOfferView> => {
-      try {
-        console.log(`▶️ Client demande à réserver le planning ID: ${planningId}`);
-        const response = await apiClient.post(`/api/planning/${planningId}/request-booking`, {});
-        return mapProductToPublicView(response.data);
-      } catch (error) {
-        console.error('Error requesting planning booking:', error);
-        throw error;
-      }
-    },
+  updatePlanning: async (id: string, planning: PlanningPayload): Promise<Planning> => {
+    const payload = mapPlanningPayload(planning);
+    const response = await apiClient.put(`/api/v1/driver/plannings/${id}`, payload);
+    return mapBackendPlanning(response.data);
+  },
 
-    cancelReservation: async (planningId: string): Promise<PublicOfferView> => {
-      try {
-        console.log(`▶️ Client annule sa réservation pour le planning ID: ${planningId}`);
-        const response = await apiClient.post(`/api/planning/${planningId}/cancel-reservation`, {});
-        return mapProductToPublicView(response.data);
-      } catch (error) {
-        console.error('Error cancelling reservation:', error);
-        throw error;
-      }
-    },
-
-    // --- CHAUFFEUR (Mes Plannings - Avec Token) ---
-
-    getMyPlannings: async (): Promise<PlanningType[]> => {
-        const response = await apiClient.get('/api/planning');
-        return response.data.map(mapBackendProductToPlanningPrivateView);
-    },
-
-    createPlanning: async (planning: Partial<PlanningType>): Promise<PlanningType> => {
-        const payload = mapPlanningFormToBackendPayload(planning);
-        const response = await apiClient.post('/api/planning', payload);
-        return mapBackendProductToPlanningPrivateView(response.data);
-    },
-
-    updatePlanning: async (id: string, planning: Partial<PlanningType>): Promise<PlanningType> => {
-        const payload = mapPlanningFormToBackendPayload(planning);
-        const response = await apiClient.put(`/api/planning/${id}`, payload);
-        return mapBackendProductToPlanningPrivateView(response.data);
-    },
-
-    deletePlanning: async (id: string): Promise<void> => {
-        await apiClient.delete(`/api/planning/${id}`);
-    },
-
-    confirmPlanningBooking: async (planningId: string, clientId: string): Promise<PublicOfferView> => {
-      try {
-        console.log(`▶️ Chauffeur confirme la réservation ID: ${planningId}`);
-        const response = await apiClient.post(
-          `/api/planning/${planningId}/confirm-booking?clientId=${clientId}`,
-          {}
-        );
-        return mapProductToPublicView(response.data);
-      } catch (error) {
-        console.error('Error confirming planning booking:', error);
-        throw error;
-      }
-    },
+  deletePlanning: async (id: string): Promise<void> => {
+    await apiClient.delete(`/api/v1/driver/plannings/${id}`);
+  },
 };

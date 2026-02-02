@@ -13,30 +13,29 @@ import BillingForm from "@/components/customer/address/BillingForm";
 import EmptyJumbotron from "@/components/EmptyJumbotron"; // Assurez-vous que ce composant existe
 
 const Page = () => {
-    // État pour stocker les vraies adresses venant du backend
+    // Store addresses from backend
     const [addresses, setAddresses] = useState<Address[]>([]);
     const [loading, setLoading] = useState(true);
     const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
     const [locationInfo, setLocationInfo] = useState<string>("Loading...");
 
-    // Chargement des données depuis l'API
+    // Load addresses from the API
     const loadAddresses = useCallback(async () => {
         setLoading(true);
         try {
-            // Appel au service connecté au backend
-            const data = await addressService.getAllAddresses();
+            const data = await addressService.getDriverAddresses();
             setAddresses(data);
             
-            // Sélection par défaut de la première adresse et mise à jour de l'info de localisation
+            // Default selection and location info
             if (data.length > 0) {
                 if (!selectedAddressId) setSelectedAddressId(data[0].id);
-                setLocationInfo(data[0].country);
+                setLocationInfo(data[0].city || data[0].state || "N/A");
             } else {
                 setLocationInfo("No address defined");
             }
         } catch (error) {
-            console.error("Erreur chargement adresses", error);
-            toast.error("Impossible de récupérer vos adresses.");
+            console.error("Error loading addresses", error);
+            toast.error("Unable to fetch your addresses.");
         } finally {
             setLoading(false);
         }
@@ -46,32 +45,32 @@ const Page = () => {
         loadAddresses();
     }, [loadAddresses]);
 
-    // Gestion de la sélection d'une adresse
+    // Handle address selection
     const handleSelectAddress = (id: string) => {
         setSelectedAddressId(id);
         const selected = addresses.find(a => a.id === id);
         if (selected) {
-            setLocationInfo(selected.country);
+            setLocationInfo(selected.city || selected.state || "N/A");
         }
     };
 
-    // Gestion de la suppression via l'API
+    // Handle delete via API
     const handleDeleteAddress = async (id: string) => {
-        if (!confirm("Voulez-vous vraiment supprimer cette adresse ?")) return;
+        if (!confirm("Are you sure you want to delete this address?")) return;
         
         try {
-            await addressService.deleteAddress(id);
-            toast.success("Adresse supprimée.");
+            await addressService.deleteDriverAddress(id);
+            toast.success("Address deleted.");
             loadAddresses(); // Rafraîchir la liste
         } catch (error) {
             console.error(error);
-            toast.error("Erreur lors de la suppression.");
+            toast.error("Error while deleting address.");
         }
     };
 
     return (
       <div className="p-3 text rounded-2xl bg-white shadow-3 mb-[20%]">
-        <h3 className="mb-0 title font-bold flex-grow"> My Address </h3>
+        <h3 className="mb-0 title font-bold flex-grow"> My Addresses </h3>
         <div className="border border-t my-3"></div>
         <p className="text-sm clr-neutral-500 mb-3">
           Cards will be charged either at the end of the month or whenever your
@@ -79,7 +78,7 @@ const Page = () => {
         </p>
 
         {loading ? (
-            <div className="text-center py-10">Chargement de vos adresses...</div>
+            <div className="text-center py-10">Loading your addresses...</div>
         ) : (
             <ul className="flex flex-col gap-6">
                 <li>
@@ -90,20 +89,22 @@ const Page = () => {
                             onSelect={handleSelectAddress}
                             onDelete={handleDeleteAddress}
                             onUpdateSuccess={loadAddresses}
+                            scope="driver"
                         />
                     ) : (
                         <EmptyJumbotron 
-                            title="Aucune adresse" 
-                            message="Vous n'avez pas encore ajouté d'adresse professionnelle." 
+                            title="No address" 
+                            message="You haven't added any business address yet." 
                         />
                     )}
                 </li>
                 
                 <li className="items-center justify-center flex w-full">
-                    {/* Le formulaire d'ajout connecté au backend */}
+                    {/* The add form connected to the backend */}
                     <BillingForm 
                         status="add" 
                         onSuccess={loadAddresses} 
+                        scope="driver"
                     />
                 </li>
             </ul>
@@ -120,7 +121,7 @@ const Page = () => {
           </div>
           <h5 className="clr-neutral-500 font-semibold">
             {" "}
-            {locationInfo} - 20.00% SST{" "}
+            {locationInfo} - 20.00% VAT{" "}
           </h5>
         </div>
         <div className="">
