@@ -11,7 +11,6 @@ import ClientRootLayout from '@/app/layout/clientLayout';
 import NewFooter from "@/components/general/NewFooter";
 import NewHeader from "@/components/general/NewHeader";
 import AuthLayoutContent from "@/app/layout/authLayout";
-import { URL } from "url";
 import {Toaster} from "react-hot-toast";
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -47,7 +46,21 @@ export default async function RootLayout({
     const messages = await getMessages();
     return (
 
-        <html lang={locale}>
+        <html lang={locale} suppressHydrationWarning>
+        <head>
+            <script
+                dangerouslySetInnerHTML={{
+                    __html: `(() => {
+  try {
+    const stored = localStorage.getItem('theme');
+    const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const theme = stored === 'dark' || stored === 'light' ? stored : (prefersDark ? 'dark' : 'light');
+    document.documentElement.classList.toggle('dark', theme === 'dark');
+  } catch (e) {}
+})();`,
+                }}
+            />
+        </head>
         <body className="bg-[var(--bg-1)] text-[var(--neutral-700)] flex flex-col min-h-screen">
         <ToastContainer />
         <Toaster toastOptions={{ duration: 4000 }} />

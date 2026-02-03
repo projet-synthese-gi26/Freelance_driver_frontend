@@ -6,9 +6,11 @@ import Image from 'next/image';
 import { sessionService } from '@/service/sessionService';
 import { UserSessionContext } from '@/type/profile';
 import logo from '@public/img/MainLogo1.png'; // Assurez-vous que le chemin est bon
+import { useTranslations } from 'next-intl';
 
 export default function ChooseProfilePage() {
     const router = useRouter();
+    const t = useTranslations('Auth.chooseProfile');
     const [userContext, setUserContext] = useState<UserSessionContext | null>(null);
 
     useEffect(() => {
@@ -40,25 +42,25 @@ export default function ChooseProfilePage() {
                     <Image src={logo} alt="Logo" width={100} height={80} />
                 </div>
                 
-                <h1 className="text-2xl font-bold text-gray-900 mb-2">Welcome Back!</h1>
-                <p className="text-gray-600 mb-8">Please choose how you want to continue.</p>
+                <h1 className="text-2xl font-bold text-gray-900 mb-2">{t('title')}</h1>
+                <p className="text-gray-600 mb-8">{t('subtitle')}</p>
 
                 <div className="space-y-4">
-                    {userContext.roles.includes('DRIVER') && (
+                    {userContext.user.roles.some((r) => r.roleType === 'DRIVER') && (
                         <button
                             onClick={() => handleChooseRole('DRIVER')}
                             className="w-full py-4 bg-blue-600 text-white rounded-xl font-bold text-lg hover:bg-blue-700 transition shadow-md hover:shadow-lg flex items-center justify-center"
                         >
-                            Continue as Driver
+                            {t('continueDriver')}
                         </button>
                     )}
 
-                    {userContext.roles.includes('CLIENT') && (
+                    {userContext.user.roles.some((r) => r.roleType === 'CLIENT') && (
                         <button
                             onClick={() => handleChooseRole('CLIENT')}
                             className="w-full py-4 bg-green-500 text-white rounded-xl font-bold text-lg hover:bg-green-600 transition shadow-md hover:shadow-lg flex items-center justify-center"
                         >
-                            Continue as Passenger
+                            {t('continuePassenger')}
                         </button>
                     )}
                 </div>

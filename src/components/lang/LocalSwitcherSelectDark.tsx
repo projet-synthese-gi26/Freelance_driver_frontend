@@ -23,18 +23,11 @@ export default function LocaleSwitcherSelect({
   const [lang,setLang]=useState(t("languageDark"))
   function onChange(value: string) {
     const locale = value as Locale;
-    if (locale==='en') {
-      setLang('EN')
-    }
-    if (locale==='fr') {
-      setLang('FR')
-    }
-    if (locale==='de') {
-      setLang('DE')
-    }
-    if (locale==='es') {
-      setLang('ES')
-    }
+    if (value === 'en') setLang('EN');
+if (value === 'fr') setLang('FR');
+if (value === 'de') setLang('DE');
+if (value === 'es') setLang('ES');
+
 
     startTransition(() => {
       setUserLocale(locale);

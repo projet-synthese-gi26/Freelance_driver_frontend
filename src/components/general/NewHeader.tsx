@@ -8,62 +8,40 @@ import NavVer from "@/components/others/NavVer";
 import { HiOutlineMenu, HiX } from "react-icons/hi";
 import { useTranslations } from "next-intl";
 import { useAuthModal } from "@/hook/AuthModalContext";
-import LocaleSwitcher from "@/components/lang/LocalSwitcher";
 import { useAuthContext } from "@/components/context/authContext";
 import { MyAccountAvatar } from "@/components/general/MyAccountAvatar";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import Header from "../landingpage/Header";
+import ThemeToggle from "@/components/theme/ThemeToggle";
+import { useLocale } from "next-intl";
+import { useTransition } from "react";
+import type { Locale } from "@/config";
+import { setUserLocale } from "@/service/locale";
 
 const NewHeader = () => {
-
-  const pathToRoute: Record<string, string> = {
-    driver: '/driver',
-    freelance: '/freelance',
-    institution: '/institution',
-    passenger: '/passenger',
-    agency: '/agency', // optionnel
-  };
-
-  const pathname = usePathname() || ""; // fallback to empty string if null
-
-  const firstSegment = pathname.split("/")[1];
-
-  // récupère le lien de redirection
-  const logoLink = pathToRoute[firstSegment] || "/";
-
-  const isHomePage = pathname === "/"; // Vérifie si c'est la page d'accueil
-  const isDrivers = pathname.startsWith("/driver");
-  const isFreelance = pathname.startsWith("/freelance");
-  const isInstitutions = pathname.startsWith("/institution");
-  const isPassengers = pathname.startsWith("/passenger");
-  const isAgencies = pathname.startsWith("/passenger");
-
-
-  const { authUser} = useAuthContext();
-  const { openLoginModal, openRegisterModal } = useAuthModal();
+  const locale = useLocale() as Locale;
+  const router = useRouter();
+  const [, startTransition] = useTransition();
+  const pathname = usePathname() || "";
   const t = useTranslations("Freelance.header");
-  const [visible, setVisible] = useState(false);
+  const { authUser } = useAuthContext();
+  const { openLoginModal, openRegisterModal } = useAuthModal();
   const [dark, setDark] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
-  const navbarVisible = () => {
-    if (window.scrollY > 10 && window.scrollY < window.innerHeight - 80) {
-      setVisible(true);
-      setDark(false);
-    } else if (window.scrollY >= window.innerHeight - 80) {
-      setDark(true);
-      setVisible(false);
-    } else {
-      setVisible(false);
-      setDark(false);
-    }
+  const changeLocale = (nextLocale: Locale) => {
+    startTransition(async () => {
+      await setUserLocale(nextLocale);
+      router.refresh();
+    });
   };
 
   useEffect(() => {
-    window.addEventListener("scroll", navbarVisible);
-    return () => {
-      window.removeEventListener("scroll", navbarVisible);
+    const navbarVisible = () => {
+      setDark(window.scrollY >= window.innerHeight - 80);
     };
+    window.addEventListener("scroll", navbarVisible);
+    return () => window.removeEventListener("scroll", navbarVisible);
   }, []);
 
   const nav = [
@@ -111,151 +89,92 @@ const NewHeader = () => {
         { title: t("Agency"), url: "#" },
       ],
     },
+    {
+      title: (
+        <div className="flex items-center gap-1">
+          {locale === 'fr' ? '🇫🇷' : locale === 'de' ? '🇩🇪' : locale === 'es' ? '🇪🇸' : '🇬🇧'}
+          <span className="uppercase">{locale}</span>
+        </div>
+      ),
+      url: "#",
+      reference: "lang",
+      submenu: [
+        { title: "🇬🇧 English", url: "#", action: () => changeLocale('en') },
+        { title: "🇫🇷 Français", url: "#", action: () => changeLocale('fr') },
+        { title: "🇩🇪 Deutsch", url: "#", action: () => changeLocale('de') },
+        { title: "🇪🇸 Español", url: "#", action: () => changeLocale('es') },
+      ],
+    },
   ];
-
-  const authenticationSystem = (
-    <div className="hidden lg:flex items-center space-x-4">
-      {/*<LocaleSwitcher status="dark"/>*/}
-      <button
-        className="transition-colors rounded-md hover:bg-gray-800 hover:text-white px-2 py-2"
-        onClick={openLoginModal}
-      >
-        {t("headerlogin")}
-      </button>
-      <button
-        onClick={openRegisterModal}
-        className="bg-[#243757] text-white px-3 py-2 rounded-md hover:bg-gray-800 transition-colors"
-      >
-        {t("headersign")}
-      </button>
-    </div>
-  );
-
-  const authenticationSystemRespo = (
-    <>
-      <li>
-        <button
-          onClick={openLoginModal}
-          className="w-full text-left block text-[#243757] py-1 px-2 text  hover:text-gray-900 hover:bg-gray-50"
-        >
-          {t("headerlogin")}
-        </button>
-      </li>
-      <li className="space-y-5">
-        <button
-          onClick={openRegisterModal}
-          className="text-left block py-1 px-2 text text-white bg-[#243757] rounded-3xl hover:bg-gray-800"
-        >
-          {t("headersign")}
-        </button>
-      </li>
-    </>
-  );
 
   return (
     <>
-      {isHomePage && <Header />}
+      {pathname === "/" && <Header />}
 
-      {(isDrivers || isFreelance || isAgencies || isPassengers || isInstitutions) && (
-        <header
-          className={`bg-white  font-inter w-full text-black z-10 ${dark ? "nav-color backdrop-blur-sm shadow-md" : ""
-            } border-b`}
-        >
-          <nav
-            className="container mx-auto px-4 py-1 text flex items-center justify-between"
-            aria-label="Global"
-          >
-            <div className="items-center">
-              <Link href={logoLink} className="items-center">
-                <Image src={logo} alt="logo" width={120} height={40} />
-              </Link>
-            </div>
-            <div className="hidden lg:flex items-center space-x-4">
-              <ul className="flex space-x-4 list-none">
-                {nav.map((item, index) => (
-                  <div key={index} className="relative group">
-                    <NavHor
-                      title={item.title}
-                      reference={item.reference}
-                      items={item}
-                      key={index}
-                      id={index}
-                    />
-                    {item.submenu && (
-                      <ul className="absolute left-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg hidden group-hover:block">
-                        {item.submenu.map((subItem, subIndex) => (
-                          <li key={subIndex}>
-                            <Link
-                              href={subItem.url}
-                              className="block px-4 py-2  text-gray-700 hover:bg-gray-100"
-                            >
-                              {subItem.title}
-                            </Link>
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-                  </div>
-                ))}
-              </ul>
+      <header
+        className={`bg-[var(--bg-1)] w-full text-[var(--neutral-700)] z-30 sticky top-0 border-b border-[var(--border)] ${
+          dark ? "shadow-md" : ""
+        }`}
+      >
+        <nav className="container mx-auto px-4 py-2 flex items-center justify-between">
+          <Link href="/">
+            <Image src={logo} alt="logo" width={110} height={35} />
+          </Link>
+
+          {/* DESKTOP NAV : On laisse NavHor gérer l'affichage */}
+          <div className="hidden lg:flex items-center">
+            <ul className="flex space-x-1 list-none">
+              {nav.map((item, index) => (
+                <NavHor 
+                  key={index} 
+                  title={item.title} 
+                  reference={item.reference} 
+                  items={item} // NavHor s'occupe de créer le menu déroulant
+                />
+              ))}
+            </ul>
+          </div>
+
+          <div className="flex items-center space-x-3">
+            <div className="hidden lg:flex items-center space-x-3">
+                <ThemeToggle />
+                {!authUser ? (
+                    <>
+                        <button onClick={openLoginModal} className="px-2 py-2 text-sm font-medium hover:text-blue-600 transition">{t("headerlogin")}</button>
+                        <button onClick={openRegisterModal} className="bg-[var(--neutral-700)] text-[var(--bg-1)] px-3 py-2 rounded-md text-sm font-medium">{t("headersign")}</button>
+                    </>
+                ) : <MyAccountAvatar />}
             </div>
 
-            <div className=" hidden lg:flex">
-              <LocaleSwitcher status="dark" />
-            </div>
-            {!authUser ? (
-              authenticationSystem
-            ) : (
-              <div className=" hidden lg:flex">
-                <MyAccountAvatar />
-              </div>
-            )}
-
-            <div className="lg:hidden">
-              <button
-                onClick={() => setMenuOpen(!menuOpen)}
-                className="p-2 text-gray-600 hover:text-gray-900 focus:outline-none focus:ring"
-              >
-                {menuOpen ? (
-                  <HiX className="h-6 w-6" aria-hidden="true" />
-                ) : (
-                  <HiOutlineMenu className="h-6 w-6" aria-hidden="true" />
-                )}
+            {/* Mobile Controls */}
+            <div className="lg:hidden flex items-center space-x-2">
+              <ThemeToggle />
+              <button onClick={() => setMenuOpen(!menuOpen)} className="p-2 text-[var(--neutral-700)]">
+                {menuOpen ? <HiX className="h-6 w-6" /> : <HiOutlineMenu className="h-6 w-6" />}
               </button>
             </div>
-          </nav>
+          </div>
+        </nav>
 
-          {/* Mobile menu */}
-          {menuOpen && (
-            <div className="lg:hidden">
-              <ul className="px-2 pt-2 pb-3 list-none">
-                {nav.map((item, index) => (
-                  <div key={index} className="pb-">
-                    <NavVer title={item.title} reference={item.reference} />
-                    {item.submenu && (
-                      <ul className="pl-4 list-none">
-                        {item.submenu.map((subItem, subIndex) => (
-                          <li key={subIndex}>
-                            <Link
-                              href={subItem.url}
-                              className="block  text text-gray-500 hover:text-gray-900 hover:bg-gray-50"
-                            >
-                              {subItem.title}
-                            </Link>
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-                  </div>
-                ))}
-
-                {!authUser ? authenticationSystemRespo : <MyAccountAvatar />}
-                <LocaleSwitcher status="dark" />
-              </ul>
-            </div>
-          )}
-        </header>
-      )}
+        {/* MOBILE MENU : On laisse NavVer gérer l'affichage */}
+        {menuOpen && (
+          <div className="lg:hidden bg-[var(--bg-1)] border-t border-[var(--border)]">
+            <ul className="px-4 py-4 list-none space-y-2">
+              {nav.map((item, index) => (
+                <NavVer key={index} title={item.title} reference={item.reference} items={item} />
+              ))}
+              <div className="pt-4 border-t space-y-3">
+                {!authUser ? (
+                    <>
+                        <button onClick={openLoginModal} className="block w-full text-left px-2 py-2 text-[var(--neutral-700)] font-bold">{t("headerlogin")}</button>
+                        <button onClick={openRegisterModal} className="block w-full text-center py-2 bg-[var(--neutral-700)] text-[var(--bg-1)] rounded-lg">{t("headersign")}</button>
+                    </>
+                ) : <MyAccountAvatar />}
+              </div>
+            </ul>
+          </div>
+        )}
+      </header>
     </>
   );
 };

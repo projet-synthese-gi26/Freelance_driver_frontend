@@ -9,6 +9,7 @@ interface MenuItem {
   title: string | JSX.Element;
   submenu?: MenuItem[];
   reference?: string;
+  action?: () => void;
 }
 
 interface DropdownProps {
@@ -129,7 +130,21 @@ const MenuItems: React.FC<MenuItemsProps> = ({ items, depthLevel }) => {
             // >
             //   {items.title}
             // </a>
-            <Link href={`${items.url}`} className="font-bold text-[#243757]">{items.title}</Link>
+            items.action ? (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  items.action?.();
+                  setDropdown(false);
+                }}
+                className="font-bold text-[#243757]"
+              >
+                {items.title}
+              </button>
+            ) : (
+              <Link href={`${items.url}`} className="font-bold text-[#243757]">{items.title}</Link>
+            )
 
         )}
       </li>

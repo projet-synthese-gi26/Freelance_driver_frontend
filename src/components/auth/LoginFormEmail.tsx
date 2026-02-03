@@ -7,6 +7,7 @@ import { authService } from "@/service/authService";
 import { sessionService } from "@/service/sessionService";
 import { EyePassword, NoEyePassword } from "@/components/icon/passwordIcon";
 import { useAuthContext } from "@/components/context/authContext";
+import { useTranslations } from "next-intl";
 
 interface LoginFormProps {
     onForgottenPasswordClick: (callback: () => void) => void;
@@ -17,6 +18,7 @@ interface LoginFormProps {
 export default function LoginFormEmail({ onForgottenPasswordClick, onSignUpClick, onSuccess }: LoginFormProps) {
     const router = useRouter();
     const { checkAuth } = useAuthContext();
+    const t = useTranslations("Auth.login.email");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
@@ -98,7 +100,7 @@ export default function LoginFormEmail({ onForgottenPasswordClick, onSignUpClick
                 <input
                     className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                     type="text"
-                    placeholder="Email"
+                    placeholder={t("placeholders.email")}
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                 />
@@ -107,7 +109,7 @@ export default function LoginFormEmail({ onForgottenPasswordClick, onSignUpClick
                 <input
                     className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                     type={showPassword ? "text" : "password"}
-                    placeholder="Password"
+                    placeholder={t("placeholders.password")}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                 />
@@ -122,7 +124,7 @@ export default function LoginFormEmail({ onForgottenPasswordClick, onSignUpClick
 
             <div className="flex justify-end">
                 <button type="button" onClick={() => onForgottenPasswordClick(() => {})} className="text-sm text-indigo-600 hover:underline">
-                    Forgot Password?
+                    {t("forgotPassword")}
                 </button>
             </div>
 
@@ -130,13 +132,13 @@ export default function LoginFormEmail({ onForgottenPasswordClick, onSignUpClick
                 disabled={loading}
                 className="w-full bg-indigo-600 text-white py-3 rounded-lg font-bold hover:bg-indigo-700 transition disabled:opacity-50"
             >
-                {loading ? "Signing in..." : "Sign In"}
+                {loading ? t("signingIn") : t("signIn")}
             </button>
 
             <p className="text-center text-sm text-gray-600 mt-4">
-                Don't have an account?{" "}
+                {t("noAccount")} {" "}
                 <button type="button" onClick={() => onSignUpClick(() => {})} className="text-indigo-600 font-bold hover:underline">
-                    Sign Up
+                    {t("signUp")}
                 </button>
             </p>
         </form>

@@ -3,8 +3,10 @@
 import Link from "next/link";
 import type React from "react";
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 
 const Newsletter: React.FC = () => {
+  const t = useTranslations("Landing.newsletter");
   const [email, setEmail] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -19,11 +21,10 @@ const Newsletter: React.FC = () => {
       <div className="flex flex-col items-center gap-12 w-full">
         <div className="flex flex-col justify-center items-center gap-3 w-full">
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-semibold text-center text-black-500 leading-tight tracking-tight">
-            Subscribe to our newsletter
+            {t("title")}
           </h2>
           <p className="text-lg md:text-xl lg:text-2xl text-center text-gray-700 leading-relaxed tracking-tight">
-            Enter your email to get original stories, travel tips and insights
-            across Cameroon
+            {t("description")}
           </p>
         </div>
         <div className="flex flex-col justify-center items-center gap-4 w-full max-w-[644px]">
@@ -31,7 +32,7 @@ const Newsletter: React.FC = () => {
             <div className="flex flex-col sm:flex-row items-center border border-grey-400 rounded-full overflow-hidden">
               <input
                 type="email"
-                placeholder="Email Address"
+                placeholder={t("emailPlaceholder")}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full sm:flex-grow px-5 py-3 text-lg text-black-300 focus:outline-none"
@@ -41,16 +42,16 @@ const Newsletter: React.FC = () => {
                 type="submit"
                 className="w-full sm:w-auto px-4 py-3 bg-orange-600 text-white text-lg font-medium hover:bg-orange-700 transition-colors duration-300"
               >
-                Suscribe
+                {t("cta")}
               </button>
             </div>
           </form>
           <p className="text-sm md:text-base text-center text-black-300">
-            You can unsubscribe at any time. Learn more about our{" "}
+            {t("privacyPrefix")}{" "}
             <Link 
             href="/user_privacy_policy"
             className="text-primary-500 hover:text-primary-600" >
-              Privacy Policy
+              {t("privacyLink")}
             </Link>
           </p>
         </div>

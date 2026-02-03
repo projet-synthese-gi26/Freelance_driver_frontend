@@ -7,6 +7,7 @@ import Image from "next/image";
 import logo from "@public/img/MainLogo1.png";
 import { APPLICATION_NAME } from "@/app/auth/Params";
 import {useRouter} from "next/navigation";
+import { useTranslations } from "next-intl";
 
 interface RegisterFormProps {
     onSignInClick: () => void;
@@ -14,10 +15,10 @@ interface RegisterFormProps {
 
 export default function RegisterPage() {
     const router = useRouter();
+    const t = useTranslations("Auth.register");
 
    
     function onSignInClick (): void{
-        callback();
         router.push('/login');
     }
 
@@ -29,7 +30,7 @@ export default function RegisterPage() {
                         <Image src={logo} alt="logo" width={100} height={80} />
                     </Link>
                     <h1 className="title font-bold mb-4 mt-2 text-center text-2xl">
-                        Create an account on {APPLICATION_NAME}
+                        {t("title", {app: APPLICATION_NAME})}
                     </h1>
                     <RegisterForm onSignInClick={onSignInClick}/>
                 </div>
@@ -38,13 +39,9 @@ export default function RegisterPage() {
                     href="/"
                     className="mt-4 block w-full py-2 px-4 text border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gray-600 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 text-center"
                 >
-                    Go to Home
+                    {t("goHome")}
                 </Link>
             </div>
         </div>
     );
-}
-
-function callback() {
-    throw new Error("Function not implemented.");
 }

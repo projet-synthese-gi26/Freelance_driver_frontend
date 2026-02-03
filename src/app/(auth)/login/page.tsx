@@ -7,9 +7,11 @@ import LoginForm from "@/components/auth/LoginForm";
 import { APPLICATION_NAME } from "@/app/auth/Params";
 import logo from "@public/img/MainLogo1.png";
 import {useRouter} from "next/navigation";
+import { useTranslations } from "next-intl";
 
 export default function LoginPage() {
     const router = useRouter();
+    const t = useTranslations("Auth.login");
 
     function onForgottenPasswordClick (callback: () => void):void{
         callback();
@@ -36,7 +38,7 @@ export default function LoginPage() {
                                 />
                             </Link>
                             <h1 className="title font-bold mb-6 text-center">
-                                Sign in to {APPLICATION_NAME}
+                                {t("title", {app: APPLICATION_NAME})}
                             </h1>
                             <LoginForm onForgottenPasswordClick={onForgottenPasswordClick} onSignUpClick={onSignUpClick}/>
                         </div>
@@ -45,7 +47,7 @@ export default function LoginPage() {
                     <Link href="/driver"
                           className="mt-4 w-full py-2 font-medium text-white bg-gray-600 text rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 text-center"
                     >
-                        Go to Home
+                        {t("goHome")}
                     </Link>
                 </div>
             </div>

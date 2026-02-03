@@ -297,5 +297,231 @@
             "es": "Español",
             "de": "Alemán"
         }
+    },
+    "Auth": {
+        "login": {
+            "title": "Iniciar sesión en {app}",
+            "goHome": "Ir al inicio",
+            "form": {
+                "divider": "O con correo o teléfono",
+                "methods": {
+                    "email": "Correo",
+                    "phone": "Teléfono"
+                }
+            },
+            "email": {
+                "placeholders": {
+                    "email": "Correo",
+                    "password": "Contraseña"
+                },
+                "forgotPassword": "¿Olvidaste tu contraseña?",
+                "signingIn": "Iniciando sesión...",
+                "signIn": "Iniciar sesión",
+                "noAccount": "¿No tienes una cuenta?",
+                "signUp": "Registrarse"
+            },
+            "phone": {
+                "title": "Inicio de sesión por teléfono no implementado",
+                "description": "El inicio de sesión con número de teléfono no está disponible por el momento."
+            }
+        },
+        "register": {
+            "title": "Crear una cuenta en {app}",
+            "goHome": "Ir al inicio"
+        },
+        "registerForm": {
+            "role": {
+                "driver": "Conductor",
+                "passenger": "Pasajero"
+            },
+            "fields": {
+                "firstName": "Nombre",
+                "lastName": "Apellido",
+                "email": "Correo electrónico",
+                "phone": "Número de teléfono",
+                "password": "Contraseña",
+                "confirmPassword": "Confirmar contraseña",
+                "organisationName": "Nombre de la organización",
+                "title": "Título (Ej: Conductor, Propietario)",
+                "organisationDescription": "Descripción de la organización",
+                "address": "Dirección"
+            },
+            "errors": {
+                "fillAllFields": "Por favor completa todos los campos",
+                "passwordsDoNotMatch": "Las contraseñas no coinciden"
+            },
+            "passwordStrength": {
+                "tooShort": "Contraseña demasiado corta (mín. 8 caracteres)",
+                "missingUppercase": "Falta una letra mayúscula",
+                "missingLowercase": "Falta una letra minúscula",
+                "missingNumber": "Falta un número"
+            },
+            "success": {
+                "verificationCodeSent": "¡Código de verificación enviado a tu correo!"
+            },
+            "creatingAccount": "Creando cuenta...",
+            "signUp": "Registrarse",
+            "alreadyHaveAccount": "¿Ya tienes una cuenta?",
+            "signIn": "Iniciar sesión"
+        },
+        "forgotPassword": {
+            "title": "Restablecer tu contraseña",
+            "form": {
+                "title": "Funcionalidad no implementada",
+                "description": "El restablecimiento de contraseña no está disponible por el momento."
+            }
+        },
+        "otp": {
+            "title": "Código de verificación",
+            "subtitle": "Enviamos un código a {email}",
+            "verifying": "Verificando...",
+            "verify": "Verificar y finalizar",
+            "back": "Volver al registro",
+            "errors": {
+                "sessionExpired": "La sesión expiró, por favor regístrate de nuevo.",
+                "invalidCode": "Por favor ingresa un código válido de 6 dígitos"
+            }
+        },
+        "chooseProfile": {
+            "title": "¡Bienvenido de nuevo!",
+            "subtitle": "Elige cómo quieres continuar.",
+            "continueDriver": "Continuar como conductor",
+            "continuePassenger": "Continuar como pasajero"
+        }
+    },
+    "Dashboard": {
+        "freelance": {
+            "basicPlan": "Plan básico",
+            "driverProfileFallback": "Perfil de conductor",
+            "address": {
+                "title": "Mis direcciones",
+                "description": "Las tarjetas se cobrarán al final del mes o cuando tu saldo supere el umbral de uso. Se aceptan las principales tarjetas de crédito/débito.",
+                "loading": "Cargando tus direcciones...",
+                "confirmDelete": "¿Estás seguro de que quieres eliminar esta dirección?",
+                "empty": {
+                    "title": "Sin dirección",
+                    "message": "Aún no has añadido ninguna dirección comercial."
+                },
+                "toasts": {
+                    "fetchError": "No se pudieron obtener tus direcciones.",
+                    "deleted": "Dirección eliminada.",
+                    "deleteError": "Error al eliminar la dirección."
+                },
+                "location": {
+                    "loading": "Cargando...",
+                    "na": "N/A",
+                    "none": "No hay dirección definida"
+                },
+                "taxLocation": {
+                    "title": "Ubicación fiscal",
+                    "moreInfo": "Más info",
+                    "helpText": "Tu ubicación fiscal determina los impuestos que se aplican a tu factura.",
+                    "howTo": "¿Cómo corrijo mi ubicación fiscal?"
+                }
+            },
+            "nav": {
+                "personalInfo": "Información personal",
+                "security": "Seguridad",
+                "business": {
+                    "title": "Negocio",
+                    "address": "Dirección",
+                    "contacts": "Contactos",
+                    "planning": "Planificación",
+                    "rides": "Viajes",
+                    "vehicles": "Vehículos",
+                    "orders": "Pedidos"
+                },
+                "portfolio": {
+                    "title": "Portafolio",
+                    "experience": "Experiencia"
+                },
+                "reviews": "Reseñas",
+                "support": "Soporte",
+                "settings": "Ajustes",
+                "chat": "Chat",
+                "rateApp": "Calificar app",
+                "logout": "Cerrar sesión"
+            },
+            "toasts": {
+                "updatingPhoto": "Actualizando foto...",
+                "photoUpdated": "¡Foto actualizada!",
+                "updateFailed": "Falló la actualización."
+            }
+        }
+    },
+    "Landing": {
+        "hero": {
+            "backgroundAlt": "Fondo de la página principal",
+            "title": "Transforma tu experiencia de viaje con Let's Go",
+            "description": "Reserva viajes, programa trayectos y conéctate con conductores y agencias de confianza en todo Camerún. Disfruta de un transporte seguro, asequible y eficiente con solo unos toques.",
+            "appStore": "Descargar en App Store",
+            "googlePlay": "Obtener en Google Play",
+            "tiers": {
+                "economy": "Económico",
+                "comfort": "Confort",
+                "vip": "VIP"
+            },
+            "form": {
+                "from": "Desde",
+                "to": "Hasta",
+                "date": "Fecha",
+                "passengers": "Número de pasajeros"
+            },
+            "seePrices": "Ver precios"
+        },
+        "whyChoose": {
+            "tag": "Por qué elegir LetsGo",
+            "title": "La forma más inteligente de viajar",
+            "description": "Llega a tu destino con conductores verificados, precios transparentes y una plataforma fácil de usar — conectándote con cada rincón de Camerún.",
+            "cta": "Empezar",
+            "cards": {
+                "safe": {
+                    "title": "Viajes seguros y confiables",
+                    "description": "Tu seguridad es lo primero. Viaja con confianza con conductores verificados, seguimiento en tiempo real y soporte 24/7 para que cada trayecto sea fluido y seguro."
+                },
+                "pricing": {
+                    "title": "Precios transparentes",
+                    "description": "Sin sorpresas, solo tarifas justas. Nuestros precios por adelantado te permiten saber exactamente lo que pagarás antes de viajar, con tarifas competitivas en Camerún."
+                },
+                "ux": {
+                    "title": "Experiencia fácil",
+                    "description": "Reservar un viaje nunca fue tan fácil. Nuestra app y web intuitivas hacen sencillo solicitar, rastrear y pagar tu trayecto, todo en un solo lugar."
+                }
+            }
+        },
+        "driverSection": {
+            "tag": "LetsGo para conductores",
+            "title": "Conduce y gana a tu manera",
+            "description": "Únete a una red creciente de conductores y gana dinero según tu propio horario. Let's Go te conecta con pasajeros y agencias, ofreciendo oportunidades flexibles para aumentar tus ingresos. Además, disfruta de beneficios y recompensas exclusivas.",
+            "cta": "Registrarse para conducir"
+        },
+        "agencySection": {
+            "imageAlt": "Imagen de la sección de agencias",
+            "tag": "LetsGo para agencias",
+            "title": "Simplifica tus operaciones",
+            "description": "Gestiona tu flota y horarios sin esfuerzo con nuestra plataforma fácil de usar. Optimiza reservas, mejora operaciones y amplía tu alcance a más pasajeros. Perfecto para agencias de viaje y empresas de transporte que buscan crecer.",
+            "cta": "Registrar tu agencia"
+        },
+        "institutionSection": {
+            "imageAlt": "Imagen de la sección de instituciones",
+            "tag": "LetsGo para instituciones",
+            "title": "Optimiza tus servicios de conducción",
+            "description": "Agrega y gestiona conductores fácilmente, realiza seguimiento del rendimiento y accede a analíticas avanzadas. Let's Go ayuda a las instituciones a brindar servicios de conducción eficientes y confiables.",
+            "cta": "Registrar tu institución"
+        },
+        "downloadApp": {
+            "title": "Descarga nuestra App",
+            "description": "Únete a miles de pasajeros, conductores y agencias que disfrutan de un transporte sin interrupciones en Camerún. Disponible en iOS y Android.",
+            "appStore": "Descargar en App Store",
+            "googlePlay": "Obtener en Google Play"
+        },
+        "newsletter": {
+            "title": "Suscríbete a nuestro boletín",
+            "description": "Ingresa tu correo para recibir historias originales, consejos de viaje e información sobre Camerún",
+            "emailPlaceholder": "Dirección de correo",
+            "cta": "Suscribirse",
+            "privacyPrefix": "Puedes darte de baja en cualquier momento. Conoce más sobre nuestra",
+            "privacyLink": "Política de privacidad"
+        }
     }
 }

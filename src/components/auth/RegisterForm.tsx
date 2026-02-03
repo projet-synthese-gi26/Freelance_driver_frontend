@@ -1,4 +1,3 @@
-// src/components/auth/RegisterForm.tsx
 "use client";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -6,6 +5,7 @@ import { toast } from "react-hot-toast";
 import { authService } from "@/service/authService";
 import { EyePassword, NoEyePassword } from "@/components/icon/passwordIcon";
 import { RegistrationRequest } from "@/type/auth";
+import { useTranslations } from "next-intl";
 
 const countryCodes = [
   { label: 'CM (+237)', value: '+237' },
@@ -15,9 +15,9 @@ const countryCodes = [
 
 export default function RegisterForm({ onSignInClick, onSuccess }: { onSignInClick: () => void; onSuccess?: () => void }) {
     const router = useRouter();
+    const t = useTranslations("Auth.registerForm");
     const [loading, setLoading] = useState(false);
 
-    // États du formulaire (Seulement les informations de base)
     const [role, setRole] = useState<'driver' | 'client'>('driver');
     const [firstName, setFirstName] = useState("");
     const [lastName, setLastName] = useState("");
@@ -26,33 +26,30 @@ export default function RegisterForm({ onSignInClick, onSuccess }: { onSignInCli
     const [confirmPassword, setConfirmPassword] = useState("");
     const [countryCode, setCountryCode] = useState(countryCodes[0].value);
     const [localPhone, setLocalPhone] = useState("");
-    const [organisationName, setOrganisationName] = useState(""); // NEW: State for organisationName
-    const [organisationDescription, setOrganisationDescription] = useState(""); // NEW: State for organisationDescription
-    const [title, setTitle] = useState(""); // NEW: State for title
-    const [address, setAddress] = useState(""); // NEW: State for address
+    const [organisationName, setOrganisationName] = useState("");
+    const [organisationDescription, setOrganisationDescription] = useState("");
+    const [title, setTitle] = useState("");
+    const [address, setAddress] = useState("");
 
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirm, setShowConfirm] = useState(false);
 
-    // Validation Mot de passe
     const checkPasswordStrength = (pwd: string) => {
-        if (pwd.length < 8) return "Password too short (min 8 chars)";
-        if (!/[A-Z]/.test(pwd)) return "Missing uppercase letter";
-        if (!/[a-z]/.test(pwd)) return "Missing lowercase letter";
-        if (!/[0-9]/.test(pwd)) return "Missing number";
+        if (pwd.length < 8) return t("passwordStrength.tooShort");
+        if (!/[A-Z]/.test(pwd)) return t("passwordStrength.missingUppercase");
+        if (!/[a-z]/.test(pwd)) return t("passwordStrength.missingLowercase");
+        if (!/[0-9]/.test(pwd)) return t("passwordStrength.missingNumber");
         return null;
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-
-        // Validation simple
         if (!firstName || !lastName || !email || !password || !localPhone) {
-            toast.error("Please fill all fields");
+            toast.error(t("errors.fillAllFields"));
             return;
         }
         if (password !== confirmPassword) {
-            toast.error("Passwords do not match");
+            toast.error(t("errors.passwordsDoNotMatch"));
             return;
         }
         const pwdError = checkPasswordStrength(password);
@@ -64,39 +61,27 @@ export default function RegisterForm({ onSignInClick, onSuccess }: { onSignInCli
         setLoading(true);
         const fullPhone = `${countryCode}${localPhone.trim()}`;
 
-        // --- Préparation des données (comme avant)---
         const requestData: RegistrationRequest = {
             email: email.trim(),
-            username: email.trim(), // email as username
+            username: email.trim(),
             password: password,
             firstName: firstName.trim(),
             lastName: lastName.trim(),
             phone: fullPhone,
             role: role,
-            organisationName: organisationName.trim(), // NEW: Include organisationName
-            organisationDescription: organisationDescription.trim(), // NEW: Include organisationDescription
-            title: title.trim(), // NEW: Include title
-            address: address.trim(), // NEW: Include address
+            organisationName: organisationName.trim(),
+            organisationDescription: organisationDescription.trim(),
+            title: title.trim(),
+            address: address.trim(),
         };
 
         try {
-            console.log("Sending payload to register-init:", requestData); // Debug
-
-            await authService.registerInit(requestData); // Appeler registerInit
-
-            // Stocker temporairement les données pour la page OTP
+            await authService.registerInit(requestData);
             sessionStorage.setItem('temp_registration_data', JSON.stringify(requestData));
-
-            toast.success("Verification code sent to your email!");
-
-            if (onSuccess) {
-                onSuccess();
-            }
-
-            router.push('/auth/otp'); // Rediriger vers la page OTP
-
+            toast.success(t("success.verificationCodeSent"));
+            if (onSuccess) onSuccess();
+            router.push('/otp');
         } catch (error: any) {
-            console.error(error);
             const msg = error.response?.data?.message || "Registration failed";
             toast.error(msg);
         } finally {
@@ -105,76 +90,89 @@ export default function RegisterForm({ onSignInClick, onSuccess }: { onSignInCli
     };
 
     return (
-        <div className="w-full">
+        <div className="w-full max-w-lg mx-auto">
             {/* Sélecteur de Rôle */}
-            <div className="flex bg-gray-100 p-1 rounded-lg mb-6">
+            <div className="flex bg-gray-100 p-1.5 rounded-xl mb-6 shadow-sm border border-gray-200">
                 <button
                     type="button"
                     onClick={() => setRole('driver')}
-                    className={`flex-1 py-2 rounded-md text-sm font-semibold transition-all ${
-                        role === 'driver' ? 'bg-blue-600 text-white shadow' : 'text-gray-500'
+                    className={`flex-1 py-2.5 rounded-lg text-sm font-bold transition-all duration-200 ${
+                        role === 'driver' ? 'bg-blue-600 text-white shadow-md' : 'text-gray-500 hover:text-gray-700'
                     }`}
                 >
-                    Driver
+                    {t("role.driver")}
                 </button>
                 <button
                     type="button"
                     onClick={() => setRole('client')}
-                    className={`flex-1 py-2 rounded-md text-sm font-semibold transition-all ${
-                        role === 'client' ? 'bg-green-500 text-white shadow' : 'text-gray-500'
+                    className={`flex-1 py-2.5 rounded-lg text-sm font-bold transition-all duration-200 ${
+                        role === 'client' ? 'bg-green-500 text-white shadow-md' : 'text-gray-500 hover:text-gray-700'
                     }`}
                 >
-                    Passenger
+                    {t("role.passenger")}
                 </button>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                    <input className="input-field" placeholder="First Name" value={firstName} onChange={e => setFirstName(e.target.value)} />
-                    <input className="input-field" placeholder="Last Name" value={lastName} onChange={e => setLastName(e.target.value)} />
+                {/* 1. Identité */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <input className="input-field" placeholder={t("fields.firstName")} value={firstName} onChange={e => setFirstName(e.target.value)} />
+                    <input className="input-field" placeholder={t("fields.lastName")} value={lastName} onChange={e => setLastName(e.target.value)} />
                 </div>
 
-                <input className="input-field w-full" type="email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} />
-
+                {/* 2. Email */}
+                <input className="input-field w-full" type="email" placeholder={t("fields.email")} value={email} onChange={e => setEmail(e.target.value)} />
+                
+                {/* 3. Téléphone */}
                 <div className="flex gap-2">
-                    <select className="input-field w-1/3 bg-white" value={countryCode} onChange={e => setCountryCode(e.target.value)}>
+                    <select className="input-field w-1/3 bg-white cursor-pointer" value={countryCode} onChange={e => setCountryCode(e.target.value)}>
                         {countryCodes.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
                     </select>
-                    <input className="input-field w-2/3" type="tel" placeholder="Phone Number" value={localPhone} onChange={e => setLocalPhone(e.target.value)} />
+                    <input className="input-field w-2/3" type="tel" placeholder={t("fields.phone")} value={localPhone} onChange={e => setLocalPhone(e.target.value)} />
                 </div>
 
+                {/* 4. Mots de passe (Placés ici comme demandé) */}
                 <div className="relative">
-                    <input className="input-field w-full" type={showPassword ? "text" : "password"} placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} />
-                    <button type="button" className="absolute right-3 top-3.5 text-gray-500" onClick={() => setShowPassword(!showPassword)}>
+                    <input className="input-field w-full pr-12" type={showPassword ? "text" : "password"} placeholder={t("fields.password")} value={password} onChange={e => setPassword(e.target.value)} />
+                    <button type="button" className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors" onClick={() => setShowPassword(!showPassword)}>
                         {showPassword ? <EyePassword/> : <NoEyePassword/>}
                     </button>
                 </div>
 
                 <div className="relative">
-                    <input className="input-field w-full" type={showConfirm ? "text" : "password"} placeholder="Confirm Password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} />
-                    <button type="button" className="absolute right-3 top-3.5 text-gray-500" onClick={() => setShowConfirm(!showConfirm)}>
+                    <input className="input-field w-full pr-12" type={showConfirm ? "text" : "password"} placeholder={t("fields.confirmPassword")} value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} />
+                    <button type="button" className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors" onClick={() => setShowConfirm(!showConfirm)}>
                         {showConfirm ? <EyePassword/> : <NoEyePassword/>}
                     </button>
                 </div>
 
-                {/* NEW: Organisation Details */}
-                <input className="input-field w-full" placeholder="Organisation Name" value={organisationName} onChange={e => setOrganisationName(e.target.value)} />
-                <input className="input-field w-full" placeholder="Organisation Description" value={organisationDescription} onChange={e => setOrganisationDescription(e.target.value)} />
-                <input className="input-field w-full" placeholder="Title (e.g., Driver, Owner)" value={title} onChange={e => setTitle(e.target.value)} />
-                <input className="input-field w-full" placeholder="Address" value={address} onChange={e => setAddress(e.target.value)} />
+                {/* 5. Détails Organisation */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-gray-100">
+                    <input className="input-field" placeholder={t("fields.organisationName")} value={organisationName} onChange={e => setOrganisationName(e.target.value)} />
+                    <input className="input-field" placeholder={t("fields.title")} value={title} onChange={e => setTitle(e.target.value)} />
+                </div>
+                
+                <input className="input-field w-full" placeholder={t("fields.organisationDescription")} value={organisationDescription} onChange={e => setOrganisationDescription(e.target.value)} />
+                <input className="input-field w-full" placeholder={t("fields.address")} value={address} onChange={e => setAddress(e.target.value)} />
 
-                <button disabled={loading} className="w-full bg-blue-600 text-white py-3 rounded-lg font-bold hover:bg-blue-700 transition disabled:opacity-50 mt-4">
-                    {loading ? "Processing..." : "Sign Up"}
+                {/* Bouton de validation */}
+                <button disabled={loading} className={`w-full text-white py-3.5 rounded-xl font-bold transition-all active:scale-[0.98] disabled:opacity-50 mt-4 shadow-lg ${role === 'driver' ? 'bg-blue-600 hover:bg-blue-700' : 'bg-green-600 hover:bg-green-700'}`}>
+                    {loading ? (
+                        <span className="flex items-center justify-center gap-2">
+                            <svg className="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                            {t("creatingAccount")}
+                        </span>
+                    ) : t("signUp")}
                 </button>
             </form>
 
-            <p className="text-center mt-4 text-sm">
-                Already have an account? <button onClick={onSignInClick} className="text-blue-600 font-bold">Sign In</button>
+            <p className="text-center mt-6 text-sm text-gray-600">
+                {t("alreadyHaveAccount")} <button onClick={onSignInClick} className="text-blue-600 font-bold hover:underline">{t("signIn")}</button>
             </p>
 
             <style jsx>{`
                 .input-field {
-                    @apply px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm;
+                    @apply px-4 py-3.5 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm bg-gray-50/50;
                 }
             `}</style>
         </div>

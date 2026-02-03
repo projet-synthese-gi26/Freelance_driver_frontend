@@ -299,5 +299,231 @@
       "es": "Spanisch",
       "de": "Deutsch"
     }
+  },
+  "Auth": {
+    "login": {
+      "title": "Bei {app} anmelden",
+      "goHome": "Zur Startseite",
+      "form": {
+        "divider": "Oder per E-Mail oder Telefon",
+        "methods": {
+          "email": "E-Mail",
+          "phone": "Telefon"
+        }
+      },
+      "email": {
+        "placeholders": {
+          "email": "E-Mail",
+          "password": "Passwort"
+        },
+        "forgotPassword": "Passwort vergessen?",
+        "signingIn": "Anmeldung...",
+        "signIn": "Anmelden",
+        "noAccount": "Noch kein Konto?",
+        "signUp": "Registrieren"
+      },
+      "phone": {
+        "title": "Telefon-Login nicht implementiert",
+        "description": "Die Anmeldung per Telefonnummer ist derzeit nicht verfügbar."
+      }
+    },
+    "register": {
+      "title": "Konto bei {app} erstellen",
+      "goHome": "Zur Startseite"
+    },
+    "registerForm": {
+      "role": {
+        "driver": "Fahrer",
+        "passenger": "Passagier"
+      },
+      "fields": {
+        "firstName": "Vorname",
+        "lastName": "Nachname",
+        "email": "E-Mail-Adresse",
+        "phone": "Telefonnummer",
+        "password": "Passwort",
+        "confirmPassword": "Passwort bestätigen",
+        "organisationName": "Organisationsname",
+        "title": "Titel (z. B. Fahrer, Inhaber)",
+        "organisationDescription": "Organisationsbeschreibung",
+        "address": "Adresse"
+      },
+      "errors": {
+        "fillAllFields": "Bitte alle Felder ausfüllen",
+        "passwordsDoNotMatch": "Passwörter stimmen nicht überein"
+      },
+      "passwordStrength": {
+        "tooShort": "Passwort zu kurz (mind. 8 Zeichen)",
+        "missingUppercase": "Großbuchstabe fehlt",
+        "missingLowercase": "Kleinbuchstabe fehlt",
+        "missingNumber": "Zahl fehlt"
+      },
+      "success": {
+        "verificationCodeSent": "Bestätigungscode wurde an Ihre E-Mail gesendet!"
+      },
+      "creatingAccount": "Konto wird erstellt...",
+      "signUp": "Registrieren",
+      "alreadyHaveAccount": "Sie haben bereits ein Konto?",
+      "signIn": "Anmelden"
+    },
+    "forgotPassword": {
+      "title": "Passwort zurücksetzen",
+      "form": {
+        "title": "Funktion nicht implementiert",
+        "description": "Die Passwort-Zurücksetzung ist derzeit nicht verfügbar."
+      }
+    },
+    "otp": {
+      "title": "Bestätigungscode",
+      "subtitle": "Wir haben einen Code an {email} gesendet",
+      "verifying": "Wird geprüft...",
+      "verify": "Bestätigen & abschließen",
+      "back": "Zurück zur Registrierung",
+      "errors": {
+        "sessionExpired": "Sitzung abgelaufen, bitte erneut registrieren.",
+        "invalidCode": "Bitte einen gültigen 6-stelligen Code eingeben"
+      }
+    },
+    "chooseProfile": {
+      "title": "Willkommen zurück!",
+      "subtitle": "Bitte wählen Sie, wie Sie fortfahren möchten.",
+      "continueDriver": "Als Fahrer fortfahren",
+      "continuePassenger": "Als Passagier fortfahren"
+    }
+  },
+  "Dashboard": {
+    "freelance": {
+      "basicPlan": "Basisplan",
+      "driverProfileFallback": "Fahrerprofil",
+      "address": {
+        "title": "Meine Adressen",
+        "description": "Karten werden entweder am Monatsende belastet oder sobald Ihr Guthaben den Nutzungsschwellenwert überschreitet. Alle gängigen Kredit-/Debitkarten werden akzeptiert.",
+        "loading": "Ihre Adressen werden geladen...",
+        "confirmDelete": "Möchten Sie diese Adresse wirklich löschen?",
+        "empty": {
+          "title": "Keine Adresse",
+          "message": "Sie haben noch keine Geschäftsadresse hinzugefügt."
+        },
+        "toasts": {
+          "fetchError": "Ihre Adressen konnten nicht abgerufen werden.",
+          "deleted": "Adresse gelöscht.",
+          "deleteError": "Fehler beim Löschen der Adresse."
+        },
+        "location": {
+          "loading": "Laden...",
+          "na": "N/A",
+          "none": "Keine Adresse definiert"
+        },
+        "taxLocation": {
+          "title": "Steuerstandort",
+          "moreInfo": "Mehr Infos",
+          "helpText": "Ihr Steuerstandort bestimmt die Steuern, die auf Ihre Rechnung angewendet werden.",
+          "howTo": "Wie korrigiere ich meinen Steuerstandort?"
+        }
+      },
+      "nav": {
+        "personalInfo": "Persönliche Daten",
+        "security": "Sicherheit",
+        "business": {
+          "title": "Business",
+          "address": "Adresse",
+          "contacts": "Kontakte",
+          "planning": "Planung",
+          "rides": "Fahrten",
+          "vehicles": "Fahrzeuge",
+          "orders": "Bestellungen"
+        },
+        "portfolio": {
+          "title": "Portfolio",
+          "experience": "Erfahrung"
+        },
+        "reviews": "Bewertungen",
+        "support": "Support",
+        "settings": "Einstellungen",
+        "chat": "Chat",
+        "rateApp": "App bewerten",
+        "logout": "Abmelden"
+      },
+      "toasts": {
+        "updatingPhoto": "Foto wird aktualisiert...",
+        "photoUpdated": "Foto aktualisiert!",
+        "updateFailed": "Aktualisierung fehlgeschlagen."
+      }
+    }
+  },
+  "Landing": {
+    "hero": {
+      "backgroundAlt": "Startseiten-Hintergrund",
+      "title": "Verändern Sie Ihr Reiseerlebnis mit Let's Go",
+      "description": "Buchen Sie Fahrten, planen Sie Reisen und verbinden Sie sich mit vertrauenswürdigen Fahrern und Agenturen in ganz Kamerun. Genießen Sie sicheren, erschwinglichen und effizienten Transport mit nur wenigen Tipps.",
+      "appStore": "Im App Store herunterladen",
+      "googlePlay": "Bei Google Play holen",
+      "tiers": {
+        "economy": "Economy",
+        "comfort": "Comfort",
+        "vip": "VIP"
+      },
+      "form": {
+        "from": "Von",
+        "to": "Nach",
+        "date": "Datum",
+        "passengers": "Anzahl der Passagiere"
+      },
+      "seePrices": "Preise ansehen"
+    },
+    "whyChoose": {
+      "tag": "Warum LetsGo wählen",
+      "title": "Der smartere Weg zu reisen",
+      "description": "Kommen Sie mit verifizierten Fahrern, transparenten Preisen und einer einfach zu bedienenden Plattform ans Ziel — und erreichen Sie jede Ecke Kameruns.",
+      "cta": "Loslegen",
+      "cards": {
+        "safe": {
+          "title": "Sichere und zuverlässige Fahrten",
+          "description": "Ihre Sicherheit steht an erster Stelle. Reisen Sie mit verifizierten Fahrern, Echtzeit-Tracking und 24/7-Support — für eine reibungslose und sichere Fahrt."
+        },
+        "pricing": {
+          "title": "Transparente Preise",
+          "description": "Keine Überraschungen, nur faire Tarife. Unsere Vorabpreise zeigen Ihnen genau, was Sie zahlen — mit wettbewerbsfähigen Preisen in ganz Kamerun."
+        },
+        "ux": {
+          "title": "Benutzerfreundlich",
+          "description": "Eine Fahrt zu buchen war noch nie so einfach. Unsere intuitive App und Website machen Anfragen, Tracking und Bezahlung an einem Ort möglich."
+        }
+      }
+    },
+    "driverSection": {
+      "tag": "LetsGo für Fahrer",
+      "title": "Fahren und verdienen zu Ihren Bedingungen",
+      "description": "Werden Sie Teil eines wachsenden Fahrernetzwerks und verdienen Sie nach Ihrem Zeitplan. Let's Go verbindet Sie mit Passagieren und Agenturen und bietet flexible Möglichkeiten, Ihr Einkommen zu steigern. Plus: exklusive Vorteile und Belohnungen.",
+      "cta": "Als Fahrer registrieren"
+    },
+    "agencySection": {
+      "imageAlt": "Bild Agentur-Bereich",
+      "tag": "LetsGo für Agenturen",
+      "title": "Vereinfachen Sie Ihre Abläufe",
+      "description": "Verwalten Sie Ihre Flotte und Zeitpläne mühelos mit unserer benutzerfreundlichen Plattform. Optimieren Sie Buchungen, verbessern Sie Abläufe und erreichen Sie mehr Passagiere. Perfekt für Reiseagenturen und Transportunternehmen, die wachsen wollen.",
+      "cta": "Agentur registrieren"
+    },
+    "institutionSection": {
+      "imageAlt": "Bild Institutions-Bereich",
+      "tag": "LetsGo für Institutionen",
+      "title": "Optimieren Sie Ihre Fahrdienste",
+      "description": "Fügen Sie Fahrer einfach hinzu und verwalten Sie sie, verfolgen Sie die Leistung und erhalten Sie erweiterte Analysen. Let's Go hilft Institutionen, effiziente und zuverlässige Fahrdienste anzubieten.",
+      "cta": "Institution registrieren"
+    },
+    "downloadApp": {
+      "title": "Laden Sie unsere App herunter",
+      "description": "Schließen Sie sich Tausenden von Passagieren, Fahrern und Agenturen an, die nahtlosen Transport in Kamerun genießen. Verfügbar für iOS und Android.",
+      "appStore": "Im App Store herunterladen",
+      "googlePlay": "Bei Google Play holen"
+    },
+    "newsletter": {
+      "title": "Abonnieren Sie unseren Newsletter",
+      "description": "Geben Sie Ihre E-Mail ein, um originale Stories, Reisetipps und Einblicke aus Kamerun zu erhalten",
+      "emailPlaceholder": "E-Mail-Adresse",
+      "cta": "Abonnieren",
+      "privacyPrefix": "Sie können sich jederzeit abmelden. Erfahren Sie mehr über unsere",
+      "privacyLink": "Datenschutzrichtlinie"
+    }
   }
 }

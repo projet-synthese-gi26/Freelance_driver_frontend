@@ -13,6 +13,7 @@ import { useAuthContext } from "@/components/context/authContext";
 // COMPONENTS
 import IconComponent from "@/components/general/IconComponent";
 import { ProfileSwitcher } from "@/components/general/ProfileSwitcher"; // <-- IMPORT DU COMPOSANT
+import { useTranslations } from "next-intl";
 
 // ICONS
 import portofolio from "@public/img/cv.png"
@@ -27,6 +28,7 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const t = useTranslations("Dashboard.freelance");
   const { user, isLoading, logout, checkAuth } = useAuthContext();
   const [navOpen, setNavOpen] = useState(false);
   const [openSubMenu, setOpenSubMenu] = useState<string | null>(null);
@@ -84,39 +86,39 @@ export default function RootLayout({
   ], []);
   */
    const NavItems = useMemo(() => [
-    {link:'/freelance-dashboard',title:'Personal Info',icon:UserCircleIcon},
-    {link:'/freelance-dashboard/security',title:'Security',icon:ShieldCheckIcon},
+    {link:'/freelance-dashboard',title:t('nav.personalInfo'),icon:UserCircleIcon},
+    {link:'/freelance-dashboard/security',title:t('nav.security'),icon:ShieldCheckIcon},
     
     {
-      title:'Business',
+      title:t('nav.business.title'),
       icon:BriefcaseIcon,
       subItems: [
         
-        {link:'/freelance-dashboard/business/address',title:'Address'},
-        {link:'/freelance-dashboard/business/contacts',title:'Contacts'},
-        {link:'/freelance-dashboard/business/planning',title:'Planning'},
-        {link:'/freelance-dashboard/business/rides',title:'Rides'},
-        {link:'/freelance-dashboard/business/vehicles',title:'Vehicles'},
-        {link:'/freelance-dashboard/business/orders',title:'Orders'},
+        {link:'/freelance-dashboard/business/address',title:t('nav.business.address')},
+        {link:'/freelance-dashboard/business/contacts',title:t('nav.business.contacts')},
+        {link:'/freelance-dashboard/business/planning',title:t('nav.business.planning')},
+        {link:'/freelance-dashboard/business/rides',title:t('nav.business.rides')},
+        {link:'/freelance-dashboard/business/vehicles',title:t('nav.business.vehicles')},
+        {link:'/freelance-dashboard/business/orders',title:t('nav.business.orders')},
       ]
     },
-    {title:'Portofolio',icon:portofolio,
+    {title:t('nav.portfolio.title'),icon:portofolio,
       subItems: [
-        {link:'/freelance-dashboard/portofolio',title:'Experience'},
+        {link:'/freelance-dashboard/portofolio',title:t('nav.portfolio.experience')},
         
       ]
     },
     
-    {link:'/freelance-dashboard/ratings',title:'Reviews',icon:ChartBarIcon},
-    {title:'Support',icon:support,link:'/freelance-dashboard/support'},
-    {link:'/freelance-dashboard/settings',title:'Settings',icon:Cog8ToothIcon},
-    {link:'/freelance-dashboard/chat',title:'Chat',icon:ChatBubbleLeftRightIcon},
-    {link:'/freelance-dashboard/rate_app',title:'Rate App',icon:StarIcon},
-    {link:'#',title:'Log out',icon:ArrowRightStartOnRectangleIcon},
-  ], []);
+    {link:'/freelance-dashboard/ratings',title:t('nav.reviews'),icon:ChartBarIcon},
+    {title:t('nav.support'),icon:support,link:'/freelance-dashboard/support'},
+    {link:'/freelance-dashboard/settings',title:t('nav.settings'),icon:Cog8ToothIcon},
+    {link:'/freelance-dashboard/chat',title:t('nav.chat'),icon:ChatBubbleLeftRightIcon},
+    {link:'/freelance-dashboard/rate_app',title:t('nav.rateApp'),icon:StarIcon},
+    {link:'#',title:t('nav.logout'),icon:ArrowRightStartOnRectangleIcon},
+  ], [t]);
 
   const toggleSubMenu = useCallback((navItem: any) => {
-    if (navItem.title === 'Log out') {
+    if (navItem.title === t('nav.logout')) {
       handleLogout();
       return;
     }
@@ -143,15 +145,15 @@ export default function RootLayout({
       const files = event.target.files;
       if (files && files.length > 0) {
         const file = files[0];
-        const loadingToast = toast.loading("Updating photo...");
+        const loadingToast = toast.loading(t('toasts.updatingPhoto'));
         try {
             const updatedContext = await profileService.updateProfilePicture(file);
             sessionService.saveSessionContext(updatedContext);
             await checkAuth();
-            toast.success("Photo updated!", { id: loadingToast });
+            toast.success(t('toasts.photoUpdated'), { id: loadingToast });
         } catch (error) {
             console.error(error);
-            toast.error("Update failed.", { id: loadingToast });
+            toast.error(t('toasts.updateFailed'), { id: loadingToast });
         }
       }
   };
@@ -175,12 +177,12 @@ export default function RootLayout({
       );
   }
 
-  const driverName = user.driverProfile?.firstName 
-    ? `${user.driverProfile.firstName} ${user.driverProfile.lastName}` 
-    : 'Driver Profile';
+  const driverName = user.user?.firstName
+    ? `${user.user.firstName} ${user.user.lastName}`
+    : t('driverProfileFallback');
   
-  const userContact = user.driverProfile?.phoneNumber || '';
-  const avatarUrl = user.driverProfile?.profileImageUrl || "/white-silhouette-avatar.png";
+  const userContact = user.user?.phone || '';
+  const avatarUrl = user.user?.photoUri || "/white-silhouette-avatar.png";
 
   return (
     <div className="min-h-screen bg-white">
@@ -196,7 +198,7 @@ export default function RootLayout({
           </button>
           <div className="grow text">
             <div className="w-full border-primary-500 text-primary border title font-bold p-3 rounded-md flex items-center justify-center cursor-pointer">
-              Basic Plan
+              {t('basicPlan')}
             </div>
             <ul className="py-5 space-y-3">
               {NavItems.map((navItem, key) => (
@@ -280,7 +282,7 @@ export default function RootLayout({
                 
                 <Link
                   className="text-sm font-bold cursor-pointer flex items-center gap-1.5 p-2 rounded-lg border-2 border-gray-700 hover:bg-gray-700 hover:text-white transition-colors"
-                  href={`/freelance-profile?id=${user.userId}`}
+                  href={`/freelance-profile?id=${user.user.id}`}
                 >
                   View Profile
                 </Link>

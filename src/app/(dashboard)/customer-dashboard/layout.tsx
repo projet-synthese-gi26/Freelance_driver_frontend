@@ -9,6 +9,7 @@ import { sessionService } from "@/service/sessionService";
 import { profileService } from "@/service/profileService";
 import { useAuthContext } from "@/components/context/authContext";
 import { toast } from 'react-hot-toast';
+import { useTranslations } from "next-intl";
 
 // COMPONENTS
 import IconComponent from "@/components/general/IconComponent";
@@ -29,6 +30,7 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const t = useTranslations("Dashboard.customer");
   const { user, isLoading, logout, checkAuth } = useAuthContext();
   const [navOpen, setNavOpen] = useState(false);
   const path = usePathname();
@@ -50,14 +52,14 @@ export default function RootLayout({
     const files = event.target.files;
     if (files && files.length > 0) {
       const file = files[0];
-      const loadingToast = toast.loading("Updating photo...");
+      const loadingToast = toast.loading(t('toasts.updatingPhoto'));
       try {
         const updatedContext = await profileService.updateProfilePicture(file);
         sessionService.saveSessionContext(updatedContext);
         await checkAuth(); // Mettre à jour l'état local
-        toast.success("Profile picture updated!", { id: loadingToast });
+        toast.success(t('toasts.photoUpdated'), { id: loadingToast });
       } catch (error) {
-        toast.error("Failed to upload image", { id: loadingToast });
+        toast.error(t('toasts.updateFailed'), { id: loadingToast });
         console.error(error);
       }
     }
@@ -78,16 +80,16 @@ export default function RootLayout({
   */
 
   const NavItems = [
-    { link: '/customer-dashboard', title: 'Personal Info', icon: UserCircleIcon },
-    { link: '/customer-dashboard/user-chat', title: 'Chat', icon: ChatBubbleLeftRightIcon },
-    { link: '/customer-dashboard/user-announce', title: 'Announcement', icon: BellAlertIcon },
-    { link: '/customer-dashboard/user-contacts', title: 'Contacts', icon: UserCircleIcon },
-    { link: '/customer-dashboard/user-security', title: 'Security', icon: ShieldCheckIcon },
-    { link: '/customer-dashboard/user-wishlist', title: 'Next Ride', icon: MagnifyingGlassIcon },
-    { link: '/customer-dashboard/user-vehicles', title: 'Vehicles', icon: MapPinIcon },
-    { link: '/customer-dashboard/user-address', title: 'Address', icon: MapPinIcon },
-    { link: '/customer-dashboard/ratings', title: 'Reviews', icon:ChartBarIcon},
-    { link: '/customer-dashboard/rate_app', title: 'Rate App',icon:StarIcon}
+    { link: '/customer-dashboard', title: t('nav.personalInfo'), icon: UserCircleIcon },
+    { link: '/customer-dashboard/user-chat', title: t('nav.chat'), icon: ChatBubbleLeftRightIcon },
+    { link: '/customer-dashboard/user-announce', title: t('nav.announcement'), icon: BellAlertIcon },
+    { link: '/customer-dashboard/user-contacts', title: t('nav.contacts'), icon: UserCircleIcon },
+    { link: '/customer-dashboard/user-security', title: t('nav.security'), icon: ShieldCheckIcon },
+    { link: '/customer-dashboard/user-wishlist', title: t('nav.nextRide'), icon: MagnifyingGlassIcon },
+    { link: '/customer-dashboard/user-vehicles', title: t('nav.vehicles'), icon: MapPinIcon },
+    { link: '/customer-dashboard/user-address', title: t('nav.address'), icon: MapPinIcon },
+    { link: '/customer-dashboard/ratings', title: t('nav.reviews'), icon:ChartBarIcon},
+    { link: '/customer-dashboard/rate_app', title: t('nav.rateApp'),icon:StarIcon}
   ];
 
 
@@ -100,12 +102,12 @@ export default function RootLayout({
   }
 
   // Utilisation des données réelles
-  const clientName = user.clientProfile?.firstName 
-    ? `${user.clientProfile.firstName} ${user.clientProfile.lastName}` 
-    : 'Passenger Profile';
+  const clientName = user.user?.firstName
+    ? `${user.user.firstName} ${user.user.lastName}`
+    : t('profileFallback');
   
-  const userContact = user.clientProfile?.contactEmail || user.clientProfile?.phoneNumber || '';
-  const avatarUrl = user.clientProfile?.profileImageUrl || "/white-silhouette-avatar.png";
+  const userContact = user.user?.email || user.user?.phone || '';
+  const avatarUrl = user.user?.photoUri || "/white-silhouette-avatar.png";
 
   return (
     <>
@@ -121,7 +123,7 @@ export default function RootLayout({
           </button>
           <div className="grow text">
             <div className="w-full bg-blue-500 text-white title font-bold p-3 rounded-xl flex items-center justify-center hover:shadow-lg cursor-pointer">
-              UPGRADE
+              {t('upgrade')}
             </div>
             <ul className="py-5 space-y-3">
               {NavItems.map((navItem, key) => (
@@ -138,7 +140,7 @@ export default function RootLayout({
               <li onClick={handleLogout}>
                 <button className="flex items-center gap-2 rounded-md px-3 py-1 duration-300 text-red-500 w-full hover:bg-red-50">
                   <ArrowRightStartOnRectangleIcon className="w-5 h-5" />
-                  Log out
+                  {t('nav.logout')}
                 </button>
               </li>
             </ul>

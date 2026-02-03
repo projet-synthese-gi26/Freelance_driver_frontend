@@ -1,7 +1,10 @@
 import Image from "next/image";
 import { Apple, PlayCircle } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 const DownloadAppSection = () => {
+  const t = useTranslations("Landing.downloadApp");
+
   return (
     <section className="flex flex-col justify-center items-center py-16 md:py-20 lg:py-30 px-4 md:px-12 lg:px-36 xl:px-44 bg-[#E1E3F64D]">
       <div className="w-full max-w-7xl ">
@@ -9,14 +12,12 @@ const DownloadAppSection = () => {
           {/* Left content */}
           <div className="flex flex-col p-6 md:p-10 lg:p-14 gap-4 lg:w-1/2">
             <h1 className="text-3xl md:text-4xl font-semibold text-gray-900 font-poppins leading-tight tracking-tight">
-              Download our App
+              {t("title")}
             </h1>
 
             <div className="flex flex-col gap-6 md:gap-10">
               <p className="text-lg md:text-xl text-[#606060] font-inter leading-relaxed">
-                Join thousands of passengers, drivers, and agencies enjoying
-                seamless transportation across Cameroon. Available on iOS and
-                Android.
+                {t("description")}
               </p>
 
               <div className="flex flex-row md:flex-col md:gap-3 justify-between">
@@ -28,7 +29,7 @@ const DownloadAppSection = () => {
                     height={24}
                     className="mr-2"
                   />
-                  <span className="text-base lg:text-lg font-medium">Get on App Store</span>
+                  <span className="text-base lg:text-lg font-medium">{t("appStore")}</span>
                 </button>
                 <button className="flex items-center justify-center py-2 px-3 lg:py-[18px] lg:px-6  bg-primary hover:bg-black text-white rounded-xl">
                   <Image
@@ -39,7 +40,7 @@ const DownloadAppSection = () => {
                     className="mr-2"
                   />
                   <span className="text-base lg:text-lg font-medium">
-                    Get on Google Play
+                    {t("googlePlay")}
                   </span>
                 </button>
               </div>
