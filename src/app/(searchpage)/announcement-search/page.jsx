@@ -224,146 +224,173 @@ const AnnouncementSearch = () => {
     };
 
     return (
-        <div className="text p-2 md:pb-4 flex-col sm:flex-row gap-3 sm:gap-5 text-lg bg-gray-200 min-h-screen">
-            <div className="container mx-auto p-6 font-inter">
-                <div className="mb-5 text-center">
-                    <h1 className="font-bold bigtitle text-black mb-3">
-                        Trouvez des Clients à Transporter
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-orange-50 to-amber-50">
+            <div className="container mx-auto px-4 py-8 font-inter">
+                {/* Header Section */}
+                <div className="mb-8 text-center">
+                    <div className="inline-flex items-center gap-2 bg-orange-100 text-orange-700 px-4 py-2 rounded-full text-sm font-medium mb-4">
+                        <span className="w-2 h-2 bg-orange-500 rounded-full animate-pulse"></span>
+                        {searchResults.length} annonces disponibles en temps réel
+                    </div>
+                    <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-3">
+                        🚗 Trouvez des Clients à Transporter
                     </h1>
-                    <h2 className="title text-black font-medium leading-tight">
-                        Parcourez les annonces des clients et postulez
-                    </h2>
+                    <p className="text-gray-600 text-lg max-w-2xl mx-auto">
+                        Parcourez les annonces des clients et postulez pour des courses rentables
+                    </p>
                 </div>
 
-                {/* Formulaire de recherche */}
-                <form onSubmit={handleSearch} className="mb-8 bg-white p-6 rounded-xl shadow-md">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-                        {/* Location */}
-                        <div className="relative auto-search-wrapper">
-                            <input
-                                type="text"
-                                id="location"
-                                ref={locationRef}
-                                value={location}
-                                onChange={(e) => setLocation(e.target.value)}
-                                placeholder="Lieu de départ"
-                                className="pl-10 border rounded w-full py-2"
-                            />
-                            {iconsLoaded && (
-                                <FontAwesomeIcon
-                                    icon={faLocationCrosshairs}
-                                    className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-                                    style={{ width: '15px', height: '15px' }}
+                {/* Formulaire de recherche - Design modernisé */}
+                <form onSubmit={handleSearch} className="mb-8">
+                    <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-gray-100 p-6 md:p-8">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+                            {/* Location */}
+                            <div className="space-y-2">
+                                <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                                    <span className="text-lg">📍</span> Lieu de départ
+                                </label>
+                                <div className="relative auto-search-wrapper">
+                                    <input
+                                        type="text"
+                                        id="location"
+                                        ref={locationRef}
+                                        value={location}
+                                        onChange={(e) => setLocation(e.target.value)}
+                                        placeholder="Ex: Douala, Bonanjo..."
+                                        className="w-full pl-11 pr-4 py-3.5 border-2 border-gray-200 rounded-xl focus:border-orange-500 focus:ring-4 focus:ring-orange-100 transition-all duration-200 text-gray-800 placeholder-gray-400 bg-gray-50 hover:bg-white"
+                                    />
+                                    {iconsLoaded && (
+                                        <FontAwesomeIcon
+                                            icon={faLocationCrosshairs}
+                                            className="absolute left-4 top-1/2 transform -translate-y-1/2 text-green-500"
+                                            style={{ width: '18px', height: '18px' }}
+                                        />
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Destination */}
+                            <div className="space-y-2">
+                                <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                                    <span className="text-lg">🎯</span> Destination
+                                </label>
+                                <div className="relative auto-search-wrapper">
+                                    <input
+                                        type="text"
+                                        id="destination"
+                                        ref={destinationRef}
+                                        value={destination}
+                                        onChange={(e) => setDestination(e.target.value)}
+                                        placeholder="Ex: Yaoundé, Bastos..."
+                                        className="w-full pl-11 pr-4 py-3.5 border-2 border-gray-200 rounded-xl focus:border-orange-500 focus:ring-4 focus:ring-orange-100 transition-all duration-200 text-gray-800 placeholder-gray-400 bg-gray-50 hover:bg-white"
+                                    />
+                                    {iconsLoaded && (
+                                        <FontAwesomeIcon
+                                            icon={faLocationCrosshairs}
+                                            className="absolute left-4 top-1/2 transform -translate-y-1/2 text-red-500"
+                                            style={{ width: '18px', height: '18px' }}
+                                        />
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Date */}
+                            <div className="space-y-2">
+                                <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                                    <span className="text-lg">📅</span> À partir du
+                                </label>
+                                <DatePicker
+                                    minDate={currentDate}
+                                    selected={formData.startDate}
+                                    onChange={(date) => handleInputChange('startDate', date)}
+                                    dateFormat="dd/MM/yyyy"
+                                    className="w-full px-4 py-3.5 border-2 border-gray-200 rounded-xl focus:border-orange-500 focus:ring-4 focus:ring-orange-100 transition-all duration-200 text-gray-800 bg-gray-50 hover:bg-white cursor-pointer"
                                 />
-                            )}
-                        </div>
+                            </div>
 
-                        {/* Destination */}
-                        <div className="relative auto-search-wrapper">
-                            <input
-                                type="text"
-                                id="destination"
-                                ref={destinationRef}
-                                value={destination}
-                                onChange={(e) => setDestination(e.target.value)}
-                                placeholder="Destination"
-                                className="pl-10 border rounded w-full py-2"
-                            />
-                            {iconsLoaded && (
-                                <FontAwesomeIcon
-                                    icon={faLocationCrosshairs}
-                                    className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-                                    style={{ width: '15px', height: '15px' }}
+                            {/* Budget max */}
+                            <div className="space-y-2">
+                                <label className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                                    <span className="text-lg">💰</span> Budget minimum (XAF)
+                                </label>
+                                <input
+                                    type="number"
+                                    placeholder="Ex: 5000"
+                                    value={formData.maxCost}
+                                    onChange={(e) => handleInputChange('maxCost', e.target.value)}
+                                    className="w-full px-4 py-3.5 border-2 border-gray-200 rounded-xl focus:border-orange-500 focus:ring-4 focus:ring-orange-100 transition-all duration-200 text-gray-800 placeholder-gray-400 bg-gray-50 hover:bg-white"
                                 />
-                            )}
+                            </div>
                         </div>
 
-                        {/* Date */}
-                        <div className="flex items-center gap-2">
-                            <label className="whitespace-nowrap font-medium text-sm">À partir du:</label>
-                            <DatePicker
-                                minDate={currentDate}
-                                selected={formData.startDate}
-                                onChange={(date) => handleInputChange('startDate', date)}
-                                dateFormat="dd/MM/yyyy"
-                                className="px-2 border rounded w-full py-2"
-                            />
-                        </div>
+                        {/* Boutons de recherche et toggle vue */}
+                        <div className="flex flex-wrap gap-4 items-center justify-between pt-4 border-t border-gray-100">
+                            <div className="flex flex-wrap gap-3">
+                                <button
+                                    type="submit"
+                                    disabled={isLoading}
+                                    className="bg-gradient-to-r from-orange-500 to-amber-500 text-white py-3 px-8 rounded-xl hover:from-orange-600 hover:to-amber-600 transition-all duration-200 flex items-center gap-2 font-semibold shadow-lg shadow-orange-200 hover:shadow-xl hover:shadow-orange-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                    <MagnifyingGlassIcon className="w-5 h-5" />
+                                    {isLoading ? 'Recherche...' : 'Rechercher'}
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={loadAllAnnouncements}
+                                    disabled={isLoading}
+                                    className="bg-gray-100 text-gray-700 py-3 px-6 rounded-xl hover:bg-gray-200 transition-all duration-200 font-medium border-2 border-gray-200 hover:border-gray-300"
+                                >
+                                    🔄 Toutes les annonces
+                                </button>
+                            </div>
 
-                        {/* Budget max */}
-                        <div className="flex items-center gap-2">
-                            <label className="whitespace-nowrap font-medium text-sm">Budget max:</label>
-                            <input
-                                type="number"
-                                placeholder="XAF"
-                                value={formData.maxCost}
-                                onChange={(e) => handleInputChange('maxCost', e.target.value)}
-                                className="px-2 border rounded w-full py-2"
-                            />
-                        </div>
-                    </div>
-
-                    {/* Boutons de recherche */}
-                    <div className="flex flex-wrap gap-4 items-center justify-between">
-                        <div className="flex gap-2">
-                            <button
-                                type="submit"
-                                disabled={isLoading}
-                                className="bg-orange-500 text-white py-2 px-6 rounded-lg hover:bg-orange-600 transition-colors flex items-center gap-2"
-                            >
-                                <MagnifyingGlassIcon className="w-5 h-5" />
-                                {isLoading ? 'Recherche...' : 'Rechercher'}
-                            </button>
-                            <button
-                                type="button"
-                                onClick={loadAllAnnouncements}
-                                disabled={isLoading}
-                                className="bg-gray-500 text-white py-2 px-6 rounded-lg hover:bg-gray-600 transition-colors"
-                            >
-                                Voir toutes les annonces
-                            </button>
-                        </div>
-
-                        {/* Toggle Vue */}
-                        <div className="flex items-center gap-2 bg-gray-100 p-1 rounded-lg">
-                            <button
-                                type="button"
-                                onClick={() => setViewMode('map')}
-                                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
-                                    viewMode === 'map' 
-                                        ? 'bg-orange-500 text-white' 
-                                        : 'text-gray-600 hover:bg-gray-200'
-                                }`}
-                            >
-                                <MapIcon className="w-5 h-5" />
-                                Carte
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => setViewMode('list')}
-                                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
-                                    viewMode === 'list' 
-                                        ? 'bg-orange-500 text-white' 
-                                        : 'text-gray-600 hover:bg-gray-200'
-                                }`}
-                            >
-                                <ListBulletIcon className="w-5 h-5" />
-                                Liste
-                            </button>
+                            {/* Toggle Vue - Design amélioré */}
+                            <div className="flex items-center gap-1 bg-gray-100 p-1.5 rounded-xl">
+                                <button
+                                    type="button"
+                                    onClick={() => setViewMode('map')}
+                                    className={`flex items-center gap-2 px-5 py-2.5 rounded-lg transition-all duration-200 font-medium ${
+                                        viewMode === 'map' 
+                                            ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-md' 
+                                            : 'text-gray-600 hover:bg-white hover:text-gray-800'
+                                    }`}
+                                >
+                                    <MapIcon className="w-5 h-5" />
+                                    Carte
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setViewMode('list')}
+                                    className={`flex items-center gap-2 px-5 py-2.5 rounded-lg transition-all duration-200 font-medium ${
+                                        viewMode === 'list' 
+                                            ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-md' 
+                                            : 'text-gray-600 hover:bg-white hover:text-gray-800'
+                                    }`}
+                                >
+                                    <ListBulletIcon className="w-5 h-5" />
+                                    Liste
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </form>
 
-                {/* Résultats */}
-                <div className="mb-4">
-                    <h3 className="text-xl font-semibold text-gray-800">
-                        {searchResults.length} annonce(s) disponible(s)
-                    </h3>
+                {/* Résultats - Header amélioré */}
+                <div className="mb-6 flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                        <div className="w-1 h-8 bg-gradient-to-b from-orange-500 to-amber-500 rounded-full"></div>
+                        <h3 className="text-xl font-bold text-gray-800">
+                            Annonces disponibles
+                        </h3>
+                        <span className="bg-orange-100 text-orange-700 px-3 py-1 rounded-full text-sm font-semibold">
+                            {searchResults.length}
+                        </span>
+                    </div>
                 </div>
 
                 {/* Vue Carte */}
                 {viewMode === 'map' && (
-                    <div className="mb-8">
+                    <div className="mb-8 rounded-2xl overflow-hidden shadow-xl border border-gray-100">
                         <AnnouncementMapNavigoo
                             announcements={searchResults}
                             onAnnouncementSelect={handleAnnouncementSelect}
@@ -372,79 +399,97 @@ const AnnouncementSearch = () => {
                     </div>
                 )}
 
-                {/* Vue Liste */}
+                {/* Vue Liste - Design amélioré */}
                 {viewMode === 'list' && (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {isLoading ? (
-                            <div className="col-span-full flex justify-center py-12">
-                                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600"></div>
+                            <div className="col-span-full flex flex-col items-center justify-center py-16">
+                                <div className="animate-spin rounded-full h-14 w-14 border-4 border-orange-200 border-t-orange-600 mb-4"></div>
+                                <p className="text-gray-500 font-medium">Chargement des annonces...</p>
                             </div>
                         ) : searchResults.length === 0 ? (
-                            <div className="col-span-full text-center py-12 text-gray-500">
-                                <p className="text-lg">Aucune annonce trouvée</p>
-                                <p className="text-sm mt-2">Essayez de modifier vos critères de recherche</p>
+                            <div className="col-span-full text-center py-16">
+                                <div className="bg-orange-50 rounded-full w-20 h-20 flex items-center justify-center mx-auto mb-4">
+                                    <span className="text-4xl">📭</span>
+                                </div>
+                                <p className="text-xl font-semibold text-gray-700 mb-2">Aucune annonce trouvée</p>
+                                <p className="text-gray-500 max-w-md mx-auto">
+                                    Essayez de modifier vos critères de recherche ou consultez toutes les annonces disponibles
+                                </p>
                             </div>
                         ) : (
                             searchResults.map((announcement) => (
                                 <div
                                     key={announcement.id}
-                                    className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow"
+                                    className="group bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 border border-gray-100 hover:border-orange-200 hover:-translate-y-1"
                                 >
-                                    <div className="p-4">
+                                    <div className="p-5">
                                         {/* Header avec avatar */}
-                                        <div className="flex items-center gap-3 mb-3">
-                                            <img
-                                                src={announcement.authorImageUrl || '/dark_avatar.svg'}
-                                                alt={announcement.authorName}
-                                                className="w-12 h-12 rounded-full object-cover"
-                                            />
-                                            <div>
-                                                <h4 className="font-semibold text-gray-800">
+                                        <div className="flex items-center gap-3 mb-4">
+                                            <div className="relative">
+                                                <img
+                                                    src={announcement.authorImageUrl || '/dark_avatar.svg'}
+                                                    alt={announcement.authorName}
+                                                    className="w-14 h-14 rounded-full object-cover ring-2 ring-gray-100 group-hover:ring-orange-200 transition-all"
+                                                />
+                                                <span className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 border-2 border-white rounded-full"></span>
+                                            </div>
+                                            <div className="flex-1">
+                                                <h4 className="font-bold text-gray-800 text-lg">
                                                     {announcement.authorName || 'Client'}
                                                 </h4>
-                                                <p className="text-xs text-gray-500">
-                                                    {announcement.startDate} à {announcement.startTime}
+                                                <p className="text-sm text-gray-500 flex items-center gap-1">
+                                                    <span>📅</span> {announcement.startDate} à {announcement.startTime}
                                                 </p>
                                             </div>
                                         </div>
 
-                                        {/* Trajet */}
-                                        <div className="mb-3">
-                                            <div className="flex items-center gap-2 text-sm">
-                                                <span className="w-2 h-2 bg-green-500 rounded-full"></span>
-                                                <span className="font-medium">{announcement.pickupLocation}</span>
-                                            </div>
-                                            <div className="ml-1 border-l-2 border-dashed border-gray-300 h-4"></div>
-                                            <div className="flex items-center gap-2 text-sm">
-                                                <span className="w-2 h-2 bg-red-500 rounded-full"></span>
-                                                <span className="font-medium">{announcement.dropoffLocation}</span>
+                                        {/* Trajet - Design amélioré */}
+                                        <div className="bg-gradient-to-r from-gray-50 to-orange-50 rounded-xl p-4 mb-4">
+                                            <div className="flex items-start gap-3">
+                                                <div className="flex flex-col items-center">
+                                                    <span className="w-3 h-3 bg-green-500 rounded-full ring-4 ring-green-100"></span>
+                                                    <div className="w-0.5 h-8 bg-gradient-to-b from-green-500 to-red-500 my-1"></div>
+                                                    <span className="w-3 h-3 bg-red-500 rounded-full ring-4 ring-red-100"></span>
+                                                </div>
+                                                <div className="flex-1 space-y-4">
+                                                    <div>
+                                                        <p className="text-xs text-gray-500 uppercase font-semibold">Départ</p>
+                                                        <p className="font-medium text-gray-800">{announcement.pickupLocation}</p>
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-xs text-gray-500 uppercase font-semibold">Arrivée</p>
+                                                        <p className="font-medium text-gray-800">{announcement.dropoffLocation}</p>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
 
                                         {/* Infos supplémentaires */}
                                         {announcement.baggageInfo && (
-                                            <p className="text-xs text-gray-500 mb-2">
-                                                🧳 {announcement.baggageInfo}
-                                            </p>
+                                            <div className="flex items-center gap-2 text-sm text-gray-600 mb-4 bg-blue-50 px-3 py-2 rounded-lg">
+                                                <span>🧳</span>
+                                                <span>{announcement.baggageInfo}</span>
+                                            </div>
                                         )}
 
                                         {/* Prix et actions */}
-                                        <div className="flex items-center justify-between mt-4">
-                                            <div>
-                                                <span className="text-xl font-bold text-green-600">
-                                                    {announcement.cost} XAF
+                                        <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-2xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
+                                                    {announcement.cost?.toLocaleString()} XAF
                                                 </span>
                                                 {announcement.isNegotiable && (
-                                                    <span className="ml-2 text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">
-                                                        Négociable
+                                                    <span className="text-xs bg-amber-100 text-amber-700 px-2 py-1 rounded-full font-medium">
+                                                        💬 Négociable
                                                     </span>
                                                 )}
                                             </div>
                                             <button
                                                 onClick={() => handleApply(announcement.id)}
-                                                className="bg-orange-500 text-white py-2 px-4 rounded-lg text-sm hover:bg-orange-600 transition-colors"
+                                                className="bg-gradient-to-r from-orange-500 to-amber-500 text-white py-2.5 px-5 rounded-xl text-sm font-semibold hover:from-orange-600 hover:to-amber-600 transition-all duration-200 shadow-md hover:shadow-lg"
                                             >
-                                                Postuler
+                                                Postuler ✨
                                             </button>
                                         </div>
                                     </div>
