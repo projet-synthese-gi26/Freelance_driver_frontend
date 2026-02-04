@@ -13,9 +13,9 @@ import Link from "next/link";
 import { cookies } from "next/headers";
 import Location from "../localisation/Location";
 
-const NewFooter = () => {
+const NewFooter = ({ locale }: { locale?: string }) => {
   const t = useTranslations("Freelance.footer")
-  const defaultLocale = cookies().get('locale')?.value || 'en'
+  const defaultLocale = locale || 'en'
  
   return (
     <footer className="bg-[#2D3A96] font-inter text-white z-20 mt-auto">

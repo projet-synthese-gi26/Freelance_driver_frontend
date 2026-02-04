@@ -1,12 +1,13 @@
 // src/components/auth/LoginFormEmail.tsx
 "use client";
 import React, { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { toast } from "react-hot-toast";
 import { authService } from "@/service/authService";
 import { sessionService } from "@/service/sessionService";
 import { EyePassword, NoEyePassword } from "@/components/icon/passwordIcon";
 import { useAuthContext } from "@/components/context/authContext";
+import { UserSessionContext } from "@/type/profile";
 
 interface LoginFormProps {
     onForgottenPasswordClick: (callback: () => void) => void;
@@ -16,6 +17,7 @@ interface LoginFormProps {
 
 export default function LoginFormEmail({ onForgottenPasswordClick, onSignUpClick, onSuccess }: LoginFormProps) {
     const router = useRouter();
+    const pathname = usePathname();
     const { checkAuth } = useAuthContext();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -60,7 +62,7 @@ export default function LoginFormEmail({ onForgottenPasswordClick, onSignUpClick
                 console.warn("⚠️ checkAuth a échoué (non bloquant):", ctxError);
             }
 
-            // 4. Redirection
+            // 4. Redirection - Rester sur la page actuelle si ce n'est pas une page d'auth
             const roles = user.roles?.map(role => role.roleType).filter(Boolean) as string[] | undefined;
             const actorRole = actor?.roleType ? [actor.roleType] : [];
             const resolvedRoles = (roles && roles.length > 0 ? roles : actorRole);
@@ -72,13 +74,27 @@ export default function LoginFormEmail({ onForgottenPasswordClick, onSignUpClick
                 onSuccess();
             }
 
-            if (resolvedRoles?.includes('DRIVER')) {
-                router.push('/freelance-dashboard');
-            } else if (resolvedRoles?.includes('CLIENT')) {
-                router.push('/customer-dashboard');
+            // Vérifier si on est sur une page d'authentification ou la page d'accueil
+            const authPages = ['/login', '/register', '/signup', '/signin', '/otp', '/choose-profile'];
+            const isAuthPage = authPages.some(page => pathname?.includes(page));
+            const isHomePage = pathname === '/' || pathname === '/freelance' || pathname === '/driver' || pathname === '/passenger';
+
+            // Si on est sur une page d'auth ou la page d'accueil, rediriger vers la page de RECHERCHE appropriée
+            // Chauffeur → /announcement-search (voir les annonces des clients)
+            // Client → /freelance-search (voir les chauffeurs disponibles)
+            if (isAuthPage || isHomePage) {
+                if (resolvedRoles?.includes('DRIVER')) {
+                    router.push('/announcement-search');
+                } else if (resolvedRoles?.includes('CLIENT')) {
+                    router.push('/freelance-search');
+                } else {
+                    // Par défaut, un nouvel utilisateur est considéré comme client
+                    console.warn("⚠️ Aucun rôle connu détecté, redirection vers recherche chauffeur.");
+                    router.push('/freelance-search');
+                }
             } else {
-                console.warn("⚠️ Aucun rôle connu détecté, redirection par défaut.");
-                router.push('/freelance-dashboard');
+                // Rester sur la page actuelle - le contexte sera mis à jour via checkAuth
+                router.refresh();
             }
 
         } catch (error: any) {

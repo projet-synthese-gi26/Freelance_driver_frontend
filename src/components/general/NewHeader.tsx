@@ -14,7 +14,7 @@ import { MyAccountAvatar } from "@/components/general/MyAccountAvatar";
 import { usePathname } from "next/navigation";
 import Header from "../landingpage/Header";
 
-const NewHeader = () => {
+const NewHeader = ({ locale }: { locale?: string }) => {
 
   const pathToRoute: Record<string, string> = {
     driver: '/driver',
@@ -37,9 +37,11 @@ const NewHeader = () => {
   const isInstitutions = pathname.startsWith("/institution");
   const isPassengers = pathname.startsWith("/passenger");
   const isAgencies = pathname.startsWith("/passenger");
+  const isSearchPage = pathname.startsWith("/freelance-search") || pathname.startsWith("/announcement-search");
+  const isBookingPage = pathname.startsWith("/freelance-booking");
 
-
-  const { authUser} = useAuthContext();
+  // Utiliser user au lieu de authUser pour être sûr d'avoir les données à jour
+  const { authUser, user, isLoading: authLoading } = useAuthContext();
   const { openLoginModal, openRegisterModal } = useAuthModal();
   const t = useTranslations("Freelance.header");
   const [visible, setVisible] = useState(false);
@@ -156,7 +158,7 @@ const NewHeader = () => {
     <>
       {isHomePage && <Header />}
 
-      {(isDrivers || isFreelance || isAgencies || isPassengers || isInstitutions) && (
+      {(isDrivers || isFreelance || isAgencies || isPassengers || isInstitutions || isSearchPage || isBookingPage) && (
         <header
           className={`bg-white  font-inter w-full text-black z-10 ${dark ? "nav-color backdrop-blur-sm shadow-md" : ""
             } border-b`}
@@ -203,13 +205,14 @@ const NewHeader = () => {
             <div className=" hidden lg:flex">
               <LocaleSwitcher status="dark" />
             </div>
-            {!authUser ? (
+            {/* Afficher avatar si connecté, sinon boutons de connexion */}
+            {(!user && !authLoading) ? (
               authenticationSystem
-            ) : (
+            ) : user ? (
               <div className=" hidden lg:flex">
                 <MyAccountAvatar />
               </div>
-            )}
+            ) : null}
 
             <div className="lg:hidden">
               <button
@@ -249,7 +252,11 @@ const NewHeader = () => {
                   </div>
                 ))}
 
-                {!authUser ? authenticationSystemRespo : <MyAccountAvatar />}
+                {(!user && !authLoading) ? authenticationSystemRespo : user ? (
+                  <li className="py-2 border-t border-gray-100 mt-2">
+                    <MyAccountAvatar />
+                  </li>
+                ) : null}
                 <LocaleSwitcher status="dark" />
               </ul>
             </div>

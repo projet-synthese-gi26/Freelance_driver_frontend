@@ -26,8 +26,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [user, setUser] = useState<UserSessionContext | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const router = useRouter();
-    const [authUser, setAuthUser] = useState<UserSessionContext | null>(null); 
-    const [authUserIsLoading, setAuthUserIsLoading] = useState<boolean>(false)
    
     //Fonction local pour set une registration
      const handleRegister = useCallback(async (registrationData: RegistrationRequest) => {
@@ -84,14 +82,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             
             toast.success("Connexion réussie !");
             
-            // Redirection
-            const roles = response.user?.roles?.map(role => role.roleType).filter(Boolean) as string[] | undefined;
-
-            if (roles?.includes('DRIVER')) {
-                router.push('/freelance-dashboard');
-            } else {
-                router.push('/customer-dashboard');
-            }
+            // Ne pas rediriger automatiquement - laisser le composant de login gérer la redirection
+            // Le composant LoginFormEmail gère maintenant la logique de redirection
+            // en fonction de la page actuelle
+            
         } catch (error: any) {
             console.error(error);
             throw error; // Laisse le formulaire gérer l'affichage de l'erreur
@@ -103,13 +97,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const logout = () => {
         sessionService.clearUserData();
         setUser(null);
-        router.push('/login');
+        router.push('/freelance'); // Rediriger vers la page d'accueil au lieu de /login
         toast.success("Déconnecté");
     };
-   
+
+    // authUser est maintenant synchronisé avec user pour la compatibilité
+    const authUser = user;
+    const authUserIsLoading = isLoading;
 
     return (
-        <AuthContext.Provider value={{ user, isLoading, login, logout, authUser, register: handleRegister, checkAuth, authUserIsLoading: isLoading }}>
+        <AuthContext.Provider value={{ user, isLoading, login, logout, authUser, register: handleRegister, checkAuth, authUserIsLoading }}>
             {children}
         </AuthContext.Provider>
     );

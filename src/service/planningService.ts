@@ -76,4 +76,10 @@ export const planningService = {
   deletePlanning: async (id: string): Promise<void> => {
     await apiClient.delete(`/api/v1/driver/plannings/${id}`);
   },
+
+  getPublishedPlannings: async (): Promise<Planning[]> => {
+    const response = await apiClient.get('/api/v1/public/plannings/published');
+    return response.data.map(mapBackendPlanning);
+  },
+  
 };

@@ -6,11 +6,12 @@ import React, {useEffect, useRef, useState} from 'react';
 import Select from '@/components/general/CustomSelect';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import { useSearchParams} from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import SearchResult from "@/components/search/SearchResultSection";
 import { faLocationCrosshairs } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {createAutocomplete} from "@/scripts/autocomplete"
+import dynamic from 'next/dynamic';
 
 import {
     meetingPointOptions,
@@ -21,14 +22,28 @@ import {
     pricingMethod,
     languageOptions,
 } from "@/data/Structure";
-import {MagnifyingGlassIcon} from "@heroicons/react/24/outline";
+import {MagnifyingGlassIcon, MapIcon} from "@heroicons/react/24/outline";
 import { planningService } from '@/service/planningService';
 import { toast } from 'react-hot-toast';
+
+// Import dynamique du composant carte pour éviter les erreurs SSR
+const DriverMapNavigoo = dynamic(
+    () => import('@/components/search/DriverMapNavigoo'),
+    { 
+        ssr: false,
+        loading: () => (
+            <div className="w-full h-[400px] bg-gray-100 rounded-lg flex items-center justify-center">
+                <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div>
+            </div>
+        )
+    }
+);
 
 
 
 const Search = () => {
     const searchParams = useSearchParams();
+    const router = useRouter();
     const locationBase = searchParams.get('location');
     const destinationBase = searchParams.get('destination');
     const locationRef = useRef(null);
@@ -42,6 +57,8 @@ const Search = () => {
     const [destination, setDestination] = useState(destinationBase || '');
     const [iconsLoaded, setIconsLoaded] = useState(false);
     const [showAdvanced, setShowAdvanced] = useState(false);
+    const [showMap, setShowMap] = useState(true); // Afficher la carte par défaut
+    const [viewMode, setViewMode] = useState('map'); // 'map' ou 'list'
     const [formData, setFormData] = useState({
         location:"",
         destination:"",
@@ -174,230 +191,457 @@ const Search = () => {
 
 
     return (
-        <div className=" text p-2 md:pb-4 flex-col sm:flex-row gap-3 sm:gap-5 text-lg bg-gray-200">
-            <div className="container mx-auto p-6 font-inter">
-                <div className="mb-5 text-center">
-                    <h1 className="font-bold bigtitle text-black mb-3">
+        <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
+            <div className="container mx-auto px-4 py-8 font-inter">
+                {/* Header Section */}
+                <div className="mb-8 text-center">
+                    <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
                         Unlock the Freedom of On-Demand Driving
                     </h1>
-                    <h2 className="title text-black font-medium leading-tight">
+                    <p className="text-lg text-gray-600">
                         Find and book the best driver
-                    </h2>
+                    </p>
                 </div>
 
+                {/* Search Form Card */}
                 <form onSubmit={handleSearch} className="mb-8">
-                    <div className="flex flex-wrap gap-2 lg:{flex flex-wrap gap-1}">
-                        <div className="relative flex-auto w-full md:w-[30%] xl:w-[30%] h-max">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-2">
-                                <div className="relative auto-search-wrapper w-full lg:w-3/4">
+                    <div className="bg-white rounded-2xl shadow-lg p-6 md:p-8 border border-gray-100">
+                        {/* Location Inputs */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                            <div className="relative">
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Pickup Location</label>
+                                <div className="relative auto-search-wrapper">
                                     <input
                                         type="text"
                                         id="location"
                                         ref={locationRef}
                                         value={location}
                                         onChange={(e) => setLocation(e.target.value)}
-                                        placeholder="Select your location"
-                                        className=" pl-10 border rounded w-full"
+                                        placeholder="Enter your location"
+                                        className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200 bg-gray-50 hover:bg-white"
                                     />
                                     {iconsLoaded && (
-                                        <FontAwesomeIcon
-                                            icon={faLocationCrosshairs}
-                                            className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-                                            style={{width: '15px', height: '15px'}}
-                                        />
+                                        <div className="absolute left-4 top-1/2 transform -translate-y-1/2 w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                                            <FontAwesomeIcon
+                                                icon={faLocationCrosshairs}
+                                                className="text-green-600"
+                                                style={{width: '14px', height: '14px'}}
+                                            />
+                                        </div>
                                     )}
                                 </div>
+                            </div>
 
-                                <div className="relative auto-search-wrapper w-full lg:w-3/4">
+                            <div className="relative">
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Destination</label>
+                                <div className="relative auto-search-wrapper">
                                     <input
                                         type="text"
                                         id="destination"
                                         ref={destinationRef}
                                         value={destination}
                                         onChange={(e) => setDestination(e.target.value)}
-                                        placeholder="Select your destination"
-                                        className=" pl-10 border rounded w-full"
+                                        placeholder="Enter your destination"
+                                        className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200 bg-gray-50 hover:bg-white"
                                     />
                                     {iconsLoaded && (
-                                        <FontAwesomeIcon
-                                            icon={faLocationCrosshairs}
-                                            className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-                                            style={{width: '15px', height: '15px'}}
-                                        />
+                                        <div className="absolute left-4 top-1/2 transform -translate-y-1/2 w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
+                                            <FontAwesomeIcon
+                                                icon={faLocationCrosshairs}
+                                                className="text-red-600"
+                                                style={{width: '14px', height: '14px'}}
+                                            />
+                                        </div>
                                     )}
                                 </div>
+                            </div>
+                        </div>
 
+                        {/* Filters Row */}
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Driver Type</label>
                                 <Select
                                     options={driverType}
-                                    placeholder="Driver type"
+                                    placeholder="Select..."
                                     className="react-select-container"
                                     classNamePrefix="react-select"
-                                    maxMenuHeight={180} // Hauteur pour environ 3 éléments
+                                    maxMenuHeight={180}
+                                    styles={{
+                                        control: (base) => ({
+                                            ...base,
+                                            borderRadius: '0.75rem',
+                                            borderWidth: '2px',
+                                            borderColor: '#e5e7eb',
+                                            backgroundColor: '#f9fafb',
+                                            padding: '4px',
+                                            '&:hover': { borderColor: '#3b82f6' }
+                                        })
+                                    }}
                                     onChange={(selectedOption) => handleInputChange('driverType', selectedOption?.value)}
-                                />
-
-                                <Select
-                                    options={paymentMethod}
-                                    placeholder="Payment Method"
-                                    className="react-select-container"
-                                    classNamePrefix="react-select"
-                                    maxMenuHeight={180} // Hauteur pour environ 3 éléments
-                                    onChange={(selectedOption) => handleInputChange('driverType', selectedOption?.value)}
-                                />
-
-                                <Select
-                                    options={tripType}
-                                    placeholder="Trip type"
-                                    className="react-select-container"
-                                    classNamePrefix="react-select"
-                                    maxMenuHeight={180} // Hauteur pour environ 3 éléments
-                                    onChange={(selectedOption) => handleInputChange('tripType', selectedOption?.value)}
-                                />
-
-                                <Select
-                                    options={meetingPointOptions}
-                                    placeholder="Select meetup point"
-                                    className="react-select-container"
-                                    classNamePrefix="react-select"
-                                    maxMenuHeight={180} // Hauteur pour environ 3 éléments
-                                    onChange={(selectedOption) => handleInputChange('meetupPoint', selectedOption?.value)}
                                 />
                             </div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-2">
-                                <div className="flex items-center gap-4">
-                                    <div className="flex items-center gap-2">
-                                        <label className="whitespace-nowrap font-medium">From:</label>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Payment</label>
+                                <Select
+                                    options={paymentMethod}
+                                    placeholder="Select..."
+                                    className="react-select-container"
+                                    classNamePrefix="react-select"
+                                    maxMenuHeight={180}
+                                    styles={{
+                                        control: (base) => ({
+                                            ...base,
+                                            borderRadius: '0.75rem',
+                                            borderWidth: '2px',
+                                            borderColor: '#e5e7eb',
+                                            backgroundColor: '#f9fafb',
+                                            padding: '4px',
+                                            '&:hover': { borderColor: '#3b82f6' }
+                                        })
+                                    }}
+                                    onChange={(selectedOption) => handleInputChange('paymentMethod', selectedOption?.value)}
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Trip Type</label>
+                                <Select
+                                    options={tripType}
+                                    placeholder="Select..."
+                                    className="react-select-container"
+                                    classNamePrefix="react-select"
+                                    maxMenuHeight={180}
+                                    styles={{
+                                        control: (base) => ({
+                                            ...base,
+                                            borderRadius: '0.75rem',
+                                            borderWidth: '2px',
+                                            borderColor: '#e5e7eb',
+                                            backgroundColor: '#f9fafb',
+                                            padding: '4px',
+                                            '&:hover': { borderColor: '#3b82f6' }
+                                        })
+                                    }}
+                                    onChange={(selectedOption) => handleInputChange('tripType', selectedOption?.value)}
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Meetup Point</label>
+                                <Select
+                                    options={meetingPointOptions}
+                                    placeholder="Select..."
+                                    className="react-select-container"
+                                    classNamePrefix="react-select"
+                                    maxMenuHeight={180}
+                                    styles={{
+                                        control: (base) => ({
+                                            ...base,
+                                            borderRadius: '0.75rem',
+                                            borderWidth: '2px',
+                                            borderColor: '#e5e7eb',
+                                            backgroundColor: '#f9fafb',
+                                            padding: '4px',
+                                            '&:hover': { borderColor: '#3b82f6' }
+                                        })
+                                    }}
+                                    onChange={(selectedOption) => handleInputChange('meetupPoint', selectedOption?.value)}
+                                />
+                            </div>
+                        </div>
+
+                        {/* Date Time Section */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6 p-4 bg-gray-50 rounded-xl">
+                            <div className="flex flex-wrap items-center gap-4">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                                        <span className="text-blue-600 font-semibold text-sm">De</span>
+                                    </div>
+                                    <div>
                                         <DatePicker
                                             minDate={currentDate}
                                             selected={formData.startDate}
                                             onChange={(date) => handleInputChange('startDate', date)}
                                             dateFormat="dd/MM/yyyy"
-                                            className="px-2 border rounded w-32"
+                                            className="px-4 py-2.5 border-2 border-gray-200 rounded-xl w-36 focus:border-blue-500 focus:outline-none bg-white"
                                         />
                                     </div>
-                                    <div className="flex items-center gap-2">
-                                        <label className="whitespace-nowrap font-medium">At:</label>
-                                        <DatePicker
-                                            selected={formData.startTime}
-                                            onChange={(time) => handleInputChange('startTime', time)}
-                                            showTimeSelect
-                                            showTimeSelectOnly
-                                            timeIntervals={15}
-                                            timeCaption="Time"
-                                            dateFormat="HH:mm aa"
-                                            className="px-2 border rounded w-24"
-                                            minTime={getMinTime(formData.startDate)}
-                                            maxTime={new Date(formData.startDate.getFullYear(), formData.startDate.getMonth(), formData.startDate.getDate(), 23, 45)}
-                                        />
-                                    </div>
+                                    <span className="text-gray-400">à</span>
+                                    <DatePicker
+                                        selected={formData.startTime}
+                                        onChange={(time) => handleInputChange('startTime', time)}
+                                        showTimeSelect
+                                        showTimeSelectOnly
+                                        timeIntervals={15}
+                                        timeCaption="Time"
+                                        dateFormat="HH:mm"
+                                        className="px-4 py-2.5 border-2 border-gray-200 rounded-xl w-24 focus:border-blue-500 focus:outline-none bg-white"
+                                        minTime={getMinTime(formData.startDate)}
+                                        maxTime={new Date(formData.startDate.getFullYear(), formData.startDate.getMonth(), formData.startDate.getDate(), 23, 45)}
+                                    />
                                 </div>
-                                <div className="flex items-center gap-4">
-                                    <div className="flex items-center gap-2">
-                                        <label className="whitespace-nowrap font-medium">To:</label>
+                            </div>
+                            <div className="flex flex-wrap items-center gap-4">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center">
+                                        <span className="text-orange-600 font-semibold text-sm">À</span>
+                                    </div>
+                                    <div>
                                         <DatePicker
                                             minDate={currentDate}
                                             selected={formData.endDate}
                                             onChange={(date) => handleInputChange('endDate', date)}
                                             dateFormat="dd/MM/yyyy"
-                                            className="px-2 border rounded w-32"
+                                            className="px-4 py-2.5 border-2 border-gray-200 rounded-xl w-36 focus:border-blue-500 focus:outline-none bg-white"
                                         />
                                     </div>
-                                    <div className="flex items-center gap-2">
-                                        <label className="whitespace-nowrap font-medium">At:</label>
-                                        <DatePicker
-                                            selected={formData.endTime}
-                                            onChange={(time) => handleInputChange('endTime', time)}
-                                            showTimeSelect
-                                            showTimeSelectOnly
-                                            timeIntervals={15}
-                                            timeCaption="Time"
-                                            dateFormat="HH:mm aa"
-                                            className="px-2 border rounded w-24"
-                                            minTime={formData.endDate > formData.startDate ?
-                                                new Date(formData.endDate.getFullYear(), formData.endDate.getMonth(), formData.endDate.getDate(), 0, 0) :
-                                                formData.startTime}
-                                            maxTime={new Date(formData.endDate.getFullYear(), formData.endDate.getMonth(), formData.endDate.getDate(), 23, 45)}
-                                        />
-                                    </div>
+                                    <span className="text-gray-400">à</span>
+                                    <DatePicker
+                                        selected={formData.endTime}
+                                        onChange={(time) => handleInputChange('endTime', time)}
+                                        showTimeSelect
+                                        showTimeSelectOnly
+                                        timeIntervals={15}
+                                        timeCaption="Time"
+                                        dateFormat="HH:mm"
+                                        className="px-4 py-2.5 border-2 border-gray-200 rounded-xl w-24 focus:border-blue-500 focus:outline-none bg-white"
+                                        minTime={formData.endDate > formData.startDate ?
+                                            new Date(formData.endDate.getFullYear(), formData.endDate.getMonth(), formData.endDate.getDate(), 0, 0) :
+                                            formData.startTime}
+                                        maxTime={new Date(formData.endDate.getFullYear(), formData.endDate.getMonth(), formData.endDate.getDate(), 23, 45)}
+                                    />
                                 </div>
                             </div>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
+                        </div>
+
+                        {/* Additional Filters */}
+                        <div className="grid grid-cols-2 md:grid-cols-2 gap-4 mb-6">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Preferred Language</label>
                                 <Select
                                     options={languageOptions}
-                                    placeholder="Preferred language"
+                                    placeholder="Select language..."
                                     className="react-select-container"
                                     classNamePrefix="react-select"
-                                    maxMenuHeight={180} // Hauteur pour environ 3 éléments
+                                    maxMenuHeight={180}
+                                    styles={{
+                                        control: (base) => ({
+                                            ...base,
+                                            borderRadius: '0.75rem',
+                                            borderWidth: '2px',
+                                            borderColor: '#e5e7eb',
+                                            backgroundColor: '#f9fafb',
+                                            padding: '4px',
+                                            '&:hover': { borderColor: '#3b82f6' }
+                                        })
+                                    }}
                                     onChange={(selectedOption) => handleInputChange('preferredLanguage', selectedOption?.value)}
                                 />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Trip Intention</label>
                                 <Select
                                     options={tripIntention}
-                                    placeholder="Trip intention"
+                                    placeholder="Select intention..."
                                     className="react-select-container"
                                     classNamePrefix="react-select"
-                                    maxMenuHeight={180} // Hauteur pour environ 3 éléments
+                                    maxMenuHeight={180}
+                                    styles={{
+                                        control: (base) => ({
+                                            ...base,
+                                            borderRadius: '0.75rem',
+                                            borderWidth: '2px',
+                                            borderColor: '#e5e7eb',
+                                            backgroundColor: '#f9fafb',
+                                            padding: '4px',
+                                            '&:hover': { borderColor: '#3b82f6' }
+                                        })
+                                    }}
                                     onChange={(selectedOption) => handleInputChange('tripIntention', selectedOption?.value)}
                                 />
                             </div>
-                            <div className="flex justify-between items-center">
-                                <button
-                                    type="button"  // Ajout de cette ligne
-                                    onClick={() => setShowAdvanced(!showAdvanced)}
-                                    className="text-blue-600 hover:text-blue-800"
-                                >
-                                    {showAdvanced ? 'Hide advanced options' : 'Show advanced options'}
-                                </button>
-                            </div>
+                        </div>
 
-                            {showAdvanced && (
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                        {/* Advanced Options Toggle */}
+                        <div className="flex justify-between items-center mb-4">
+                            <button
+                                type="button"
+                                onClick={() => setShowAdvanced(!showAdvanced)}
+                                className="flex items-center gap-2 text-blue-600 hover:text-blue-800 font-medium transition-colors"
+                            >
+                                <svg className={`w-5 h-5 transition-transform ${showAdvanced ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                </svg>
+                                {showAdvanced ? 'Hide advanced options' : 'Show advanced options'}
+                            </button>
+                        </div>
+
+                        {showAdvanced && (
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 p-4 bg-blue-50 rounded-xl border border-blue-100">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">Experience (years)</label>
                                     <input
                                         type="number"
-                                        placeholder="Experience (years)"
-                                        className="px-2 border rounded"
+                                        placeholder="Min years..."
+                                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none bg-white"
                                         onChange={(e) => handleInputChange('experience', e.target.value)}
                                     />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">Average Rating</label>
                                     <Select
                                         options={[1, 2, 3, 4, 5].map(n => ({value: n, label: '⭐'.repeat(n)}))}
-                                        placeholder="Average rating"
+                                        placeholder="Min rating..."
                                         className="react-select-container"
                                         classNamePrefix="react-select"
-                                        maxMenuHeight={180} // Hauteur pour environ 3 éléments
+                                        maxMenuHeight={180}
+                                        styles={{
+                                            control: (base) => ({
+                                                ...base,
+                                                borderRadius: '0.75rem',
+                                                borderWidth: '2px',
+                                                borderColor: '#e5e7eb',
+                                                backgroundColor: 'white',
+                                                padding: '4px'
+                                            })
+                                        }}
                                         onChange={(selectedOption) => handleInputChange('averageRating', selectedOption?.value)}
                                     />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">Pricing Method</label>
                                     <Select
                                         options={pricingMethod}
-                                        placeholder="Pricing method"
+                                        placeholder="Select..."
                                         className="react-select-container"
                                         classNamePrefix="react-select"
-                                        maxMenuHeight={180} // Hauteur pour environ 3 éléments
+                                        maxMenuHeight={180}
+                                        styles={{
+                                            control: (base) => ({
+                                                ...base,
+                                                borderRadius: '0.75rem',
+                                                borderWidth: '2px',
+                                                borderColor: '#e5e7eb',
+                                                backgroundColor: 'white',
+                                                padding: '4px'
+                                            })
+                                        }}
                                         onChange={(selectedOption) => handleInputChange('pricingMethod', selectedOption?.value)}
                                     />
                                 </div>
-                            )}
-
-                            <div className="w-full flex justify-end gap-3">
-                                <button type="button" onClick={handleFindAll}
-                                        className="bg-gray-500 text-white px-2 py-2 sm:px-4 sm:py-2 rounded-md hover:bg-gray-600 flex items-center justify-center text w-full sm:w-auto">
-                                    Find All
-                                </button>
-                                <button type="submit"
-                                        className="bg-black text-white px-2 py-2 sm:px-4  sm:py-2 rounded-md hover:bg-gray-800 flex items-center justify-center text w-full sm:w-auto">
-
-                                    Find a driver
-                                </button>
                             </div>
+                        )}
+
+                        {/* Action Buttons */}
+                        <div className="flex flex-col sm:flex-row justify-end gap-3">
+                            <button 
+                                type="button" 
+                                onClick={handleFindAll}
+                                disabled={isLoading}
+                                className="px-6 py-3 bg-gray-100 text-gray-700 rounded-xl font-medium hover:bg-gray-200 transition-all duration-200 flex items-center justify-center gap-2 border-2 border-gray-200"
+                            >
+                                {isLoading ? (
+                                    <div className="w-5 h-5 border-2 border-gray-400 border-t-transparent rounded-full animate-spin"></div>
+                                ) : (
+                                    <MagnifyingGlassIcon className="w-5 h-5" />
+                                )}
+                                Find All
+                            </button>
+                            <button 
+                                type="submit"
+                                disabled={isLoading}
+                                className="px-8 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl font-medium hover:from-blue-700 hover:to-blue-800 transition-all duration-200 shadow-lg shadow-blue-500/30 flex items-center justify-center gap-2"
+                            >
+                                {isLoading ? (
+                                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                ) : (
+                                    <MagnifyingGlassIcon className="w-5 h-5" />
+                                )}
+                                Find a Driver
+                            </button>
                         </div>
                     </div>
                 </form>
+
+                {/* Results Section */}
+                <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-6">
+                    <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                            <span className="text-blue-600 font-bold">{searchResults.length}</span>
+                        </div>
+                        <span className="font-medium text-gray-700">
+                            chauffeur(s) trouvé(s)
+                        </span>
+                    </div>
+                    <div className="flex bg-white rounded-xl shadow-sm p-1.5 border border-gray-200">
+                        <button
+                            onClick={() => setViewMode('map')}
+                            className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
+                                viewMode === 'map' 
+                                    ? 'bg-blue-500 text-white' 
+                                    : 'text-gray-600 hover:bg-gray-100'
+                            }`}
+                        >
+                            <MapIcon className="w-5 h-5" />
+                            <span className="hidden sm:inline">Carte</span>
+                        </button>
+                        <button
+                            onClick={() => setViewMode('list')}
+                            className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
+                                viewMode === 'list' 
+                                    ? 'bg-blue-500 text-white' 
+                                    : 'text-gray-600 hover:bg-gray-100'
+                            }`}
+                        >
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+                            </svg>
+                            <span className="hidden sm:inline">Liste</span>
+                        </button>
+                    </div>
+                </div>
 
                 {isLoading ? (
                     <div className="flex justify-center py-10">
                         <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div>
                     </div>
                 ) : (
-                    searchResults.length > 0 && <SearchResult results={searchResults}/>
+                    <>
+                        {/* Vue Carte */}
+                        {viewMode === 'map' && (
+                            <div className="mb-6">
+                                <DriverMapNavigoo 
+                                    plannings={searchResults}
+                                    onDriverSelect={(planning) => {
+                                        // Navigation vers le profil du chauffeur
+                                        router.push(`/freelance-profile?planningId=${planning.id}`);
+                                    }}
+                                    className="shadow-lg"
+                                />
+                                <p className="text-sm text-gray-500 mt-2 text-center">
+                                    Cliquez sur un chauffeur pour voir son profil et calculer l'itinéraire
+                                </p>
+                            </div>
+                        )}
+
+                        {/* Vue Liste */}
+                        {viewMode === 'list' && searchResults.length > 0 && (
+                            <SearchResult results={searchResults}/>
+                        )}
+
+                        {/* Message si aucun résultat */}
+                        {searchResults.length === 0 && (
+                            <div className="text-center py-10 bg-white rounded-lg shadow">
+                                <MapIcon className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                                <p className="text-gray-500 text-lg">Aucun chauffeur trouvé</p>
+                                <p className="text-gray-400 text-sm mt-2">
+                                    Cliquez sur "Find All" pour voir tous les chauffeurs disponibles
+                                </p>
+                            </div>
+                        )}
+                    </>
                 )}
             </div>
 

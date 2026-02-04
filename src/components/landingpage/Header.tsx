@@ -22,7 +22,7 @@ const Header = () => {
   const isFreelance = pathname.startsWith("/freelance");
   const isInstitutions = pathname.startsWith("/institutions");
 
-  const { authUser } = useAuthContext();
+  const { authUser, user, isLoading: authLoading } = useAuthContext();
   const { openLoginModal, openRegisterModal } = useAuthModal();
   const t = useTranslations("Freelance.header");
   const [visible, setVisible] = useState(false);
@@ -188,13 +188,13 @@ const Header = () => {
       <div className=" hidden lg:flex">
         <LocaleSwitcher status="dark" />
       </div>
-      {!authUser ? (
+      {(!user && !authLoading) ? (
         authenticationSystem
-      ) : (
+      ) : user ? (
         <div className=" hidden lg:flex">
           <MyAccountAvatar />
         </div>
-      )}
+      ) : null}
 
       <div className="lg:hidden">
         <button
@@ -234,7 +234,11 @@ const Header = () => {
             </div>
           ))}
 
-          {!authUser ? authenticationSystemRespo : <MyAccountAvatar />}
+          {(!user && !authLoading) ? authenticationSystemRespo : user ? (
+            <li className="py-2 border-t border-gray-100 mt-2">
+              <MyAccountAvatar />
+            </li>
+          ) : null}
           <LocaleSwitcher status="dark" />
         </ul>
       </div>
