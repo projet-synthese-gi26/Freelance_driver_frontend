@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { useLocale, useTranslations } from 'next-intl';
 import { 
   MapPinIcon, CalendarIcon, FlagIcon, PencilSquareIcon, 
   TrashIcon, CloudArrowUpIcon, CloudArrowDownIcon 
@@ -27,9 +28,11 @@ const getStatusStyle = (status: string) => {
   }
 };
 
-const formatDate = (dateStr?: string) => dateStr ? new Date(dateStr).toLocaleDateString('fr-FR') : 'N/A';
+const formatDate = (dateStr: string | undefined, locale: string, fallback: string) =>
+  dateStr ? new Date(dateStr).toLocaleDateString(locale) : fallback;
 
 const PlanningTimer = ({ startDate, startTime, endDate, endTime }: Planning) => {
+  const t = useTranslations('Dashboard.shared.planningCard');
   const [timeLeft, setTimeLeft] = useState({ label: '', value: '', color: 'text-gray-600', bg: 'bg-gray-100' });
 
   const calculate = useMemo(() => () => {
@@ -38,11 +41,11 @@ const PlanningTimer = ({ startDate, startTime, endDate, endTime }: Planning) => 
     const end = new Date(`${endDate}T${endTime}`).getTime();
 
     if (isNaN(start) || isNaN(end)) {
-      return { label: 'Status', value: 'Scheduled', color: 'text-gray-600', bg: 'bg-gray-100' };
+      return { label: t('timer.status'), value: t('timer.scheduled'), color: 'text-gray-600', bg: 'bg-gray-100' };
     }
 
     if (now > end) {
-      return { label: 'Expired', value: 'Completed', color: 'text-red-600', bg: 'bg-red-50' };
+      return { label: t('timer.expired'), value: t('timer.completed'), color: 'text-red-600', bg: 'bg-red-50' };
     }
 
     const isFuture = now < start;
@@ -57,7 +60,7 @@ const PlanningTimer = ({ startDate, startTime, endDate, endTime }: Planning) => 
     const displayValue = d > 0 ? `${d}d ${h}h ${m}m` : `${h}h ${m}m ${s}s`;
 
     return {
-      label: isFuture ? 'Starts in' : 'Ends in',
+      label: isFuture ? t('timer.startsIn') : t('timer.endsIn'),
       value: displayValue,
       color: isFuture ? 'text-amber-600' : 'text-green-600',
       bg: isFuture ? 'bg-amber-50' : 'bg-green-50',
@@ -78,11 +81,13 @@ const PlanningTimer = ({ startDate, startTime, endDate, endTime }: Planning) => 
 };
 
 const PlanningCard: React.FC<PlanningCardProps> = ({ data, onModify, onPublish, onDelete }) => {
+  const t = useTranslations('Dashboard.shared.planningCard');
+  const locale = useLocale();
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex flex-col gap-4 hover:shadow-lg transition-shadow">
       <div className="flex items-start justify-between gap-4">
         <div className="space-y-1">
-          <p className="text-xs uppercase tracking-wide text-gray-500">Planning</p>
+          <p className="text-xs uppercase tracking-wide text-gray-500">{t('label')}</p>
           <h3 className="text-lg font-bold text-gray-900 leading-snug">{data.title}</h3>
           <div className="flex items-center text-sm text-gray-600">
             <MapPinIcon className="w-4 h-4 mr-2 text-blue-500" />
@@ -100,11 +105,11 @@ const PlanningCard: React.FC<PlanningCardProps> = ({ data, onModify, onPublish, 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-gray-50 rounded-xl p-3">
         <div className="flex items-center text-gray-700 text-sm">
           <CalendarIcon className="w-4 h-4 mr-2 text-gray-400" />
-          {formatDate(data.startDate)} • {data.startTime}
+          {formatDate(data.startDate, locale || 'en', t('na'))} • {data.startTime}
         </div>
         <div className="flex items-center text-gray-700 text-sm">
           <FlagIcon className="w-4 h-4 mr-2 text-gray-400" />
-          {formatDate(data.endDate)} • {data.endTime}
+          {formatDate(data.endDate, locale || 'en', t('na'))} • {data.endTime}
         </div>
       </div>
 
@@ -113,11 +118,11 @@ const PlanningCard: React.FC<PlanningCardProps> = ({ data, onModify, onPublish, 
           <span className="px-2.5 py-1 rounded-full bg-blue-50 text-blue-700">{data.tripType}</span>
           <span className="px-2.5 py-1 rounded-full bg-purple-50 text-purple-700">{data.tripIntention}</span>
           <span className="px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700">{data.pricingMethod}</span>
-          {data.negotiable && <span className="px-2.5 py-1 rounded-full bg-indigo-50 text-indigo-700">Negotiable</span>}
+          {data.negotiable && <span className="px-2.5 py-1 rounded-full bg-indigo-50 text-indigo-700">{t('negotiable')}</span>}
         </div>
         {data.regularAmount && (
           <div className="text-right">
-            <p className="text-xs uppercase text-gray-500">Price</p>
+            <p className="text-xs uppercase text-gray-500">{t('price')}</p>
             <p className="text-lg font-bold text-green-600">{Number(data.regularAmount).toLocaleString()} XAF</p>
           </div>
         )}
@@ -128,7 +133,7 @@ const PlanningCard: React.FC<PlanningCardProps> = ({ data, onModify, onPublish, 
           onClick={() => onModify(data)}
           className="flex items-center px-3 py-1.5 text-blue-600 hover:bg-blue-50 rounded-md transition"
         >
-          <PencilSquareIcon className="w-4 h-4 mr-1" /> Edit
+          <PencilSquareIcon className="w-4 h-4 mr-1" /> {t('actions.edit')}
         </button>
 
         {data.status !== 'Published' ? (
@@ -136,14 +141,14 @@ const PlanningCard: React.FC<PlanningCardProps> = ({ data, onModify, onPublish, 
             onClick={() => onPublish(data, 'publish')}
             className="flex items-center px-3 py-1.5 text-green-600 hover:bg-green-50 rounded-md transition"
           >
-            <CloudArrowUpIcon className="w-4 h-4 mr-1" /> Publish
+            <CloudArrowUpIcon className="w-4 h-4 mr-1" /> {t('actions.publish')}
           </button>
         ) : (
           <button
             onClick={() => onPublish(data, 'unpublish')}
             className="flex items-center px-3 py-1.5 text-orange-600 hover:bg-orange-50 rounded-md transition"
           >
-            <CloudArrowDownIcon className="w-4 h-4 mr-1" /> Unpublish
+            <CloudArrowDownIcon className="w-4 h-4 mr-1" /> {t('actions.unpublish')}
           </button>
         )}
 
@@ -151,7 +156,7 @@ const PlanningCard: React.FC<PlanningCardProps> = ({ data, onModify, onPublish, 
           onClick={() => onDelete(data)}
           className="flex items-center px-3 py-1.5 text-red-600 hover:bg-red-50 rounded-md transition"
         >
-          <TrashIcon className="w-4 h-4 mr-1" /> Delete
+          <TrashIcon className="w-4 h-4 mr-1" /> {t('actions.delete')}
         </button>
       </div>
     </div>

@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { FunnelIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
+import { useTranslations } from 'next-intl';
 
 // --- TYPES (Identiques au mobile) ---
 interface FilterState {
@@ -33,6 +34,7 @@ const InternalFilterModal: React.FC<{
   onClearFilters: () => void;
   initialFilters?: FilterState;
 }> = ({ isVisible, onClose, onApplyFilters, onClearFilters, initialFilters = {} }) => {
+  const t = useTranslations('Dashboard.shared.clientFilterModal');
   const [pickupLocation, setPickupLocation] = useState(initialFilters.pickupLocation || '');
   const [dropoffLocation, setDropoffLocation] = useState(initialFilters.dropoffLocation || '');
   const [startDate, setStartDate] = useState<Date | null>(initialFilters.startDate ? new Date(initialFilters.startDate) : null);
@@ -80,7 +82,7 @@ const InternalFilterModal: React.FC<{
         
         {/* Header */}
         <div className="flex justify-between items-center p-5 border-b border-gray-100">
-          <h2 className="text-xl font-bold text-gray-800">Filtrer les annonces</h2>
+          <h2 className="text-xl font-bold text-gray-800">{t('title')}</h2>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition-colors">
             <XMarkIcon className="w-6 h-6" />
           </button>
@@ -91,11 +93,11 @@ const InternalFilterModal: React.FC<{
           
           {/* Lieu de départ */}
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1">Lieu de départ</label>
+            <label className="block text-sm font-semibold text-gray-700 mb-1">{t('fields.pickupLocation.label')}</label>
             <input
               type="text"
               className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
-              placeholder="Ex: Yaoundé"
+              placeholder={t('fields.pickupLocation.placeholder')}
               value={pickupLocation}
               onChange={(e) => setPickupLocation(e.target.value)}
             />
@@ -103,11 +105,11 @@ const InternalFilterModal: React.FC<{
 
           {/* Lieu d'arrivée */}
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1">Lieu d'arrivée</label>
+            <label className="block text-sm font-semibold text-gray-700 mb-1">{t('fields.dropoffLocation.label')}</label>
             <input
               type="text"
               className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
-              placeholder="Ex: Douala"
+              placeholder={t('fields.dropoffLocation.placeholder')}
               value={dropoffLocation}
               onChange={(e) => setDropoffLocation(e.target.value)}
             />
@@ -115,24 +117,24 @@ const InternalFilterModal: React.FC<{
 
           {/* Date de début */}
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1">Date de début</label>
+            <label className="block text-sm font-semibold text-gray-700 mb-1">{t('fields.startDate.label')}</label>
             <DatePicker
               selected={startDate}
               onChange={(date) => setStartDate(date)}
               dateFormat="dd/MM/yyyy"
               className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
-              placeholderText="Sélectionner une date"
+              placeholderText={t('fields.startDate.placeholder')}
               isClearable
             />
           </div>
 
           {/* Coût maximum */}
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1">Coût maximum (FCFA)</label>
+            <label className="block text-sm font-semibold text-gray-700 mb-1">{t('fields.maxCost.label')}</label>
             <input
               type="number"
               className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
-              placeholder="Ex: 50000"
+              placeholder={t('fields.maxCost.placeholder')}
               value={maxCost}
               onChange={(e) => setMaxCost(e.target.value)}
             />
@@ -140,11 +142,11 @@ const InternalFilterModal: React.FC<{
 
           {/* Méthode de paiement */}
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1">Méthode de paiement</label>
+            <label className="block text-sm font-semibold text-gray-700 mb-1">{t('fields.paymentMethod.label')}</label>
             <input
               type="text"
               className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
-              placeholder="Ex: cash, mobile_money"
+              placeholder={t('fields.paymentMethod.placeholder')}
               value={paymentMethod}
               onChange={(e) => setPaymentMethod(e.target.value)}
             />
@@ -152,7 +154,7 @@ const InternalFilterModal: React.FC<{
 
           {/* Prix négociable (Switch style checkbox) */}
           <div className="flex items-center justify-between py-2">
-            <label className="text-sm font-semibold text-gray-700">Prix négociable</label>
+            <label className="text-sm font-semibold text-gray-700">{t('fields.negotiable.label')}</label>
             <label className="relative inline-flex items-center cursor-pointer">
               <input 
                 type="checkbox" 
@@ -172,13 +174,13 @@ const InternalFilterModal: React.FC<{
             onClick={handleInternalClear}
             className="flex-1 py-2.5 px-4 bg-red-100 text-red-600 font-semibold rounded-xl hover:bg-red-200 transition-colors"
           >
-            Effacer
+            {t('actions.clear')}
           </button>
           <button 
             onClick={handleInternalApply}
             className="flex-1 py-2.5 px-4 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 transition-colors shadow-sm"
           >
-            Appliquer
+            {t('actions.apply')}
           </button>
         </div>
       </div>
@@ -197,6 +199,7 @@ export const ClientFilterModal: React.FC<FilterModalProps> = ({
   onToggleModal,
   filteredCount
 }) => {
+  const t = useTranslations('Dashboard.shared.clientFilterModal');
   return (
     <>
       <div className="flex items-center justify-between px-4 mb-4">
@@ -212,9 +215,9 @@ export const ClientFilterModal: React.FC<FilterModalProps> = ({
         >
           <FunnelIcon className="w-5 h-5" />
           {hasActiveFilters ? (
-            <span className="font-semibold text-sm">Filtres actifs</span>
+            <span className="font-semibold text-sm">{t('trigger.activeFilters')}</span>
           ) : (
-            <span className="font-semibold text-sm">Filtrer</span>
+            <span className="font-semibold text-sm">{t('trigger.filter')}</span>
           )}
         </button>
 

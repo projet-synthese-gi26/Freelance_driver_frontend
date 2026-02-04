@@ -392,6 +392,130 @@
 }
 },
 "Dashboard": {
+"shared": {
+"emptyJumbotron": {
+"default": {
+"title": "Aucun élément",
+"message": "Aucun contenu à afficher pour le moment."
+},
+"network": {
+"title": "Erreur réseau",
+"message": "Une erreur réseau est survenue. Vérifiez votre connexion internet et réessayez."
+}
+},
+"clientFilterModal": {
+"title": "Filtrer les annonces",
+"fields": {
+"pickupLocation": {
+"label": "Lieu de départ",
+"placeholder": "Ex: Yaoundé"
+},
+"dropoffLocation": {
+"label": "Lieu d'arrivée",
+"placeholder": "Ex: Douala"
+},
+"startDate": {
+"label": "Date de début",
+"placeholder": "Sélectionner une date"
+},
+"maxCost": {
+"label": "Coût maximum (FCFA)",
+"placeholder": "Ex: 50000"
+},
+"paymentMethod": {
+"label": "Méthode de paiement",
+"placeholder": "Ex: cash, mobile_money"
+},
+"negotiable": {
+"label": "Prix négociable"
+}
+},
+"actions": {
+"clear": "Effacer",
+"apply": "Appliquer"
+},
+"trigger": {
+"activeFilters": "Filtres actifs",
+"filter": "Filtrer"
+}
+},
+"announcementCard": {
+"na": "N/A",
+"at": "à",
+"confirmApply": "Voulez-vous postuler à la course de {authorName} ?",
+"role": {
+"client": "Client"
+},
+"price": {
+"na": "Prix indisponible",
+"negotiable": "Négociable"
+},
+"locations": {
+"pickup": "Départ",
+"dropoff": "Arrivée"
+},
+"status": {
+"pendingConfirmation": "En attente de confirmation",
+"confirmed": "Confirmé"
+},
+"actions": {
+"sending": "Envoi...",
+"apply": "Postuler",
+"cancelling": "Annulation...",
+"cancelRide": "Annuler",
+"chat": "Chat"
+},
+"toasts": {
+"applied": "Candidature envoyée ! En attente de confirmation du client.",
+"applyError": "Erreur lors de la candidature.",
+"chatSoon": "Le chat sera disponible bientôt !"
+}
+},
+"planningCard": {
+"label": "Planning",
+"na": "N/A",
+"negotiable": "Négociable",
+"price": "Prix",
+"timer": {
+"status": "Statut",
+"scheduled": "Planifié",
+"expired": "Expiré",
+"completed": "Terminé",
+"startsIn": "Commence dans",
+"endsIn": "Se termine dans"
+},
+"actions": {
+"edit": "Modifier",
+"publish": "Publier",
+"unpublish": "Retirer",
+"delete": "Supprimer"
+}
+},
+"vehicleCard": {
+"na": "N/A",
+"actions": {
+"edit": "Modifier",
+"delete": "Supprimer"
+},
+"fallback": {
+"vehicle": "Véhicule",
+"registration": "Immatriculation N/A",
+"serial": "Numéro de série N/A"
+},
+"specs": {
+"seats": "Places",
+"tank": "Réservoir",
+"fuel": "Carburant",
+"luggage": "Bagages"
+},
+"technicalDetails": "Détails techniques",
+"details": {
+"serialNumber": "Numéro de série",
+"registrationExpiry": "Expiration immatriculation",
+"mileage": "Kilométrage"
+}
+}
+},
 "freelance": {
 "basicPlan": "Plan de base",
 "driverProfileFallback": "Profil chauffeur",
@@ -421,10 +545,212 @@
 "howTo": "Comment corriger ma localisation fiscale ?"
 }
 },
+"contacts": {
+"title": "Contacts",
+"searchPlaceholder": "Rechercher des contacts...",
+"empty": "Aucun contact trouvé",
+"confirmDelete": "Êtes-vous sûr de vouloir supprimer ce contact ?",
+"modal": {
+"addTitle": "Ajouter un contact",
+"editTitle": "Modifier le contact"
+},
+"form": {
+"firstName": "Prénom",
+"lastName": "Nom",
+"title": "Titre",
+"phone": "Téléphone",
+"secondaryPhone": "Téléphone secondaire",
+"email": "E-mail",
+"secondaryEmail": "E-mail secondaire",
+"fax": "Fax",
+"favorite": "Favori",
+"emailVerified": "E-mail vérifié",
+"phoneVerified": "Téléphone vérifié",
+"create": "Créer le contact",
+"save": "Enregistrer"
+},
+"card": {
+"unnamed": "Sans nom",
+"defaultTitle": "Contact",
+"favorite": "Favori",
+"noPhone": "Aucun numéro",
+"noEmail": "Aucun e-mail",
+"edit": "Modifier"
+},
+"toasts": {
+"fetchError": "Impossible de récupérer les contacts.",
+"deleted": "Contact supprimé.",
+"deleteError": "Impossible de supprimer le contact.",
+"created": "Contact créé.",
+"updated": "Contact mis à jour.",
+"genericError": "Une erreur est survenue."
+}
+},
+"planning": {
+"title": "Gestion des plannings",
+"new": "Nouveau planning",
+"searchPlaceholder": "Rechercher un planning...",
+"loading": "Chargement...",
+"confirmDelete": "Êtes-vous sûr de vouloir supprimer ce planning ?",
+"statusTabs": {
+"all": "Tous",
+"draft": "Brouillon",
+"published": "Publié",
+"pendingConfirmation": "En attente",
+"pendingDriverConfirmation": "En attente chauffeur",
+"confirmed": "Confirmé",
+"ongoing": "En cours",
+"terminated": "Terminé",
+"expired": "Expiré"
+},
+"empty": {
+"title": "Aucun planning",
+"message": "Aucun planning ne correspond à vos critères."
+},
+"toasts": {
+"loadError": "Impossible de charger vos plannings.",
+"published": "Planning publié !",
+"unpublished": "Planning retiré.",
+"updateError": "Erreur lors de la mise à jour.",
+"deleted": "Planning supprimé.",
+"deleteError": "Erreur lors de la suppression."
+}
+},
+"rides": {
+"title": "Mes courses (acceptées)",
+"subtitle": "Gérez les courses que vous avez acceptées ou demandées.",
+"searchPlaceholder": "Rechercher par destination, client...",
+"loading": "Chargement de vos courses...",
+"confirmCancel": "Êtes-vous sûr de vouloir annuler cette course ? Cela peut affecter votre fiabilité.",
+"empty": {
+"title": "Aucune course en cours",
+"message": "Vous n’avez accepté aucune course et n’avez postulé à aucune pour le moment."
+},
+"toasts": {
+"loadError": "Erreur lors du chargement des courses.",
+"cancelled": "Course annulée avec succès.",
+"cancelError": "Erreur lors de l’annulation de la course."
+}
+},
+"vehicles": {
+"title": "Mes véhicules",
+"new": "Nouveau véhicule",
+"loading": "Chargement...",
+"confirmDelete": "Êtes-vous sûr de vouloir supprimer ce véhicule ?",
+"empty": {
+"title": "Aucun véhicule",
+"message": "Vous n’avez ajouté aucun véhicule pour le moment."
+},
+"toasts": {
+"loadError": "Impossible de charger les véhicules.",
+"deleted": "Véhicule supprimé.",
+"deleteError": "Erreur lors de la suppression du véhicule."
+}
+},
+"orders": {
+"title": "Offres de transport (commandes)",
+"subtitle": "Parcourez les demandes des clients et proposez vos services.",
+"searchPlaceholder": "Rechercher une ville, un client...",
+"loading": "Chargement des offres...",
+"empty": {
+"title": "Aucune offre",
+"message": "Aucune offre client ne correspond à vos critères pour le moment."
+},
+"toasts": {
+"loadError": "Erreur lors du chargement des offres.",
+"newOffer": "Nouvelle offre disponible !"
+}
+},
+"settings": {
+"title": "Paramètres",
+"sections": {
+"notificationSettings": "Paramètres de notification",
+"preferences": "Préférences",
+"ridePreferences": "Préférences de course",
+"privacySettings": "Paramètres de confidentialité",
+"communicationPreferences": "Préférences de communication"
+},
+"notifications": {
+"receptionMode": "Mode de réception",
+"modes": {
+"email": "E-mail",
+"sms": "SMS",
+"push": "Push",
+"all": "Tous"
+},
+"items": {
+"newRides": "Nouvelles courses",
+"ratings": "Évaluations",
+"practicalTips": "Conseils pratiques",
+"promotions": "Promotions",
+"policyUpdates": "Mises à jour des politiques",
+"peakHourRecommendations": "Recommandations heures de pointe"
+}
+},
+"preferences": {
+"language": {
+"label": "Langue",
+"placeholder": "Sélectionner une langue"
+},
+"timeZone": {
+"label": "Fuseau horaire",
+"placeholder": "Sélectionner un fuseau horaire"
+},
+"currency": {
+"label": "Devise",
+"placeholder": "Sélectionner une devise"
+},
+"paymentMethod": {
+"label": "Méthode de paiement",
+"placeholder": "Sélectionner une méthode de paiement"
+},
+"dateFormat": {
+"label": "Format de date"
+}
+},
+"ridePreferences": {
+"shortRides": "Courses courtes",
+"longRides": "Courses longues"
+},
+"privacySettings": {
+"sharePersonalInfo": "Partager mes informations personnelles avec les passagers"
+},
+"communicationPreferences": {
+"calls": "Appels",
+"messages": "Messages"
+},
+"actions": {
+"save": "Enregistrer",
+"updating": "Mise à jour..."
+},
+"messages": {
+"updated": "Paramètres mis à jour.",
+"updateError": "Erreur lors de la mise à jour des paramètres."
+}
+},
+"security": {
+"title": "Changer le mot de passe",
+"description": "Mettez à jour votre mot de passe à l’aide de vos identifiants actuels.",
+"fields": {
+"currentPassword": "Mot de passe actuel",
+"newPassword": "Nouveau mot de passe",
+"confirmPassword": "Confirmer le nouveau mot de passe"
+},
+"actions": {
+"updating": "Mise à jour...",
+"update": "Mettre à jour"
+},
+"toasts": {
+"requiredFields": "Veuillez remplir tous les champs requis.",
+"confirmationMismatch": "La confirmation du nouveau mot de passe ne correspond pas.",
+"updated": "Mot de passe mis à jour.",
+"updateFailed": "Impossible de mettre à jour le mot de passe."
+}
+},
 "nav": {
-"personalInfo": "Informations personnelles",
-"security": "Sécurité",
-"business": {
+  "personalInfo": "Informations personnelles",
+  "security": "Sécurité",
+  "business": {
 "title": "Entreprise",
 "address": "Adresse",
 "contacts": "Contacts",

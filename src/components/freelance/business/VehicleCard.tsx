@@ -1,6 +1,7 @@
 "use client";
 import React, { useState } from 'react';
 import Image from 'next/image';
+import { useTranslations } from 'next-intl';
 import { 
   UsersIcon, 
   Cog6ToothIcon, 
@@ -32,6 +33,7 @@ const SpecItem = ({ icon: Icon, label, value }: { icon: any, label: string, valu
 );
 
 export const VehicleCard: React.FC<VehicleCardProps> = ({ vehicle, onEdit, onDelete }) => {
+  const t = useTranslations('Dashboard.shared.vehicleCard');
   const [isExpanded, setIsExpanded] = useState(false);
   const imageUrl = '/img/default-car.png';
 
@@ -55,14 +57,14 @@ export const VehicleCard: React.FC<VehicleCardProps> = ({ vehicle, onEdit, onDel
             <button 
               onClick={(e) => { e.stopPropagation(); onEdit(vehicle); }}
               className="p-2 bg-white/90 hover:bg-white text-blue-600 rounded-full shadow-sm transition-colors"
-              title="Edit"
+              title={t('actions.edit')}
             >
               <PencilSquareIcon className="w-4 h-4" />
             </button>
             <button 
               onClick={(e) => { e.stopPropagation(); onDelete(vehicle); }}
               className="p-2 bg-white/90 hover:bg-white text-red-600 rounded-full shadow-sm transition-colors"
-              title="Delete"
+              title={t('actions.delete')}
             >
               <TrashIcon className="w-4 h-4" />
             </button>
@@ -74,21 +76,21 @@ export const VehicleCard: React.FC<VehicleCardProps> = ({ vehicle, onEdit, onDel
       <div className="p-5 flex flex-col flex-grow">
         <div className="mb-4">
           <h3 className="text-xl font-bold text-gray-900 leading-tight">
-            {vehicle.brand || 'Vehicle'}
+            {vehicle.brand || t('fallback.vehicle')}
           </h3>
           <p className="text-sm text-gray-500 mt-1 flex items-center gap-2">
-            <span>{vehicle.registrationNumber || 'Registration N/A'}</span>
+            <span>{vehicle.registrationNumber || t('fallback.registration')}</span>
             <span className="w-1 h-1 rounded-full bg-gray-300"></span>
-            <span>{vehicle.vehicleSerialNumber || 'Serial N/A'}</span>
+            <span>{vehicle.vehicleSerialNumber || t('fallback.serial')}</span>
           </p>
         </div>
         
         {/* Grille des spécifications */}
         <div className="flex flex-wrap justify-between gap-y-2 mb-4">
-          <SpecItem icon={UsersIcon} label="Seats" value={vehicle.totalSeatNumber ? `${vehicle.totalSeatNumber}` : undefined} />
-          <SpecItem icon={Cog6ToothIcon} label="Tank" value={vehicle.tankCapacity ? `${vehicle.tankCapacity} L` : undefined} />
-          <SpecItem icon={EyeDropperIcon} label="Fuel" value={vehicle.fuelTypeId || undefined} />
-          <SpecItem icon={BriefcaseIcon} label="Luggage" value={vehicle.luggageMaxCapacity ? `${vehicle.luggageMaxCapacity}` : undefined} />
+          <SpecItem icon={UsersIcon} label={t('specs.seats')} value={vehicle.totalSeatNumber ? `${vehicle.totalSeatNumber}` : undefined} />
+          <SpecItem icon={Cog6ToothIcon} label={t('specs.tank')} value={vehicle.tankCapacity ? `${vehicle.tankCapacity} L` : undefined} />
+          <SpecItem icon={EyeDropperIcon} label={t('specs.fuel')} value={vehicle.fuelTypeId || undefined} />
+          <SpecItem icon={BriefcaseIcon} label={t('specs.luggage')} value={vehicle.luggageMaxCapacity ? `${vehicle.luggageMaxCapacity}` : undefined} />
         </div>
         
         {/* Séparateur */}
@@ -100,7 +102,7 @@ export const VehicleCard: React.FC<VehicleCardProps> = ({ vehicle, onEdit, onDel
               onClick={() => setIsExpanded(!isExpanded)}
               className="group flex justify-between items-center w-full py-2 px-3 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors border border-gray-100"
             >
-                <span className="text-sm font-semibold text-gray-700">Technical details</span>
+                <span className="text-sm font-semibold text-gray-700">{t('technicalDetails')}</span>
                 {isExpanded ? (
                   <ChevronUpIcon className="w-4 h-4 text-gray-500" />
                 ) : (
@@ -111,16 +113,16 @@ export const VehicleCard: React.FC<VehicleCardProps> = ({ vehicle, onEdit, onDel
             {isExpanded && (
                 <div className="mt-2 p-3 bg-gray-50 rounded-lg border border-gray-100 text-sm space-y-2 animate-in fade-in slide-in-from-top-1 duration-200">
                     <div className="flex justify-between">
-                        <span>Serial number</span>
-                        <span className="font-medium">{vehicle.vehicleSerialNumber || 'N/A'}</span>
+                        <span>{t('details.serialNumber')}</span>
+                        <span className="font-medium">{vehicle.vehicleSerialNumber || t('na')}</span>
                     </div>
                     <div className="flex justify-between">
-                        <span>Registration expiry</span>
-                        <span className="font-medium">{vehicle.registrationExpiryDate ? new Date(vehicle.registrationExpiryDate).toLocaleDateString() : 'N/A'}</span>
+                        <span>{t('details.registrationExpiry')}</span>
+                        <span className="font-medium">{vehicle.registrationExpiryDate ? new Date(vehicle.registrationExpiryDate).toLocaleDateString() : t('na')}</span>
                     </div>
                     <div className="flex justify-between">
-                        <span>Mileage</span>
-                        <span className="font-medium">{vehicle.mileageSinceCommissioning ?? 'N/A'}</span>
+                        <span>{t('details.mileage')}</span>
+                        <span className="font-medium">{vehicle.mileageSinceCommissioning ?? t('na')}</span>
                     </div>
                 </div>
             )}

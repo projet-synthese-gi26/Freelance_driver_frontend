@@ -390,6 +390,130 @@
         }
     },
     "Dashboard": {
+        "shared": {
+            "emptyJumbotron": {
+                "default": {
+                    "title": "No se encontraron elementos",
+                    "message": "No encontramos contenido para mostrar en este momento."
+                },
+                "network": {
+                    "title": "Error de red",
+                    "message": "Ocurrió un error de red. Por favor verifica tu conexión a internet e inténtalo de nuevo."
+                }
+            },
+            "clientFilterModal": {
+                "title": "Filtrar anuncios",
+                "fields": {
+                    "pickupLocation": {
+                        "label": "Lugar de recogida",
+                        "placeholder": "Ej: Yaoundé"
+                    },
+                    "dropoffLocation": {
+                        "label": "Lugar de destino",
+                        "placeholder": "Ej: Douala"
+                    },
+                    "startDate": {
+                        "label": "Fecha de inicio",
+                        "placeholder": "Seleccionar una fecha"
+                    },
+                    "maxCost": {
+                        "label": "Costo máximo (XAF)",
+                        "placeholder": "Ej: 50000"
+                    },
+                    "paymentMethod": {
+                        "label": "Método de pago",
+                        "placeholder": "Ej: cash, mobile_money"
+                    },
+                    "negotiable": {
+                        "label": "Precio negociable"
+                    }
+                },
+                "actions": {
+                    "clear": "Borrar",
+                    "apply": "Aplicar"
+                },
+                "trigger": {
+                    "activeFilters": "Filtros activos",
+                    "filter": "Filtrar"
+                }
+            },
+            "announcementCard": {
+                "na": "N/A",
+                "at": "a las",
+                "confirmApply": "¿Quieres postularte al viaje de {authorName}?",
+                "role": {
+                    "client": "Cliente"
+                },
+                "price": {
+                    "na": "Precio N/A",
+                    "negotiable": "Negociable"
+                },
+                "locations": {
+                    "pickup": "Recogida",
+                    "dropoff": "Destino"
+                },
+                "status": {
+                    "pendingConfirmation": "Pendiente de confirmación",
+                    "confirmed": "Confirmado"
+                },
+                "actions": {
+                    "sending": "Enviando...",
+                    "apply": "Postular",
+                    "cancelling": "Cancelando...",
+                    "cancelRide": "Cancelar viaje",
+                    "chat": "Chat"
+                },
+                "toasts": {
+                    "applied": "¡Solicitud enviada! Esperando confirmación del cliente.",
+                    "applyError": "Error al postularse al viaje.",
+                    "chatSoon": "¡El chat estará disponible pronto!"
+                }
+            },
+            "planningCard": {
+                "label": "Planificación",
+                "na": "N/A",
+                "negotiable": "Negociable",
+                "price": "Precio",
+                "timer": {
+                    "status": "Estado",
+                    "scheduled": "Programado",
+                    "expired": "Expirado",
+                    "completed": "Completado",
+                    "startsIn": "Comienza en",
+                    "endsIn": "Termina en"
+                },
+                "actions": {
+                    "edit": "Editar",
+                    "publish": "Publicar",
+                    "unpublish": "Retirar",
+                    "delete": "Eliminar"
+                }
+            },
+            "vehicleCard": {
+                "na": "N/A",
+                "actions": {
+                    "edit": "Editar",
+                    "delete": "Eliminar"
+                },
+                "fallback": {
+                    "vehicle": "Vehículo",
+                    "registration": "Matrícula N/A",
+                    "serial": "Serie N/A"
+                },
+                "specs": {
+                    "seats": "Asientos",
+                    "tank": "Tanque",
+                    "fuel": "Combustible",
+                    "luggage": "Equipaje"
+                },
+                "technicalDetails": "Detalles técnicos",
+                "details": {
+                    "serialNumber": "Número de serie",
+                    "registrationExpiry": "Vencimiento de matrícula",
+                    "mileage": "Kilometraje"
+                }
+            }
+        },
         "freelance": {
             "basicPlan": "Plan básico",
             "driverProfileFallback": "Perfil de conductor",
@@ -417,6 +541,208 @@
                     "moreInfo": "Más info",
                     "helpText": "Tu ubicación fiscal determina los impuestos que se aplican a tu factura.",
                     "howTo": "¿Cómo corrijo mi ubicación fiscal?"
+                }
+            },
+            "contacts": {
+                "title": "Contactos",
+                "searchPlaceholder": "Buscar contactos...",
+                "empty": "No se encontraron contactos",
+                "confirmDelete": "¿Estás seguro de que quieres eliminar este contacto?",
+                "modal": {
+                    "addTitle": "Agregar contacto",
+                    "editTitle": "Editar contacto"
+                },
+                "form": {
+                    "firstName": "Nombre",
+                    "lastName": "Apellido",
+                    "title": "Título",
+                    "phone": "Teléfono",
+                    "secondaryPhone": "Teléfono secundario",
+                    "email": "Correo",
+                    "secondaryEmail": "Correo secundario",
+                    "fax": "Fax",
+                    "favorite": "Favorito",
+                    "emailVerified": "Correo verificado",
+                    "phoneVerified": "Teléfono verificado",
+                    "create": "Crear contacto",
+                    "save": "Guardar cambios"
+                },
+                "card": {
+                    "unnamed": "Sin nombre",
+                    "defaultTitle": "Contacto",
+                    "favorite": "Favorito",
+                    "noPhone": "Sin teléfono",
+                    "noEmail": "Sin correo",
+                    "edit": "Editar"
+                },
+                "toasts": {
+                    "fetchError": "No se pudieron obtener los contactos.",
+                    "deleted": "Contacto eliminado.",
+                    "deleteError": "No se pudo eliminar el contacto.",
+                    "created": "Contacto creado.",
+                    "updated": "Contacto actualizado.",
+                    "genericError": "Algo salió mal."
+                }
+            },
+            "planning": {
+                "title": "Gestión de planificación",
+                "new": "Nueva planificación",
+                "searchPlaceholder": "Buscar una planificación...",
+                "loading": "Cargando...",
+                "confirmDelete": "¿Estás seguro de que quieres eliminar esta planificación?",
+                "statusTabs": {
+                    "all": "Todas",
+                    "draft": "Borrador",
+                    "published": "Publicada",
+                    "pendingConfirmation": "Pendiente",
+                    "pendingDriverConfirmation": "Pendiente del conductor",
+                    "confirmed": "Confirmada",
+                    "ongoing": "En curso",
+                    "terminated": "Terminada",
+                    "expired": "Expirada"
+                },
+                "empty": {
+                    "title": "Sin planificación",
+                    "message": "No tienes planificaciones que coincidan con tus criterios."
+                },
+                "toasts": {
+                    "loadError": "No se pudieron cargar tus planificaciones.",
+                    "published": "¡Planificación publicada!",
+                    "unpublished": "Planificación retirada.",
+                    "updateError": "Error al actualizar.",
+                    "deleted": "Planificación eliminada.",
+                    "deleteError": "Error al eliminar."
+                }
+            },
+            "rides": {
+                "title": "Mis viajes (aceptados)",
+                "subtitle": "Gestiona los viajes que has aceptado o solicitado.",
+                "searchPlaceholder": "Buscar por destino, cliente...",
+                "loading": "Cargando tus viajes...",
+                "confirmCancel": "¿Estás seguro de que quieres cancelar este viaje? Esto afectará tu calificación de fiabilidad.",
+                "empty": {
+                    "title": "Sin viajes en curso",
+                    "message": "Aún no has aceptado viajes ni te has postulado a ninguno."
+                },
+                "toasts": {
+                    "loadError": "Error al cargar tus viajes.",
+                    "cancelled": "Viaje cancelado con éxito.",
+                    "cancelError": "Error al cancelar el viaje."
+                }
+            },
+            "vehicles": {
+                "title": "Mis vehículos",
+                "new": "Nuevo vehículo",
+                "loading": "Cargando...",
+                "confirmDelete": "¿Estás seguro de que quieres eliminar este vehículo?",
+                "empty": {
+                    "title": "Sin vehículos",
+                    "message": "Aún no has añadido vehículos."
+                },
+                "toasts": {
+                    "loadError": "No se pudieron cargar los vehículos.",
+                    "deleted": "Vehículo eliminado.",
+                    "deleteError": "Error al eliminar el vehículo."
+                }
+            },
+            "orders": {
+                "title": "Ofertas de transporte (pedidos)",
+                "subtitle": "Explora solicitudes de clientes y ofrece tus servicios.",
+                "searchPlaceholder": "Buscar una ciudad, un cliente...",
+                "loading": "Cargando ofertas...",
+                "empty": {
+                    "title": "Sin ofertas",
+                    "message": "No hay ofertas de clientes que coincidan con tus criterios por el momento."
+                },
+                "toasts": {
+                    "loadError": "Error al cargar las ofertas.",
+                    "newOffer": "¡Nueva oferta disponible!"
+                }
+            },
+            "settings": {
+                "title": "Ajustes",
+                "sections": {
+                    "notificationSettings": "Ajustes de notificaciones",
+                    "preferences": "Preferencias",
+                    "ridePreferences": "Preferencias de viaje",
+                    "privacySettings": "Ajustes de privacidad",
+                    "communicationPreferences": "Preferencias de comunicación"
+                },
+                "notifications": {
+                    "receptionMode": "Modo de recepción",
+                    "modes": {
+                        "email": "Correo",
+                        "sms": "SMS",
+                        "push": "Push",
+                        "all": "Todos"
+                    },
+                    "items": {
+                        "newRides": "Nuevos viajes",
+                        "ratings": "Valoraciones",
+                        "practicalTips": "Consejos prácticos",
+                        "promotions": "Promociones",
+                        "policyUpdates": "Actualizaciones de políticas",
+                        "peakHourRecommendations": "Recomendaciones en horas pico"
+                    }
+                },
+                "preferences": {
+                    "language": {
+                        "label": "Idioma",
+                        "placeholder": "Seleccionar idioma"
+                    },
+                    "timeZone": {
+                        "label": "Zona horaria",
+                        "placeholder": "Seleccionar zona horaria"
+                    },
+                    "currency": {
+                        "label": "Moneda",
+                        "placeholder": "Seleccionar moneda"
+                    },
+                    "paymentMethod": {
+                        "label": "Método de pago",
+                        "placeholder": "Seleccionar método de pago"
+                    },
+                    "dateFormat": {
+                        "label": "Formato de fecha"
+                    }
+                },
+                "ridePreferences": {
+                    "shortRides": "Viajes cortos",
+                    "longRides": "Viajes largos"
+                },
+                "privacySettings": {
+                    "sharePersonalInfo": "Compartir mi información personal con los pasajeros"
+                },
+                "communicationPreferences": {
+                    "calls": "Llamadas",
+                    "messages": "Mensajes"
+                },
+                "actions": {
+                    "save": "Guardar",
+                    "updating": "Actualizando..."
+                },
+                "messages": {
+                    "updated": "Ajustes actualizados.",
+                    "updateError": "Error al actualizar los ajustes."
+                }
+            },
+            "security": {
+                "title": "Cambiar contraseña",
+                "description": "Actualiza tu contraseña usando tus credenciales actuales.",
+                "fields": {
+                    "currentPassword": "Contraseña actual",
+                    "newPassword": "Nueva contraseña",
+                    "confirmPassword": "Confirmar nueva contraseña"
+                },
+                "actions": {
+                    "updating": "Actualizando...",
+                    "update": "Actualizar contraseña"
+                },
+                "toasts": {
+                    "requiredFields": "Por favor completa todos los campos requeridos.",
+                    "confirmationMismatch": "La confirmación de la nueva contraseña no coincide.",
+                    "updated": "Contraseña actualizada correctamente.",
+                    "updateFailed": "No se pudo actualizar la contraseña."
                 }
             },
             "nav": {

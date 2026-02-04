@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { toast } from 'react-hot-toast';
 import { MagnifyingGlassIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import { useTranslations } from 'next-intl';
 
 // SERVICES
 import { announcementService, PublicOfferView, mapProductToPublicView } from '@/service/announcementService';
@@ -23,6 +24,7 @@ interface FilterState {
 }
 
 const OrdersPage = () => {
+  const t = useTranslations('Dashboard.freelance.orders');
   const [announcements, setAnnouncements] = useState<PublicOfferView[]>([]);
   const [filteredAnnouncements, setFilteredAnnouncements] = useState<PublicOfferView[]>([]);
   const [loading, setLoading] = useState(true);
@@ -42,11 +44,11 @@ const OrdersPage = () => {
       setAnnouncements(sorted);
     } catch (error) {
       console.error(error);
-      toast.error("Error loading offers.");
+      toast.error(t('toasts.loadError'));
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     loadAnnouncements();
@@ -61,7 +63,7 @@ const OrdersPage = () => {
                 }
                 return prev;
             });
-            toast.success("New offer available!");
+            toast.success(t('toasts.newOffer'));
         }
     };
 
@@ -139,8 +141,8 @@ const OrdersPage = () => {
     <div className="container mx-auto p-4 md:p-6 max-w-7xl">
       <div className='flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4'>
         <div>
-            <h1 className="text-2xl font-bold text-gray-800">Transport Offers (Orders)</h1>
-            <p className='text-gray-500 text-sm mt-1'>Browse client requests and offer your services.</p>
+            <h1 className="text-2xl font-bold text-gray-800">{t('title')}</h1>
+            <p className='text-gray-500 text-sm mt-1'>{t('subtitle')}</p>
         </div>
       </div>
 
@@ -149,7 +151,7 @@ const OrdersPage = () => {
         <div className="relative flex-1">
             <input 
                 type="text" 
-                placeholder="Search for a city, a client..." 
+                placeholder={t('searchPlaceholder')} 
                 className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -179,7 +181,7 @@ const OrdersPage = () => {
 
       {/* Liste des Résultats */}
       {loading ? (
-         <div className="text-center py-20 text-gray-500">Loading offers...</div>
+         <div className="text-center py-20 text-gray-500">{t('loading')}</div>
       ) : filteredAnnouncements.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredAnnouncements.map(order => (
@@ -192,8 +194,8 @@ const OrdersPage = () => {
         </div>
       ) : (
         <EmptyJumbotron 
-            title="No offers" 
-            message="There are no client offers matching your criteria at the moment." 
+            title={t('empty.title')} 
+            message={t('empty.message')} 
         />
       )}
     </div>

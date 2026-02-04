@@ -392,6 +392,130 @@
         }
     },
     "Dashboard": {
+        "shared": {
+            "emptyJumbotron": {
+                "default": {
+                    "title": "No items found",
+                    "message": "We couldn't find any content to display here at the moment."
+                },
+                "network": {
+                    "title": "Network Error",
+                    "message": "A network error occurred. Please check your internet connection and try again."
+                }
+            },
+            "clientFilterModal": {
+                "title": "Filter announcements",
+                "fields": {
+                    "pickupLocation": {
+                        "label": "Pick-up location",
+                        "placeholder": "e.g. Yaoundé"
+                    },
+                    "dropoffLocation": {
+                        "label": "Drop-off location",
+                        "placeholder": "e.g. Douala"
+                    },
+                    "startDate": {
+                        "label": "Start date",
+                        "placeholder": "Select a date"
+                    },
+                    "maxCost": {
+                        "label": "Maximum cost (XAF)",
+                        "placeholder": "e.g. 50000"
+                    },
+                    "paymentMethod": {
+                        "label": "Payment method",
+                        "placeholder": "e.g. cash, mobile_money"
+                    },
+                    "negotiable": {
+                        "label": "Negotiable price"
+                    }
+                },
+                "actions": {
+                    "clear": "Clear",
+                    "apply": "Apply"
+                },
+                "trigger": {
+                    "activeFilters": "Active filters",
+                    "filter": "Filter"
+                }
+            },
+            "announcementCard": {
+                "na": "N/A",
+                "at": "at",
+                "confirmApply": "Do you want to apply for the ride by {authorName}?",
+                "role": {
+                    "client": "Client"
+                },
+                "price": {
+                    "na": "Price N/A",
+                    "negotiable": "Negotiable"
+                },
+                "locations": {
+                    "pickup": "Pick up",
+                    "dropoff": "Drop off"
+                },
+                "status": {
+                    "pendingConfirmation": "Pending Confirmation",
+                    "confirmed": "Confirmed"
+                },
+                "actions": {
+                    "sending": "Sending...",
+                    "apply": "Apply",
+                    "cancelling": "Cancelling...",
+                    "cancelRide": "Cancel Ride",
+                    "chat": "Chat"
+                },
+                "toasts": {
+                    "applied": "Application sent! Waiting for client confirmation.",
+                    "applyError": "Error applying for the ride.",
+                    "chatSoon": "Chat feature coming soon!"
+                }
+            },
+            "planningCard": {
+                "label": "Planning",
+                "na": "N/A",
+                "negotiable": "Negotiable",
+                "price": "Price",
+                "timer": {
+                    "status": "Status",
+                    "scheduled": "Scheduled",
+                    "expired": "Expired",
+                    "completed": "Completed",
+                    "startsIn": "Starts in",
+                    "endsIn": "Ends in"
+                },
+                "actions": {
+                    "edit": "Edit",
+                    "publish": "Publish",
+                    "unpublish": "Unpublish",
+                    "delete": "Delete"
+                }
+            },
+            "vehicleCard": {
+                "na": "N/A",
+                "actions": {
+                    "edit": "Edit",
+                    "delete": "Delete"
+                },
+                "fallback": {
+                    "vehicle": "Vehicle",
+                    "registration": "Registration N/A",
+                    "serial": "Serial N/A"
+                },
+                "specs": {
+                    "seats": "Seats",
+                    "tank": "Tank",
+                    "fuel": "Fuel",
+                    "luggage": "Luggage"
+                },
+                "technicalDetails": "Technical details",
+                "details": {
+                    "serialNumber": "Serial number",
+                    "registrationExpiry": "Registration expiry",
+                    "mileage": "Mileage"
+                }
+            }
+        },
         "freelance": {
             "basicPlan": "Basic Plan",
             "driverProfileFallback": "Driver Profile",
@@ -419,6 +543,208 @@
                     "moreInfo": "More Info",
                     "helpText": "Your tax location determines the taxes that are applied to your bill.",
                     "howTo": "How do I correct my tax location?"
+                }
+            },
+            "contacts": {
+                "title": "Contacts",
+                "searchPlaceholder": "Search contacts...",
+                "empty": "No contacts found",
+                "confirmDelete": "Are you sure you want to delete this contact?",
+                "modal": {
+                    "addTitle": "Add contact",
+                    "editTitle": "Edit contact"
+                },
+                "form": {
+                    "firstName": "First name",
+                    "lastName": "Last name",
+                    "title": "Title",
+                    "phone": "Phone",
+                    "secondaryPhone": "Secondary phone",
+                    "email": "Email",
+                    "secondaryEmail": "Secondary email",
+                    "fax": "Fax",
+                    "favorite": "Favorite",
+                    "emailVerified": "Email verified",
+                    "phoneVerified": "Phone verified",
+                    "create": "Create contact",
+                    "save": "Save changes"
+                },
+                "card": {
+                    "unnamed": "Unnamed",
+                    "defaultTitle": "Contact",
+                    "favorite": "Favorite",
+                    "noPhone": "No phone number",
+                    "noEmail": "No email",
+                    "edit": "Edit"
+                },
+                "toasts": {
+                    "fetchError": "Unable to fetch contacts.",
+                    "deleted": "Contact deleted.",
+                    "deleteError": "Unable to delete contact.",
+                    "created": "Contact created.",
+                    "updated": "Contact updated.",
+                    "genericError": "Something went wrong."
+                }
+            },
+            "planning": {
+                "title": "Planning Management",
+                "new": "New Planning",
+                "searchPlaceholder": "Search a planning...",
+                "loading": "Loading...",
+                "confirmDelete": "Are you sure you want to delete this planning?",
+                "statusTabs": {
+                    "all": "All",
+                    "draft": "Draft",
+                    "published": "Published",
+                    "pendingConfirmation": "Pending",
+                    "pendingDriverConfirmation": "Driver Pending",
+                    "confirmed": "Confirmed",
+                    "ongoing": "Ongoing",
+                    "terminated": "Terminated",
+                    "expired": "Expired"
+                },
+                "empty": {
+                    "title": "No planning",
+                    "message": "You have no plannings matching your criteria."
+                },
+                "toasts": {
+                    "loadError": "Unable to load your plannings.",
+                    "published": "Planning published!",
+                    "unpublished": "Planning unpublished.",
+                    "updateError": "Error while updating.",
+                    "deleted": "Planning deleted.",
+                    "deleteError": "Error while deleting."
+                }
+            },
+            "rides": {
+                "title": "My Rides (Accepted)",
+                "subtitle": "Manage the rides you have accepted or applied for.",
+                "searchPlaceholder": "Search by destination, client...",
+                "loading": "Loading your rides...",
+                "confirmCancel": "Are you sure you want to cancel this ride? This will affect your reliability rating.",
+                "empty": {
+                    "title": "No ongoing rides",
+                    "message": "You haven't accepted any rides or applied for any yet."
+                },
+                "toasts": {
+                    "loadError": "Error loading your rides.",
+                    "cancelled": "Ride cancelled successfully.",
+                    "cancelError": "Error cancelling the ride."
+                }
+            },
+            "vehicles": {
+                "title": "My Vehicles",
+                "new": "New Vehicle",
+                "loading": "Loading...",
+                "confirmDelete": "Are you sure you want to delete this vehicle?",
+                "empty": {
+                    "title": "No vehicles",
+                    "message": "You haven't added any vehicles yet."
+                },
+                "toasts": {
+                    "loadError": "Unable to load vehicles.",
+                    "deleted": "Vehicle deleted.",
+                    "deleteError": "Error while deleting vehicle."
+                }
+            },
+            "orders": {
+                "title": "Transport Offers (Orders)",
+                "subtitle": "Browse client requests and offer your services.",
+                "searchPlaceholder": "Search for a city, a client...",
+                "loading": "Loading offers...",
+                "empty": {
+                    "title": "No offers",
+                    "message": "There are no client offers matching your criteria at the moment."
+                },
+                "toasts": {
+                    "loadError": "Error loading offers.",
+                    "newOffer": "New offer available!"
+                }
+            },
+            "settings": {
+                "title": "Settings",
+                "sections": {
+                    "notificationSettings": "Notification settings",
+                    "preferences": "Preferences",
+                    "ridePreferences": "Ride preferences",
+                    "privacySettings": "Privacy settings",
+                    "communicationPreferences": "Communication preferences"
+                },
+                "notifications": {
+                    "receptionMode": "Reception mode",
+                    "modes": {
+                        "email": "Email",
+                        "sms": "SMS",
+                        "push": "Push",
+                        "all": "All"
+                    },
+                    "items": {
+                        "newRides": "New rides",
+                        "ratings": "Ratings",
+                        "practicalTips": "Practical tips",
+                        "promotions": "Promotions",
+                        "policyUpdates": "Policy updates",
+                        "peakHourRecommendations": "Peak-hour recommendations"
+                    }
+                },
+                "preferences": {
+                    "language": {
+                        "label": "Language",
+                        "placeholder": "Select language"
+                    },
+                    "timeZone": {
+                        "label": "Time zone",
+                        "placeholder": "Select time zone"
+                    },
+                    "currency": {
+                        "label": "Currency",
+                        "placeholder": "Select currency"
+                    },
+                    "paymentMethod": {
+                        "label": "Payment method",
+                        "placeholder": "Select payment method"
+                    },
+                    "dateFormat": {
+                        "label": "Date format"
+                    }
+                },
+                "ridePreferences": {
+                    "shortRides": "Short rides",
+                    "longRides": "Long rides"
+                },
+                "privacySettings": {
+                    "sharePersonalInfo": "Share my personal information with passengers"
+                },
+                "communicationPreferences": {
+                    "calls": "Calls",
+                    "messages": "Messages"
+                },
+                "actions": {
+                    "save": "Save",
+                    "updating": "Updating..."
+                },
+                "messages": {
+                    "updated": "Settings updated.",
+                    "updateError": "Error updating settings."
+                }
+            },
+            "security": {
+                "title": "Change password",
+                "description": "Update your password using your current credentials.",
+                "fields": {
+                    "currentPassword": "Current password",
+                    "newPassword": "New password",
+                    "confirmPassword": "Confirm new password"
+                },
+                "actions": {
+                    "updating": "Updating...",
+                    "update": "Update password"
+                },
+                "toasts": {
+                    "requiredFields": "Please fill in all required fields.",
+                    "confirmationMismatch": "New password confirmation does not match.",
+                    "updated": "Password updated successfully.",
+                    "updateFailed": "Unable to update password."
                 }
             },
             "nav": {

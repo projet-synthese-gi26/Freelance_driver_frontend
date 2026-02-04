@@ -2,8 +2,10 @@
 import React, { useState } from "react";
 import { toast } from "react-hot-toast";
 import apiClient from "@/service/apiClient";
+import { useTranslations } from "next-intl";
 
 const Page = () => {
+  const t = useTranslations("Dashboard.freelance.security");
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -12,11 +14,11 @@ const Page = () => {
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     if (!currentPassword || !newPassword) {
-      toast.error("Please fill in all required fields.");
+      toast.error(t("toasts.requiredFields"));
       return;
     }
     if (newPassword !== confirmPassword) {
-      toast.error("New password confirmation does not match.");
+      toast.error(t("toasts.confirmationMismatch"));
       return;
     }
 
@@ -26,13 +28,13 @@ const Page = () => {
         currentPassword,
         newPassword,
       });
-      toast.success("Password updated successfully.");
+      toast.success(t("toasts.updated"));
       setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
     } catch (error) {
       console.error(error);
-      toast.error("Unable to update password.");
+      toast.error(t("toasts.updateFailed"));
     } finally {
       setLoading(false);
     }
@@ -41,15 +43,15 @@ const Page = () => {
   return (
     <div className="max-w-2xl mx-auto p-4">
       <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">Change Password</h1>
+        <h1 className="text-2xl font-bold text-gray-900 mb-2">{t("title")}</h1>
         <p className="text-sm text-gray-500 mb-6">
-          Update your password using your current credentials.
+          {t("description")}
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Current password
+              {t("fields.currentPassword")}
             </label>
             <input
               type="password"
@@ -62,7 +64,7 @@ const Page = () => {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              New password
+              {t("fields.newPassword")}
             </label>
             <input
               type="password"
@@ -75,7 +77,7 @@ const Page = () => {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Confirm new password
+              {t("fields.confirmPassword")}
             </label>
             <input
               type="password"
@@ -92,7 +94,7 @@ const Page = () => {
               className="px-6 py-2.5 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-700 transition disabled:opacity-50"
               disabled={loading}
             >
-              {loading ? "Updating..." : "Update password"}
+              {loading ? t("actions.updating") : t("actions.update")}
             </button>
           </div>
         </form>
