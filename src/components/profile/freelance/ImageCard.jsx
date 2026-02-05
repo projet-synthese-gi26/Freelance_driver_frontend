@@ -22,6 +22,7 @@ const CustomArrow = ({ direction, onClick }) => {
 };
 
 const ImageSlider = ({ images }) => {
+    const safeImages = Array.isArray(images) ? images : [];
     const settings = {
         dots: true,
         infinite: true,
@@ -37,7 +38,7 @@ const ImageSlider = ({ images }) => {
 
         <div className={styles.sliderContainer}>
             <Slider {...settings}>
-                {images.map((photo, index) => (
+                {safeImages.map((photo, index) => (
                     <div key={index} className={styles.slideContainer}>
                         <Image
                             src={photo.url}

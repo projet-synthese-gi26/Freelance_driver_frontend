@@ -27,6 +27,11 @@ export const profileService = {
     return response.data;
   },
 
+  getPublicDriverProfile: async (userId: string): Promise<UserSessionContext> => {
+    const response = await apiClient.get(`/api/v1/driver/profile/user/${userId}`);
+    return response.data;
+  },
+
   /**
    * Étape 1 de la mise à jour de l'avatar : téléverse le fichier.
    * NOTE: Sur le web, prend un objet `File` en entrée.

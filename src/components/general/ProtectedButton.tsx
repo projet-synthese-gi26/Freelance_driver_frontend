@@ -25,13 +25,13 @@ export const ProtectedButton: React.FC<ProtectedButtonProps> = ({
                                                                     children,
                                                                     ...buttonProps
                                                                 }) => {
-    const { authUser } = useAuthContext();
+    const { user } = useAuthContext();
     const { openLoginModal } = useAuthModal();
 
     const router = useRouter();
 
     const handleClick = () => {
-        if (authUser) {
+        if (user) {
             onProtectedClick();
         } else {
             // router.push(fallbackPath);

@@ -6,12 +6,14 @@ import { toast } from 'react-hot-toast';
 import AddVehicleForm from '@/components/freelance/business/AddVehicleForm';
 import { VehicleCard } from '@/components/freelance/business/VehicleCard'; // Assurez-vous du bon import
 import { vehicleService } from '@/service/vehicleService';
+import { useAuthContext } from '@/components/context/authContext';
 import { Vehicle } from '@/type/vehicle';
 import EmptyJumbotron from '@/components/EmptyJumbotron';
 
 const Page = () => {
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [loading, setLoading] = useState(true);
+  const { user } = useAuthContext();
   
   // Gestion de l'affichage (Liste vs Formulaire)
   const [viewMode, setViewMode] = useState<'list' | 'add' | 'edit'>('list');
@@ -20,7 +22,12 @@ const Page = () => {
   const loadVehicles = useCallback(async () => {
     setLoading(true);
     try {
-      const data = await vehicleService.getVehicles();
+      const userId = user?.user?.id;
+      if (!userId) {
+        setVehicles([]);
+        return;
+      }
+      const data = await vehicleService.getVehiclesByDriver(userId);
       setVehicles(data);
     } catch (error) {
       console.error(error);
@@ -28,7 +35,7 @@ const Page = () => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [user?.user?.id]);
 
   useEffect(() => {
     loadVehicles();
@@ -92,7 +99,7 @@ const Page = () => {
         <EmptyJumbotron 
             title="No vehicles" 
             message="You haven't added any vehicles yet." 
-            icon="/img/car-placeholder.png" // Assurez-vous d'avoir une icône ou utilisez celle par défaut
+            icon="/img/car-list-1.jpg"
         />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

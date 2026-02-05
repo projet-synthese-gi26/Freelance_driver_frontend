@@ -392,9 +392,26 @@ const SearchResult = ({ results = [] }: SearchResultProps) => {
     };
 
 
+    const priceRange = useMemo(() => {
+        const data = Array.isArray(results) ? results : [];
+        const amounts = data
+            .map((item) => Number(item.regularAmount ?? 0))
+            .filter((value) => Number.isFinite(value));
+        if (!amounts.length) {
+            return { min: 0, max: 0 };
+        }
+        return {
+            min: Math.min(...amounts),
+            max: Math.max(...amounts),
+        };
+    }, [results]);
+
     const filteredListings = useMemo(() => {
         const data = Array.isArray(results) ? results : [];
-        return data.filter(item => {
+        const range = priceRange.max - priceRange.min;
+        const lowThreshold = priceRange.min + range * 0.33;
+        const highThreshold = priceRange.min + range * 0.66;
+        const filtered = data.filter(item => {
             // Logique de filtrage côté client basique
             if (filters.paymentType && item.paymentOption !== filters.paymentType) {
                  // Note: vérifier si item.paymentOption correspond aux valeurs de paymentType
@@ -404,7 +421,7 @@ const SearchResult = ({ results = [] }: SearchResultProps) => {
             // Filtrage par Lieu de départ (si présent dans l'URL mais pas dans FilterState, on peut le lire directement)
             const departureParam = searchParams?.get('departure');
             if (departureParam) {
-                 if (!item.pickupLocation?.toLowerCase().includes(departureParam.toLowerCase())) {
+                 if (!item.departureLocation?.toLowerCase().includes(departureParam.toLowerCase())) {
                      return false;
                  }
             }
@@ -416,9 +433,34 @@ const SearchResult = ({ results = [] }: SearchResultProps) => {
                  }
             }
             
+            if (filters.priceCategory && filters.priceCategory !== 'all_price') {
+                const amount = Number(item.regularAmount ?? 0);
+                if (filters.priceCategory === 'low_price' && amount > lowThreshold) {
+                    return false;
+                }
+                if (filters.priceCategory === 'average_price' && (amount < lowThreshold || amount > highThreshold)) {
+                    return false;
+                }
+                if (filters.priceCategory === 'high_price' && amount < highThreshold) {
+                    return false;
+                }
+                if (filters.priceCategory === 'best_price' && amount > lowThreshold) {
+                    return false;
+                }
+            }
+
             return true; 
         });
-    }, [filters, results, searchParams]);
+
+        if (filters.sortBy === 'priceLow') {
+            return [...filtered].sort((a, b) => Number(a.regularAmount ?? 0) - Number(b.regularAmount ?? 0));
+        }
+        if (filters.sortBy === 'priceHigh') {
+            return [...filtered].sort((a, b) => Number(b.regularAmount ?? 0) - Number(a.regularAmount ?? 0));
+        }
+
+        return filtered;
+    }, [filters, priceRange, results, searchParams]);
 
     const resetFilters = () => {
         setFilters({
@@ -609,6 +651,11 @@ const SearchResult = ({ results = [] }: SearchResultProps) => {
                                 <SearchCardFreelance planning={planning} />
                             </div>
                         ))}
+                        {filteredListings.length === 0 && (
+                            <div className="bg-white rounded-lg p-10 text-center text-gray-500">
+                                Aucun résultat ne correspond à votre recherche.
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>

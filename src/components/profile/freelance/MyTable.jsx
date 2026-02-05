@@ -51,7 +51,8 @@ export default function Mytable({ data }) {
     }
 
     function formatPrice(price, billingMethod) {
-        const formattedPrice = price.toFixed(2);
+        const amount = Number(price);
+        const formattedPrice = Number.isFinite(amount) ? amount.toFixed(2) : "0.00";
         switch (billingMethod) {
             case 'hourly':
                 return `${formattedPrice} ${CURRENCY}/hour`;

@@ -15,9 +15,9 @@ export const authService = {
     },
 
     refreshToken: async (refreshToken: string): Promise<RefreshTokenResponse> => {
-        console.log("▶️ [authService] refreshToken via /api/auth/refresh");
+        console.log("▶️ [authService] refreshToken via /api/v1/auth/refresh");
         const payload: RefreshTokenRequest = { refreshToken };
-        const response = await apiClient.post<RefreshTokenResponse>('/api/auth/refresh', payload);
+        const response = await apiClient.post<RefreshTokenResponse>('/api/v1/auth/refresh', payload);
         sessionService.setTokens(response.data.accessToken, response.data.refreshToken);
         return response.data;
     },

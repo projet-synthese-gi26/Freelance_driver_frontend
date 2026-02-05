@@ -5,8 +5,7 @@ import {ArrowTopRightOnSquareIcon} from "@heroicons/react/24/outline";
 import MyTable from "./MyTable";
 import CarDetails from "./CarDetails";
 import Information from "./Information";
-import DriverExperiences from './DriverExperienceCard';
-import { experienceService } from '@/service/experienceService';
+import { vehicleService } from '@/service/vehicleService';
 import { planningService } from '@/service/planningService';
 import { reviewService } from '@/service/reviewService';
 import {useRouter} from "next/navigation";
@@ -17,6 +16,8 @@ import ReviewForm from './ReviewForm';
 export default function  FreelanceDetailsComponent ({ data,isModal = false })   {
     const router = useRouter();
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedPlanning, setSelectedPlanning] = useState(null);
+    const [isPlanningModalOpen, setIsPlanningModalOpen] = useState(false);
 
     let vehicleData = data.vehicleData;
     let driverData = data.driverData;
@@ -24,8 +25,10 @@ export default function  FreelanceDetailsComponent ({ data,isModal = false })   
         vehicleData.illustration_images = [];
     }
 
+    const [resolvedVehicleData, setResolvedVehicleData] = useState(vehicleData || null);
+    const [vehicleLoading, setVehicleLoading] = useState(false);
+
     // State for fetched data
-    const [experiences, setExperiences] = useState([]);
     const [plannings, setPlannings] = useState([]);
     const [reviews, setReviews] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -35,18 +38,107 @@ export default function  FreelanceDetailsComponent ({ data,isModal = false })   
         if (!driverId) return;
         setLoading(true);
         Promise.all([
-            experienceService.getPortfolioByDriver(driverId),
             planningService.getPlanningsByDriver(driverId),
             reviewService.getReviewsForUser(driverId)
-        ]).then(([portfolio, planningsList, reviewsList]) => {
-            setExperiences(portfolio.experiences || []);
+        ]).then(([planningsList, reviewsList]) => {
             setPlannings(planningsList || []);
             setReviews(reviewsList || []);
         }).finally(() => setLoading(false));
     }, [driverData.driver_id, driverData.id]);
 
+    useEffect(() => {
+        const driverId = driverData.driver_id || driverData.id;
+        if (!driverId) return;
+        if (vehicleData?.vehicleId || resolvedVehicleData?.vehicleId) return;
+        let isMounted = true;
+        setVehicleLoading(true);
+        vehicleService.getVehiclesByDriver(driverId)
+            .then(async (vehicles) => {
+                if (!isMounted) return;
+                const mainVehicle = vehicles?.[0];
+                if (!mainVehicle?.vehicleId) {
+                    setResolvedVehicleData(null);
+                    return;
+                }
+                const images = await vehicleService.getVehicleImages(mainVehicle.vehicleId);
+                const mappedVehicle = {
+                    vehicleId: mainVehicle.vehicleId,
+                    total_seat_number: mainVehicle.totalSeatNumber ?? "N/A",
+                    luggage_max_capacity: mainVehicle.luggageMaxCapacity ?? "N/A",
+                    mileage_at_mileage_since_commissioning: mainVehicle.mileageSinceCommissioning ?? "N/A",
+                    fuel_type_name: mainVehicle.fuelTypeId || "N/A",
+                    transmission_type_name: mainVehicle.transmissionTypeId || "N/A",
+                    model_name: mainVehicle.vehicleModelId || "N/A",
+                    manufacturer_name: mainVehicle.vehicleMakeId || "N/A",
+                    brand_name: mainVehicle.brand || "N/A",
+                    size_name: mainVehicle.vehicleSizeId || "N/A",
+                    type_name: mainVehicle.vehicleTypeId || "N/A",
+                    registration_number: mainVehicle.registrationNumber || "N/A",
+                    vehicle_serial_number: mainVehicle.vehicleSerialNumber || "N/A",
+                    tank_capacity: mainVehicle.tankCapacity ?? "N/A",
+                    vehicle_age_at_start: mainVehicle.vehicleAgeAtStart ?? "N/A",
+                    average_fuel_consumption_per_kilometer: mainVehicle.averageFuelConsumptionPerKm ?? "N/A",
+                    mileage_since_commissioning: mainVehicle.mileageSinceCommissioning ?? "N/A",
+                    registration_expiry_date: mainVehicle.registrationExpiryDate || "N/A",
+                    vehicle_amenities: [
+                        mainVehicle.airConditioned ? 'A/C' : null,
+                        mainVehicle.wifi ? 'Wi-Fi' : null,
+                        mainVehicle.comfortable ? 'Confort' : null,
+                        mainVehicle.soft ? 'Soft' : null,
+                        mainVehicle.screen ? 'Screen' : null,
+                        mainVehicle.tollCharge ? 'Toll' : null,
+                        mainVehicle.carParking ? 'Parking' : null,
+                        mainVehicle.alarm ? 'Alarm' : null,
+                        mainVehicle.stateTax ? 'State tax' : null,
+                        mainVehicle.driverAllowance ? 'Driver allowance' : null,
+                        mainVehicle.pickupAndDrop ? 'Pickup/Drop' : null,
+                        mainVehicle.internet ? 'Internet' : null,
+                        mainVehicle.petsAllow ? 'Pets' : null
+                    ].filter(Boolean),
+                    illustration_images: images.map((image) => image.imagePath).filter(Boolean),
+                    vehicle_reviews: []
+                };
+                setResolvedVehicleData(mappedVehicle);
+            })
+            .catch(() => {
+                if (isMounted) setResolvedVehicleData(null);
+            })
+            .finally(() => {
+                if (isMounted) setVehicleLoading(false);
+            });
+        return () => {
+            isMounted = false;
+        };
+    }, [driverData.driver_id, driverData.id, vehicleData, resolvedVehicleData?.vehicleId]);
+
     const storeProfileData = (profileId, profileData) => {
         localStorage.setItem(profileId, JSON.stringify(profileData));
+    };
+
+    const formatDate = (value) => {
+        if (!value) return 'N/A';
+        const parsed = new Date(value);
+        if (Number.isNaN(parsed.getTime())) return 'N/A';
+        return parsed.toLocaleDateString('fr-FR');
+    };
+
+    const formatDateTime = (dateValue, timeValue) => {
+        if (!dateValue) return 'N/A';
+        const parsed = new Date(dateValue);
+        if (Number.isNaN(parsed.getTime())) return 'N/A';
+        const dateLabel = parsed.toLocaleDateString('fr-FR');
+        if (!timeValue) return dateLabel;
+        const parsedTime = new Date(timeValue);
+        if (!Number.isNaN(parsedTime.getTime())) {
+            return `${dateLabel} ${parsedTime.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}`;
+        }
+        return `${dateLabel} ${timeValue}`;
+    };
+
+    const formatPrice = (value) => {
+        const amount = Number(value);
+        if (!Number.isFinite(amount)) return '0 XAF';
+        return `${amount.toLocaleString('fr-FR')} XAF`;
     };
 
 
@@ -54,7 +146,8 @@ export default function  FreelanceDetailsComponent ({ data,isModal = false })   
         // Use the driver ID to navigate to the dynamic profile page
         const driverId = driverData.driver_id || driverData.id;
         if (driverId) {
-            const url = `/freelance-profile/${driverId}`;
+            storeProfileData(driverId, { driverData, vehicleData: resolvedVehicleData || vehicleData });
+            const url = `/freelance-profile?id=${driverId}`;
             window.open(url, '_blank', 'noopener,noreferrer');
         } else {
             console.error("Driver ID missing");
@@ -105,10 +198,6 @@ export default function  FreelanceDetailsComponent ({ data,isModal = false })   
                                 </div>
 
                                 <div className="border border-dashed my-1"></div>
-                                <DriverExperiences driverExperiences={experiences}/>
-
-
-                                <div className="border border-dashed my-1"></div>
                                 <div className="items-center">
                                     <div className="block text font-semibold clr-neutral-600 mb-1">
                                         Disponibilités (autres plannings publiés)
@@ -120,18 +209,32 @@ export default function  FreelanceDetailsComponent ({ data,isModal = false })   
                                                     <tr className="bg-gray-200">
                                                         <th className="border border-gray-400 px-4 py-2">Départ</th>
                                                         <th className="border border-gray-400 px-4 py-2">Arrivée</th>
-                                                        <th className="border border-gray-400 px-4 py-2">Date</th>
+                                                        <th className="border border-gray-400 px-4 py-2">Date départ</th>
+                                                        <th className="border border-gray-400 px-4 py-2">Date arrivée</th>
                                                         <th className="border border-gray-400 px-4 py-2">Prix</th>
+                                                        <th className="border border-gray-400 px-4 py-2">See more</th>
                                                         <th className="border border-gray-400 px-4 py-2">Book</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
                                                     {plannings.map((p) => (
                                                         <tr key={p.id}>
-                                                            <td className="border border-gray-400 px-4 py-2">{p.pickupLocation}</td>
-                                                            <td className="border border-gray-400 px-4 py-2">{p.dropoffLocation}</td>
-                                                            <td className="border border-gray-400 px-4 py-2">{p.startDate}</td>
-                                                            <td className="border border-gray-400 px-4 py-2">{Number(p.cost).toLocaleString()} XAF</td>
+                                                            <td className="border border-gray-400 px-4 py-2">{p.departureLocation || p.pickupLocation || 'N/A'}</td>
+                                                            <td className="border border-gray-400 px-4 py-2">{p.dropoffLocation || 'N/A'}</td>
+                                                            <td className="border border-gray-400 px-4 py-2">{formatDateTime(p.startDate, p.startTime)}</td>
+                                                            <td className="border border-gray-400 px-4 py-2">{formatDateTime(p.endDate, p.endTime)}</td>
+                                                            <td className="border border-gray-400 px-4 py-2">{formatPrice(p.regularAmount ?? p.cost ?? p.discountedAmount)}</td>
+                                                            <td className="border border-gray-400 px-4 py-2">
+                                                                <button
+                                                                    className="inline-flex items-center justify-center rounded-full border border-slate-300 px-4 py-1.5 text-xs font-semibold uppercase tracking-wide text-slate-700 transition hover:border-slate-700 hover:text-slate-900"
+                                                                    onClick={() => {
+                                                                        setSelectedPlanning(p);
+                                                                        setIsPlanningModalOpen(true);
+                                                                    }}
+                                                                >
+                                                                    See more
+                                                                </button>
+                                                            </td>
                                                             <td className="border border-gray-400 px-4 py-2">
                                                                 <button
                                                                     className="bg-blue-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
@@ -166,9 +269,14 @@ export default function  FreelanceDetailsComponent ({ data,isModal = false })   
                         </div>
                         {/*<div className="col-span-12 xl:col-span-8">*/}
                         <div className={isModal ? 'col-span-1' : 'col-span-12 xl:col-span-7'}>
-                            {driverData.has_vehicle && (
+                            {(driverData.has_vehicle || resolvedVehicleData?.vehicleId) && (
                                 <div className="p-3 bg-white rounded-2xl mb-8">
-                                    <CarDetails vehicleData={vehicleData} isModal={isModal}/>
+                                    <CarDetails vehicleData={resolvedVehicleData || vehicleData} isModal={isModal}/>
+                                </div>
+                            )}
+                            {vehicleLoading && (
+                                <div className="p-3 bg-white rounded-2xl mb-8 text-gray-500">
+                                    Chargement des informations du véhicule...
                                 </div>
                             )}
                             {
@@ -197,6 +305,74 @@ export default function  FreelanceDetailsComponent ({ data,isModal = false })   
                                         </button>
                                         <h2 className="text-2xl font-bold text-gray-800 mb-4">Votre avis</h2>
                                         <ReviewForm driverId={driverData.driver_id} onSuccess={() => { setIsModalOpen(false); }} />
+                                    </div>
+                                </div>
+                            )}
+
+                            {isPlanningModalOpen && selectedPlanning && (
+                                <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/70 p-4">
+                                    <div className="relative w-full max-w-2xl overflow-hidden rounded-2xl bg-white shadow-[0_30px_80px_-50px_rgba(15,23,42,0.85)]">
+                                        <div className="flex items-start justify-between border-b border-slate-200 px-6 py-5">
+                                            <div>
+                                                <p className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-400">Planning</p>
+                                                <h2 className="text-2xl font-bold text-slate-900">Détails du planning</h2>
+                                            </div>
+                                            <button
+                                                onClick={() => setIsPlanningModalOpen(false)}
+                                                className="rounded-full border border-slate-200 p-2 text-slate-400 transition hover:border-slate-400 hover:text-slate-600"
+                                                aria-label="Close"
+                                            >
+                                                <span className="text-lg">×</span>
+                                            </button>
+                                        </div>
+                                        <div className="grid gap-4 px-6 py-6 sm:grid-cols-2">
+                                            <div className="rounded-xl border border-slate-100 bg-slate-50 p-4">
+                                                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Trajet</p>
+                                                <p className="mt-2 text-lg font-semibold text-slate-900">
+                                                    {selectedPlanning.departureLocation || selectedPlanning.pickupLocation || 'N/A'} → {selectedPlanning.dropoffLocation || 'N/A'}
+                                                </p>
+                                                <p className="mt-2 text-sm text-slate-600">
+                                                    {selectedPlanning.tripType || 'N/A'} • {selectedPlanning.tripIntention || 'N/A'}
+                                                </p>
+                                            </div>
+                                            <div className="rounded-xl border border-slate-100 bg-slate-50 p-4">
+                                                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Dates</p>
+                                                <p className="mt-2 text-sm text-slate-700">Départ: {formatDateTime(selectedPlanning.startDate, selectedPlanning.startTime)}</p>
+                                                <p className="text-sm text-slate-700">Arrivée: {formatDateTime(selectedPlanning.endDate, selectedPlanning.endTime)}</p>
+                                            </div>
+                                            <div className="rounded-xl border border-slate-100 bg-white p-4 shadow-sm">
+                                                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Prix</p>
+                                                <p className="mt-2 text-2xl font-semibold text-slate-900">
+                                                    {formatPrice(selectedPlanning.regularAmount ?? selectedPlanning.cost ?? selectedPlanning.discountedAmount)}
+                                                </p>
+                                                <p className="text-sm text-slate-500">{selectedPlanning.pricingMethod || 'N/A'}</p>
+                                            </div>
+                                            <div className="rounded-xl border border-slate-100 bg-white p-4 shadow-sm">
+                                                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Paiement</p>
+                                                <p className="mt-2 text-sm text-slate-700">{selectedPlanning.paymentOption || 'N/A'}</p>
+                                                <p className="text-sm text-slate-500">Négociable: {selectedPlanning.negotiable ? 'Oui' : 'Non'}</p>
+                                            </div>
+                                            {selectedPlanning.baggageInfo && (
+                                                <div className="sm:col-span-2 rounded-xl border border-slate-100 bg-slate-50 p-4">
+                                                    <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Bagages</p>
+                                                    <p className="mt-2 text-sm text-slate-700">{selectedPlanning.baggageInfo}</p>
+                                                </div>
+                                            )}
+                                        </div>
+                                        <div className="flex items-center justify-end gap-3 border-t border-slate-200 px-6 py-5">
+                                            <button
+                                                onClick={() => setIsPlanningModalOpen(false)}
+                                                className="rounded-full border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-600 hover:border-slate-400 hover:text-slate-800"
+                                            >
+                                                Fermer
+                                            </button>
+                                            <button
+                                                className="rounded-full bg-blue-600 px-5 py-2 text-sm font-semibold text-white shadow hover:bg-blue-700"
+                                                onClick={() => window.open(`/freelance-booking?id=${selectedPlanning.id}`, '_blank')}
+                                            >
+                                                Book
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             )}

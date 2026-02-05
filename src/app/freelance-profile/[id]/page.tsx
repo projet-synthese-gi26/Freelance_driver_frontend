@@ -24,27 +24,24 @@ import { StarIcon } from '@heroicons/react/24/solid';
 import { profileService } from '@/service/profileService';
 import { vehicleService } from '@/service/vehicleService';
 import { planningService } from '@/service/planningService';
-import { reviewService, Review } from '@/service/reviewService';
+import { reviewService } from '@/service/reviewService';
 import { addressService } from '@/service/addressService';
-import { experienceService } from '@/service/experienceService';
 import { Vehicle } from '@/type/vehicle';
 import { UserSessionContext } from '@/type/profile';
-import { PublicOfferView } from '@/service/announcementService';
+import { Planning } from '@/type/planning';
 import { Address } from '@/type/address';
-import { DriverLicense, CV, Experience } from '@/type/experience';
-import { VehicleCard } from '@/components/freelance/business/VehicleCard';
 
 // --- INTERFACES LOCALES ---
 interface DriverDetailsData {
-  profileContext: UserSessionContext;
+  profileContext: UserSessionContext & { driverProfile?: any };
   vehicles: Vehicle[];
-  plannings: PublicOfferView[];
-  reviews: Review[];
+  plannings: Planning[];
+  reviews: any[];
   addresses: Address[];
   portfolio: {
-    license: DriverLicense | null;
-    cv: CV | null;
-    experiences: Experience[];
+    license: null;
+    cv: null;
+    experiences: any[];
   };
 }
 
@@ -88,15 +85,21 @@ export default function DriverProfilePage() {
     if (!driverId) return;
     setIsLoading(true);
     try {
-      const [profileData, vehiclesData, planningsData, reviewsData, addressesData, portfolioData] = await Promise.all([
-        profileService.getPublicDriverProfile(driverId), 
+      const [profileData, vehiclesData, planningsData, reviewsData, addressesData] = await Promise.all([
+        profileService.getPublicDriverProfile(driverId),
         vehicleService.getVehiclesByDriver(driverId),
         planningService.getPlanningsByDriver(driverId),
-        reviewService.getReviewsForUser(driverId),
-        addressService.getAddressesByDriver(driverId),
-        experienceService.getPortfolioByDriver(driverId),
+        reviewService.getReviewsBySubject(driverId, "DRIVER"),
+        addressService.getDriverAddressesByUserId(driverId),
       ]);
-      setData({ profileContext: profileData, vehicles: vehiclesData, plannings: planningsData, reviews: reviewsData, addresses: addressesData, portfolio: portfolioData });
+      setData({
+        profileContext: profileData,
+        vehicles: vehiclesData,
+        plannings: planningsData,
+        reviews: reviewsData,
+        addresses: addressesData,
+        portfolio: { license: null, cv: null, experiences: [] }
+      });
     } catch (error) {
       console.error("Échec du chargement du profil:", error);
       toast.error("Impossible de charger les détails du chauffeur.");
@@ -115,7 +118,13 @@ export default function DriverProfilePage() {
     }
     setIsSubmittingReview(true);
     try {
-        await reviewService.createReview(driverId, myScore, myComment);
+        await reviewService.createReview({
+          subjectId: driverId,
+          subjectType: "DRIVER",
+          reviewType: "RATING",
+          rating: myScore,
+          comment: myComment,
+        });
         
         toast.success("Avis envoyé !");
         setReviewModalOpen(false);
@@ -134,16 +143,16 @@ export default function DriverProfilePage() {
   if (isLoading) {
     return <div className="min-h-screen flex items-center justify-center text-gray-500">Chargement du profil...</div>;
   }
-  if (!data || !data.profileContext.driverProfile) {
+  if (!data) {
     return <div className="min-h-screen flex items-center justify-center text-red-500">Profil introuvable.</div>;
   }
   // Prépare les données pour FreelanceDetailsComponent
-  const driverProfile = data.profileContext.driverProfile;
+  const driverProfile = data.profileContext.driverProfile || data.profileContext.user;
   const driverData = {
     driver_id: driverProfile.id,
-    driver_profile_image: driverProfile.profileImageUrl || "/white-silhouette-avatar.png",
-    driver_last_name: driverProfile.lastName,
-    driver_first_name: driverProfile.firstName,
+    driver_profile_image: driverProfile.profileImageUrl || driverProfile.photoUri || "/white-silhouette-avatar.png",
+    driver_last_name: driverProfile.lastName || driverProfile.lastName,
+    driver_first_name: driverProfile.firstName || driverProfile.firstName,
     driverLocation: data.addresses[0]?.city || '',
     driver_experiences: data.portfolio.experiences || [],
     driver_languages: driverProfile.language ? [driverProfile.language] : [],
@@ -156,14 +165,19 @@ export default function DriverProfilePage() {
       end_date: p.endDate,
       start_time: p.startTime,
       end_time: p.endTime,
-      price: p.cost,
+      price: p.regularAmount,
       driver_billing_method_name: 'daily',
       is_available: true
     })),
     has_vehicle: data.vehicles.length > 0,
     Description: driverProfile.biography || '',
-    driver_statistics: { average_rating: 0, review_total_number: 0 },
-    driver_reviews: [],
+    driver_statistics: {
+      average_rating: data.reviews.length > 0
+        ? data.reviews.reduce((sum, review) => sum + (review.rating || 0), 0) / data.reviews.length
+        : 0,
+      review_total_number: data.reviews.length,
+    },
+    driver_reviews: data.reviews,
   };
   const vehicleData = data.vehicles[0] || {};
   return (

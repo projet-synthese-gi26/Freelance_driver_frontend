@@ -70,7 +70,13 @@ const RateAppPage = () => {
         if (comment.trim() !== '') {
             const scores = Object.values(ratings);
             const averageScore = Math.round(scores.reduce((a, b) => a + b, 0) / scores.length);
-            await reviewService.createReview(APPLICATION_ENTITY_ID, averageScore, comment);
+            await reviewService.createReview({
+              subjectId: APPLICATION_ENTITY_ID,
+              subjectType: "PLATFORM",
+              reviewType: "RATING",
+              rating: averageScore,
+              comment,
+            });
         }
 
         setSubmitted(true);

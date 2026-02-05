@@ -127,11 +127,11 @@ const Information = ({ driverData}: InformationProps) => {
                 <div className="flex min-w-full justify-center items-center my-1 px-4 mx-8 space-x-4">
                     <div className="flex items-center">
                         <span className="mr-1">
-                        {driverData.driver_statistics.average_rating.toFixed(1)}
+                        {driverData.driver_statistics?.average_rating?.toFixed?.(1) || "0.0"}
                         </span>{" "}
                         <StarIcon className="w-4 h-4 text-[var(--tertiary)]"/>
                         <span
-                            className="ml-2 text-gray-500"> {driverData.driver_statistics.review_total_number} avis</span>{" "}
+                            className="ml-2 text-gray-500"> {driverData.driver_statistics?.review_total_number || 0} avis</span>{" "}
                     </div>
                     <button
                         onClick={openShareModal}

@@ -20,6 +20,9 @@ interface AuthContextType {
      authUserIsLoading: boolean;
 }
 
+
+
+
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
@@ -84,14 +87,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             
             toast.success("Connexion réussie !");
             
-            // Redirection
-            const roles = response.user?.roles?.map(role => role.roleType).filter(Boolean) as string[] | undefined;
-
-            if (roles?.includes('DRIVER')) {
-                router.push('/freelance-dashboard');
-            } else {
-                router.push('/customer-dashboard');
-            }
+            // Pas de redirection automatique: rester sur la page courante
         } catch (error: any) {
             console.error(error);
             throw error; // Laisse le formulaire gérer l'affichage de l'erreur

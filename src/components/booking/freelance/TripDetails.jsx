@@ -23,8 +23,10 @@ const TripDetails = ({ availability, currency_name, availability_table }) => {
         return timeString.slice(0, 5);
     }
 
-    function formatPrice(price, billingMethod) {
-        const formattedPrice = price.toFixed(2);
+    function formatPrice(priceValue, billingMethod) {
+        const numericPrice = Number(priceValue);
+        const safePrice = Number.isFinite(numericPrice) ? numericPrice : 0;
+        const formattedPrice = safePrice.toFixed(2);
         switch (billingMethod) {
             case 'hourly':
                 return `${formattedPrice} ${currency_name}/hour`;
@@ -93,7 +95,7 @@ const TripDetails = ({ availability, currency_name, availability_table }) => {
                         <h5 className="text font-medium mb-2">Payment</h5>
                         <div className="flex justify-between">
                             <span className="text-gray-600">Price:</span>
-                            <span className="font-medium">{price.toFixed(2)} {currency_name}</span>
+                            <span className="font-medium">{formatPrice(price, paymentMethod)}</span>
                         </div>
                         <div className="flex justify-between mt-2 mb-2">
                             <span className="text-gray-600">Method:</span>

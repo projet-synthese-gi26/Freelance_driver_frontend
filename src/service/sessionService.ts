@@ -103,7 +103,15 @@ export const sessionService = {
    */
   saveSessionContext: (context: UserSessionContext) => {
     if (typeof window !== 'undefined') {
-        localStorage.setItem(PROFILE_KEY, JSON.stringify(context));
+        const existingContextString = localStorage.getItem(PROFILE_KEY);
+        const existingContext = existingContextString ? JSON.parse(existingContextString) : null;
+        const mergedContext = {
+          ...existingContext,
+          ...context,
+          accessToken: context.accessToken || existingContext?.accessToken,
+          refreshToken: context.refreshToken || existingContext?.refreshToken,
+        } as UserSessionContext;
+        localStorage.setItem(PROFILE_KEY, JSON.stringify(mergedContext));
         console.log("✅ [sessionService] Contexte profil mis à jour.");
     }
   },
@@ -159,7 +167,7 @@ export const sessionService = {
   },
 
   isAccessTokenExpired: () => {
-    const token = Cookies.get(TOKEN_KEY);
+    const token = sessionService.getAuthToken();
     if (!token) return true;
     try {
       const payload = JSON.parse(atob(token.split('.')[1]));

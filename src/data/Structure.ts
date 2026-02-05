@@ -250,6 +250,8 @@ const sortOptions = [
     {value: 'any', label: 'any'},
     { value: 'mostCommented', label: 'Top rated' },
     { value: 'avgRating', label: 'The avarage ' },
+    { value: 'priceLow', label: 'Price: Low to High' },
+    { value: 'priceHigh', label: 'Price: High to Low' },
 
 ];
 

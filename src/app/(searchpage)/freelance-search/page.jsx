@@ -58,6 +58,19 @@ const Search = () => {
         averageRating:'',
         pricingMethod:''
     });
+    const loadPublishedPlannings = async () => {
+        setIsLoading(true);
+        try {
+            const allPlannings = await planningService.getPublishedPlannings();
+            setSearchResults(allPlannings);
+        } catch (error) {
+            console.error("Search error:", error);
+            toast.error("Erreur lors de la recherche.");
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     useEffect(() => {
         const locationAutocomplete = createAutocomplete('location', (selectedValue) => {
             setLocation(selectedValue);
@@ -73,6 +86,8 @@ const Search = () => {
         }, 100);
 
 
+
+        loadPublishedPlannings();
 
         return () => {
             clearTimeout(timer);
@@ -106,7 +121,7 @@ const Search = () => {
                 let match = true;
                 if (location) {
                     const loc = location.toLowerCase();
-                    if (!p.pickupLocation.toLowerCase().includes(loc) && !p.fullLocation.toLowerCase().includes(loc)) {
+                    if (!p.departureLocation.toLowerCase().includes(loc)) {
                         match = false;
                     }
                 }

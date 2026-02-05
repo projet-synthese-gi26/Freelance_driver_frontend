@@ -68,6 +68,11 @@ export const addressService = {
         return Array.isArray(response.data) ? response.data.map(mapApiToAddress) : [];
     },
 
+    getDriverAddressesByUserId: async (userId: string): Promise<Address[]> => {
+        const response = await apiClient.get(`/api/v1/driver/profile/addresses/user/${userId}`);
+        return Array.isArray(response.data) ? response.data.map(mapApiToAddress) : [];
+    },
+
     createDriverAddress: async (payload: AddressPayload): Promise<Address> => {
         const response = await apiClient.post('/api/v1/driver/profile/addresses', payload);
         return mapApiToAddress(response.data);

@@ -1,7 +1,10 @@
 "use client";
 import { HandThumbDownIcon, HandThumbUpIcon, HeartIcon } from "@heroicons/react/24/solid";
-import axios from 'axios';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { reactionService } from '@/service/reactionService';
+import { ReactionType } from '@/type/reaction';
+import { useAuthContext } from '@/components/context/authContext';
+import { useAuthModal } from '@/hook/AuthModalContext';
 
 interface EmojisProps {
     driver_id: string
@@ -26,34 +29,21 @@ const formatNumber = (num: number): string => {
 };
 
 export default function Emojis({ driver_id, vertical = false }: EmojisProps & { vertical?: boolean }) {
-    const DRIVER_EMOJIS_PATH = "http://localhost:8000/emojis";
-
-    const [refresh, setRefresh] = useState(true);
-
+    if (!driver_id) {
+        return null;
+    }
+    const { user } = useAuthContext();
+    const { openLoginModal } = useAuthModal();
+    const [isLoading, setIsLoading] = useState(false);
     const [iconsNumber, setIconsNumber] = useState({
         driver_id: driver_id,
-        handUp: 1112,
-        handDown: 1000000,
-        angry: 500,
-        heart: 12500,
+        handUp: 0,
+        handDown: 0,
+        angry: 0,
+        heart: 0,
         totalReviews: 0,
         share: 0
     });
-
-    useEffect(() => {
-        const fetchIconsNumber = async () => {
-            try {
-                const response = await axios.get(DRIVER_EMOJIS_PATH + '/' + driver_id);
-                if (response.data !== null) {
-                    setIconsNumber(response.data);
-                }
-            } catch (error) {
-                console.error('Erreur lors de la récupération du nombre d\'icônes :', error);
-            }
-        };
-
-        fetchIconsNumber();
-    }, [refresh, driver_id]);
 
     const [selectedEmojis, setSelectedEmojis] = useState<SelectedEmojis>({
         heart: false,
@@ -61,35 +51,106 @@ export default function Emojis({ driver_id, vertical = false }: EmojisProps & { 
         handDown: false,
         angry: false,
     });
-    //
-    // const sendEmoji = async (emoji_name: string) => {
-    //     var emojiData = {
-    //         user_id: "user_id",
-    //         driver_id: driver_id,
-    //         emoji_name: emoji_name,
-    //     }
-    //     try {
-    //         await axios.put(DRIVER_EMOJIS_PATH, emojiData);
-    //         console.log('Emoji envoyé avec succès au backend');
-    //         setRefresh(!refresh);
-    //     } catch (error) {
-    //         console.error('Erreur lors de l\'envoi de l\'emoji au backend:', error);
-    //     }
-    // };
+
+    const currentUserId = user?.user?.id;
+
+    const reactionMap = useMemo<Record<EmojiName, ReactionType>>(() => ({
+        heart: "LOVE",
+        handUp: "LIKE",
+        handDown: "DISLIKE",
+        angry: "ANGRY",
+    }), []);
+
+    useEffect(() => {
+        if (!driver_id) return;
+        const fetchIconsNumber = async () => {
+            setIsLoading(true);
+            try {
+                const reactions = await reactionService.getReactionsByTarget(driver_id, "DRIVER");
+                const counts = reactions.reduce(
+                    (acc, reaction) => {
+                        acc[reaction.type] = (acc[reaction.type] || 0) + 1;
+                        return acc;
+                    },
+                    {} as Record<ReactionType, number>
+                );
+
+                setIconsNumber((prev) => ({
+                    ...prev,
+                    driver_id: driver_id,
+                    handUp: counts.LIKE || 0,
+                    handDown: counts.DISLIKE || 0,
+                    angry: counts.ANGRY || 0,
+                    heart: counts.LOVE || 0,
+                }));
+
+                if (currentUserId) {
+                    const userReactions = new Set(
+                        reactions
+                            .filter((reaction) => reaction.actorId === currentUserId)
+                            .map((reaction) => reaction.type)
+                    );
+
+                    setSelectedEmojis({
+                        heart: userReactions.has("LOVE"),
+                        handUp: userReactions.has("LIKE"),
+                        handDown: userReactions.has("DISLIKE"),
+                        angry: userReactions.has("ANGRY"),
+                    });
+                }
+            } catch (error) {
+                console.error('Erreur lors de la récupération des réactions :', error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchIconsNumber();
+    }, [driver_id, currentUserId]);
 
     const sendEmoji = async (emoji_name: EmojiName) => {
-        var emojiData = {
-            user_id: "user_id",
-            driver_id: driver_id,
-            emoji_name: emoji_name,
+        if (!driver_id) return;
+        if (!currentUserId) {
+            openLoginModal();
+            return;
         }
+        const reactionType = reactionMap[emoji_name];
+        setIsLoading(true);
         try {
-            await axios.put(DRIVER_EMOJIS_PATH, emojiData);
-            console.log('Emoji envoyé avec succès au backend');
-            setRefresh(!refresh);
-            setSelectedEmojis(prev => ({ ...prev, [emoji_name]: !prev[emoji_name] }));
+            if (selectedEmojis[emoji_name]) {
+                await reactionService.deleteReaction(driver_id, reactionType);
+            } else {
+                await reactionService.createReaction({
+                    targetId: driver_id,
+                    targetType: "DRIVER",
+                    type: reactionType,
+                });
+            }
+            const reactions = await reactionService.getReactionsByTarget(driver_id, "DRIVER");
+            const counts = reactions.reduce(
+                (acc, reaction) => {
+                    acc[reaction.type] = (acc[reaction.type] || 0) + 1;
+                    return acc;
+                },
+                {} as Record<ReactionType, number>
+            );
+            setIconsNumber((prev) => ({
+                ...prev,
+                handUp: counts.LIKE || 0,
+                handDown: counts.DISLIKE || 0,
+                angry: counts.ANGRY || 0,
+                heart: counts.LOVE || 0,
+            }));
+            setSelectedEmojis({
+                heart: reactions.some((r) => r.actorId === currentUserId && r.type === "LOVE"),
+                handUp: reactions.some((r) => r.actorId === currentUserId && r.type === "LIKE"),
+                handDown: reactions.some((r) => r.actorId === currentUserId && r.type === "DISLIKE"),
+                angry: reactions.some((r) => r.actorId === currentUserId && r.type === "ANGRY"),
+            });
         } catch (error) {
-            console.error('Erreur lors de l\'envoi de l\'emoji au backend:', error);
+            console.error('Erreur lors de l\'envoi de la réaction:', error);
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -119,7 +180,7 @@ export default function Emojis({ driver_id, vertical = false }: EmojisProps & { 
     // );
 
     return (
-        <div className={`flex ${vertical ? 'flex-col space-y-4' : 'justify-center px-4 py-2 max-w-md mx-auto space-x-8'}`}>
+        <div className={`flex ${vertical ? 'flex-col space-y-4' : 'justify-center px-4 py-2 max-w-md mx-auto space-x-8'} ${isLoading ? 'opacity-70' : ''}`}>
             <EmojiButton
                 icon={<HeartIcon className={`w-5 h-5 ${selectedEmojis.heart ? 'text-red-500 fill-current' : 'text-gray-500'} hover:text-red-600`}/>}
                 count={iconsNumber.heart}

@@ -1,7 +1,7 @@
 // src/services/vehicleService.ts
 
 import apiClient from './apiClient';
-import { Vehicle, VehicleImage, VehiclePayload } from '@/type/vehicle';
+import { Vehicle, VehicleImage, VehiclePayload, VehicleSimplifiedPayload } from '@/type/vehicle';
 
 const mapApiToVehicle = (payload: any): Vehicle => ({
   vehicleId: payload.vehicleId ?? '',
@@ -27,12 +27,25 @@ const mapApiToVehicle = (payload: any): Vehicle => ({
   brand: payload.brand ?? null,
   createdAt: payload.createdAt ?? null,
   updatedAt: payload.updatedAt ?? null,
+  airConditioned: payload.airConditioned ?? null,
+  comfortable: payload.comfortable ?? null,
+  soft: payload.soft ?? null,
+  screen: payload.screen ?? null,
+  wifi: payload.wifi ?? null,
+  tollCharge: payload.tollCharge ?? null,
+  carParking: payload.carParking ?? null,
+  alarm: payload.alarm ?? null,
+  stateTax: payload.stateTax ?? null,
+  driverAllowance: payload.driverAllowance ?? null,
+  pickupAndDrop: payload.pickupAndDrop ?? null,
+  internet: payload.internet ?? null,
+  petsAllow: payload.petsAllow ?? null,
 });
 
 const mapApiToVehicleImage = (payload: any): VehicleImage => ({
-  vehicleIllustrationImageId: payload.vehicleIllustrationImageId ?? '',
-  vehicleId: payload.vehicleId ?? '',
-  imagePath: payload.imagePath ?? '',
+  vehicleIllustrationImageId: payload.vehicleIllustrationImageId ?? payload.id ?? '',
+  vehicleId: payload.vehicleId ?? payload.vehicle_id ?? '',
+  imagePath: payload.imagePath ?? payload.imageURL ?? payload.url ?? payload.path ?? '',
 });
 
 export const vehicleService = {
@@ -40,12 +53,16 @@ export const vehicleService = {
     const response = await apiClient.get('/vehicles');
     return Array.isArray(response.data) ? response.data.map(mapApiToVehicle) : [];
   },
+  getVehiclesByDriver: async (userId: string): Promise<Vehicle[]> => {
+    const response = await apiClient.get(`/vehicles/user/${userId}`);
+    return Array.isArray(response.data) ? response.data.map(mapApiToVehicle) : [];
+  },
   getVehicle: async (id: string): Promise<Vehicle> => {
     const response = await apiClient.get(`/vehicles/${id}`);
     return mapApiToVehicle(response.data);
   },
-  createVehicle: async (payload: VehiclePayload): Promise<Vehicle> => {
-    const response = await apiClient.post('/vehicles', payload);
+  createVehicle: async (payload: VehicleSimplifiedPayload): Promise<Vehicle> => {
+    const response = await apiClient.post('/vehicles/simplified', payload);
     return mapApiToVehicle(response.data);
   },
   updateVehicle: async (id: string, payload: VehiclePayload): Promise<Vehicle> => {
@@ -61,7 +78,17 @@ export const vehicleService = {
   },
   getVehicleImages: async (id: string): Promise<VehicleImage[]> => {
     const response = await apiClient.get(`/vehicles/${id}/images`);
-    return Array.isArray(response.data) ? response.data.map(mapApiToVehicleImage) : [];
+    const payload = response.data;
+    const imageList = Array.isArray(payload)
+      ? payload
+      : Array.isArray(payload?.data)
+        ? payload.data
+        : Array.isArray(payload?.images)
+          ? payload.images
+          : Array.isArray(payload?.content)
+            ? payload.content
+            : [];
+    return imageList.map(mapApiToVehicleImage);
   },
   uploadVehicleImage: async (id: string, file: File): Promise<VehicleImage> => {
     const formData = new FormData();

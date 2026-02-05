@@ -7,6 +7,9 @@ import { v4 as uuidv4 } from 'uuid';
 import { planningService } from '@/service/planningService';
 import { profileService } from '@/service/profileService';
 import { vehicleService } from '@/service/vehicleService';
+import { addressService } from '@/service/addressService';
+import { reviewService } from '@/service/reviewService';
+import { reactionService } from '@/service/reactionService';
 import { toast } from 'react-hot-toast';
 
 const CURRENCY = "XAF";
@@ -33,7 +36,7 @@ const SearchCardFreelance = ({ planning }) => {
             driver_profile_image: planning.authorImageUrl || "/img/default-avatar.jpeg",
             driver_last_name,
             driver_first_name,
-            driverLocation: planning.pickupLocation,
+            driverLocation: planning.departureLocation,
             driver_experiences: [],
             driver_languages: [],
             driver_specialities: [],
@@ -48,7 +51,9 @@ const SearchCardFreelance = ({ planning }) => {
         luggage_max_capacity: "N/A",
         mileage_at_mileage_since_commissioning: "N/A",
         fuel_type_name: "N/A",
-        transmission_type_name: "N/A"
+        transmission_type_name: "N/A",
+        model: "N/A",
+        manufacturer: "N/A"
     }), []); // Tableau vide car données statiques par défaut
 
 
@@ -56,15 +61,31 @@ const SearchCardFreelance = ({ planning }) => {
     useEffect(() => {
         let isMounted = true;
         const fetchCardDetails = async () => {
+            if (!planning.authorId) {
+                setIsLoadingDetails(false);
+                return;
+            }
             setIsLoadingDetails(true);
             try {
                 // Utilisation de Promise.all pour paralléliser et accélérer
-                const [profile, vehicles] = await Promise.all([
+                const [profile, vehicles, addresses, reviews, reactions] = await Promise.all([
                     profileService.getPublicDriverProfile(planning.authorId),
-                    vehicleService.getVehiclesByDriver(planning.authorId)
+                    vehicleService.getVehiclesByDriver(planning.authorId),
+                    addressService.getDriverAddressesByUserId(planning.authorId),
+                    reviewService.getReviewsBySubject(planning.authorId, "DRIVER"),
+                    reactionService.getReactionsByTarget(planning.authorId, "DRIVER")
                 ]);
 
                 const mainVehicle = vehicles.length > 0 ? vehicles[0] : null;
+                const vehicleImages = mainVehicle?.vehicleId
+                    ? await vehicleService.getVehicleImages(mainVehicle.vehicleId)
+                    : [];
+                const mainAddress = addresses?.[0];
+                const ratingValues = reviews.map((review) => review.rating || 0).filter((rating) => rating > 0);
+                const averageRating = ratingValues.length > 0
+                    ? ratingValues.reduce((sum, rating) => sum + rating, 0) / ratingValues.length
+                    : 0;
+                const likeCount = reactions.filter((reaction) => reaction.type === "LIKE").length;
                 
                 const mappedDriverData = {
                     ...initialDriverData,
@@ -77,6 +98,7 @@ const SearchCardFreelance = ({ planning }) => {
                     driver_email: profile.driverProfile?.contactEmail || "N/A",
                     driver_license_number: profile.driverProfile?.licenseNumber || "N/A",
                     Description: profile.driverProfile?.biography || "Aucune description disponible.",
+                    driverLocation: mainAddress?.city || initialDriverData.driverLocation,
                     driver_experiences: [],
                     driver_specialities: ["Transport de personnes"],
                     driver_keywords: ["Ponctuel", "Sérieux"],
@@ -86,26 +108,51 @@ const SearchCardFreelance = ({ planning }) => {
                     transmission_types: [],
                     preferred_language: [],
                     has_vehicle: vehicles.length > 0,
-                    driver_statistics: { average_rating: 0, review_total_number: 0 },
-                    driver_reviews: []
+                    driver_statistics: { average_rating: averageRating, review_total_number: reviews.length },
+                    driver_reviews: reviews,
+                    driver_reactions: { likeCount }
                 };
 
                 const mappedVehicleData = mainVehicle ? {
-                    total_seat_number: mainVehicle.seats || "N/A",
-                    luggage_max_capacity: mainVehicle.loadCapacity || "N/A",
-                    mileage_at_mileage_since_commissioning: mainVehicle.mileage || "N/A",
-                    fuel_type_name: mainVehicle.fuelType || "N/A",
-                    transmission_type_name: mainVehicle.transmission || "N/A",
-                    model: mainVehicle.model,
-                    manufacturer: mainVehicle.manufacturer,
-                    photoUrls: mainVehicle.photoUrls || [],
-                    illustration_images: Array.isArray(mainVehicle.illustration_images) ? mainVehicle.illustration_images : []
+                    vehicleId: mainVehicle.vehicleId,
+                    total_seat_number: mainVehicle.totalSeatNumber ?? "N/A",
+                    luggage_max_capacity: mainVehicle.luggageMaxCapacity ?? "N/A",
+                    mileage_at_mileage_since_commissioning: mainVehicle.mileageSinceCommissioning ?? "N/A",
+                    fuel_type_name: mainVehicle.fuelTypeId || "N/A",
+                    transmission_type_name: mainVehicle.transmissionTypeId || "N/A",
+                    model_name: mainVehicle.vehicleModelId || "N/A",
+                    manufacturer_name: mainVehicle.vehicleMakeId || "N/A",
+                    brand_name: mainVehicle.brand || "N/A",
+                    size_name: mainVehicle.vehicleSizeId || "N/A",
+                    type_name: mainVehicle.vehicleTypeId || "N/A",
+                    registration_number: mainVehicle.registrationNumber || "N/A",
+                    vehicle_serial_number: mainVehicle.vehicleSerialNumber || "N/A",
+                    tank_capacity: mainVehicle.tankCapacity ?? "N/A",
+                    vehicle_age_at_start: mainVehicle.vehicleAgeAtStart ?? "N/A",
+                    average_fuel_consumption_per_kilometer: mainVehicle.averageFuelConsumptionPerKm ?? "N/A",
+                    mileage_since_commissioning: mainVehicle.mileageSinceCommissioning ?? "N/A",
+                    registration_expiry_date: mainVehicle.registrationExpiryDate || "N/A",
+                    vehicle_amenities: [
+                        mainVehicle.airConditioned ? 'A/C' : null,
+                        mainVehicle.wifi ? 'Wi-Fi' : null,
+                        mainVehicle.comfortable ? 'Confort' : null,
+                        mainVehicle.soft ? 'Soft' : null,
+                        mainVehicle.screen ? 'Screen' : null,
+                        mainVehicle.tollCharge ? 'Toll' : null,
+                        mainVehicle.carParking ? 'Parking' : null,
+                        mainVehicle.alarm ? 'Alarm' : null,
+                        mainVehicle.stateTax ? 'State tax' : null,
+                        mainVehicle.driverAllowance ? 'Driver allowance' : null,
+                        mainVehicle.pickupAndDrop ? 'Pickup/Drop' : null,
+                        mainVehicle.internet ? 'Internet' : null,
+                        mainVehicle.petsAllow ? 'Pets' : null
+                    ].filter(Boolean),
+                    illustration_images: vehicleImages.map((image) => image.imagePath).filter(Boolean),
+                    vehicle_reviews: []
                 } : {
                     ...initialVehicleData,
-                    model: undefined,
-                    manufacturer: undefined,
-                    photoUrls: [],
-                    illustration_images: []
+                    illustration_images: [],
+                    vehicle_reviews: []
                 };
 
                 if (isMounted) {
@@ -128,6 +175,25 @@ const SearchCardFreelance = ({ planning }) => {
     // Si on a déjà chargé les détails, on les utilise, sinon on utilise les données initiales
     const driverData = detailedData?.driverData || initialDriverData;
     const vehicleData = detailedData?.vehicleData || initialVehicleData;
+
+    const formatDateTime = (dateValue, timeValue) => {
+        if (!dateValue) return "N/A";
+        const parsedDate = new Date(dateValue);
+        if (Number.isNaN(parsedDate.getTime())) return "N/A";
+        const formattedDate = parsedDate.toLocaleDateString('fr-FR');
+        if (!timeValue) return formattedDate;
+        const parsedTime = new Date(timeValue);
+        if (!Number.isNaN(parsedTime.getTime())) {
+            return `${formattedDate} ${parsedTime.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}`;
+        }
+        return `${formattedDate} ${timeValue}`;
+    };
+
+    const formatPrice = (value) => {
+        const amount = Number(value);
+        if (!Number.isFinite(amount)) return `0 ${CURRENCY}`;
+        return `${amount.toLocaleString('fr-FR')} ${CURRENCY}`;
+    };
 
     const handleSeeMore = () => {
         setIsModalOpen(true);
@@ -189,13 +255,15 @@ const SearchCardFreelance = ({ planning }) => {
                             <h2 className="title font-bold text-gray-800">{driverData.driver_last_name} {driverData.driver_first_name}</h2>
                             <div className="flex items-center mb-1">
                                 <StarIcon className="w-5 h-5 text-yellow-400 mr-1"/>
-                                <span className="text-sm text-gray-500">(N/A avis)</span>
+                                <span className="text-sm text-gray-500">
+                                    {driverData.driver_statistics?.average_rating?.toFixed?.(1) || "0.0"} ({driverData.driver_statistics?.review_total_number || 0} avis)
+                                </span>
                             </div>
                             <p className="text-gray-600 mb-1">
                                 <i className="las la-map-marker text-primary mr-1"></i> {driverData.driverLocation}
                             </p>
                             <p className="text-gray-600">
-                                <span className="font-semibold text-primary">{planning.cost} {CURRENCY}</span> / jour
+                                <span className="font-semibold text-primary">{formatPrice(planning.regularAmount ?? planning.cost ?? planning.discountedAmount)}</span> / jour
                             </p>
                         </div>
                         <div className="text-right mt-4 md:mt-0">
@@ -237,15 +305,32 @@ const SearchCardFreelance = ({ planning }) => {
                         {driverData.driver_languages.length > 0 && (
                             <p><span className="font-semibold">Langues:</span> {driverData.driver_languages.join(", ")}</p>
                         )}
+                        <p>
+                            <span className="font-semibold">Départ:</span> {planning.departureLocation || planning.pickupLocation || "N/A"}
+                        </p>
+                        <p>
+                            <span className="font-semibold">Arrivée:</span> {planning.dropoffLocation || planning.dropoffLocation || "N/A"}
+                        </p>
+                        <p>
+                            <span className="font-semibold">Dates:</span> {formatDateTime(planning.startDate, planning.startTime)} - {formatDateTime(planning.endDate, planning.endTime)}
+                        </p>
+                        <p>
+                            <span className="font-semibold">Paiement:</span> {planning.paymentOption || "N/A"} • {planning.pricingMethod || "N/A"}
+                        </p>
+                        <p>
+                            <span className="font-semibold">Trajet:</span> {planning.tripType} • {planning.tripIntention}
+                        </p>
                         {planning.baggageInfo && (
                              <p><span className="font-semibold">Bagages:</span> {planning.baggageInfo}</p>
                         )}
+                        <p>
+                            <span className="font-semibold">Négociable:</span> {planning.negotiable ? "Oui" : "Non"}
+                        </p>
                     </div>
                 </div>
             </div>
             
-            <RightModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} pageContent={true} data={{ driverData, vehicleData }}>
-            </RightModal>
+            <RightModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} pageContent={true} data={{ driverData, vehicleData }} />
         </div>
     );
 };

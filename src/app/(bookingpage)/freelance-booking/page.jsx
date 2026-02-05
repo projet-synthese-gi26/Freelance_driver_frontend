@@ -17,6 +17,7 @@ import ImageSlider from "@/components/profile/freelance/ImageCard";
 import ChatBox from "@/components/modal/chatModal";
 import { ProtectedButton } from '@/components/general/ProtectedButton';
 import {v4 as uuidv4} from "uuid";
+import { vehicleService } from "@/service/vehicleService";
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
@@ -36,6 +37,8 @@ export default function Page() {
   // const currency_name=JSON.parse(searchParams.get('currency_name')||'');
 
   const [bookingData, setBookingData] = useState(null);
+  const [loadedVehicleImages, setLoadedVehicleImages] = useState([]);
+  const [resolvedVehicleData, setResolvedVehicleData] = useState(null);
   const [count, setCount] = useState(1);
   const [isChat, setIsChat] = useState(false);
   useEffect(() => {
@@ -55,10 +58,96 @@ export default function Page() {
   }, [searchParams]);
 
 
+  const { vehicleData, driverData, driver_availability_id, currency_name } = bookingData || {};
+
+  useEffect(() => {
+    let isMounted = true;
+    const fetchVehicleDetails = async () => {
+      if (!vehicleData?.vehicleId) {
+        setResolvedVehicleData(vehicleData || null);
+        return;
+      }
+      try {
+        const fullVehicle = await vehicleService.getVehicle(vehicleData.vehicleId);
+        if (isMounted) {
+          setResolvedVehicleData({ ...fullVehicle, ...vehicleData });
+        }
+      } catch (error) {
+        console.error("Erreur chargement véhicule:", error);
+        if (isMounted) {
+          setResolvedVehicleData(vehicleData || null);
+        }
+      }
+    };
+
+    fetchVehicleDetails();
+    return () => {
+      isMounted = false;
+    };
+  }, [vehicleData]);
+
+  useEffect(() => {
+    let isMounted = true;
+    const fetchVehicleImages = async () => {
+      if (!resolvedVehicleData) return;
+      const hasStoredImages = Array.isArray(resolvedVehicleData?.illustration_images) && resolvedVehicleData.illustration_images.length > 0;
+      if (hasStoredImages || !resolvedVehicleData?.vehicleId) return;
+      try {
+        const images = await vehicleService.getVehicleImages(resolvedVehicleData.vehicleId);
+        if (isMounted) {
+          setLoadedVehicleImages(images || []);
+        }
+      } catch (error) {
+        console.error("Erreur chargement images véhicule:", error);
+      }
+    };
+
+    fetchVehicleImages();
+    return () => {
+      isMounted = false;
+    };
+  }, [resolvedVehicleData?.vehicleId, resolvedVehicleData?.illustration_images, resolvedVehicleData]);
+
   if (!bookingData) {
     return <div>No booking data available</div>;
   }
-  const { vehicleData, driverData, driver_availability_id, currency_name } = bookingData;
+
+  const rawImages = [
+    ...(resolvedVehicleData?.illustration_images || []),
+    ...(resolvedVehicleData?.vehicle_images || []),
+    ...loadedVehicleImages
+  ];
+
+  const vehicleImages = rawImages.map((image, index) => {
+    if (typeof image === 'string') {
+      return { url: image, alt: `Vehicle ${index + 1}` };
+    }
+    if (image?.url) {
+      return { url: image.url, alt: image.alt || `Vehicle ${index + 1}` };
+    }
+    if (image?.imagePath) {
+      return { url: image.imagePath, alt: `Vehicle ${index + 1}` };
+    }
+    return null;
+  }).filter(Boolean);
+
+  const amenities = Array.isArray(resolvedVehicleData?.vehicle_amenities)
+    ? resolvedVehicleData.vehicle_amenities
+    : [
+        resolvedVehicleData?.airConditioned ? 'Air-conditioned' : null,
+        resolvedVehicleData?.comfortable ? 'Comfortable' : null,
+        resolvedVehicleData?.soft ? 'Soft' : null,
+        resolvedVehicleData?.screen ? 'Screen' : null,
+        resolvedVehicleData?.wifi ? 'Wifi' : null,
+        resolvedVehicleData?.tollCharge ? 'Toll charge' : null,
+        resolvedVehicleData?.carParking ? 'Car Parking' : null,
+        resolvedVehicleData?.alarm ? 'Alarm' : null,
+        resolvedVehicleData?.stateTax ? 'State tax' : null,
+        resolvedVehicleData?.driverAllowance ? 'Driver Allowance' : null,
+        resolvedVehicleData?.pickupAndDrop ? 'Pickup and drop' : null,
+        resolvedVehicleData?.internet ? 'Internet' : null,
+        resolvedVehicleData?.petsAllow ? 'Pets Allow' : null,
+      ].filter(Boolean);
 
   const specificAvailability = getDriverAvailability(driverData.driver_availability_table, driver_availability_id);
 
@@ -179,7 +268,7 @@ export default function Page() {
                         <Tab.Panel>
 
                           {/*<CarDetails vehicleData={vehicleData}/>*/}
-                          <ImageSlider images={vehicleData.illustration_images}/>
+                          <ImageSlider images={vehicleImages}/>
 
                           <div className="text-center pt-4">
                             <button
@@ -204,7 +293,7 @@ export default function Page() {
                       </Tab.Panels>
                     </Tab.Group>
                   </div>
-                  <Amenities amenities={vehicleData.vehicle_amenities}/>
+                  <Amenities amenities={amenities}/>
                   <SafetyGuidelines
                       safetyGuidelineName="freelance"
                       safetyGuidelines={safety_guidelines}

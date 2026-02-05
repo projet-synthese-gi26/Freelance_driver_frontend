@@ -72,14 +72,14 @@ export default function LoginFormEmail({ onForgottenPasswordClick, onSignUpClick
                 onSuccess();
             }
 
-            if (resolvedRoles?.includes('DRIVER')) {
+            /*if (resolvedRoles?.includes('DRIVER')) {
                 router.push('/freelance-dashboard');
             } else if (resolvedRoles?.includes('CLIENT')) {
                 router.push('/customer-dashboard');
             } else {
                 console.warn("⚠️ Aucun rôle connu détecté, redirection par défaut.");
                 router.push('/freelance-dashboard');
-            }
+            }   */
 
         } catch (error: any) {
             console.error("❌ ERREUR JS DANS HANDLELOGIN:", error); // <-- Regarde ça dans la console F12

@@ -4,7 +4,7 @@ import { toast } from 'react-hot-toast';
 import { Camera, X } from 'lucide-react';
 import Image from 'next/image';
 import { vehicleService } from '@/service/vehicleService';
-import { Vehicle, VehiclePayload } from '@/type/vehicle';
+import { Vehicle, VehiclePayload, VehicleSimplifiedPayload } from '@/type/vehicle';
 
 const VEHICLE_OPTIONS = {
   brands: ["Toyota", "Honda", "Ford", "Volkswagen", "BMW", "Mercedes-Benz", "Audi", "Hyundai"],
@@ -33,6 +33,19 @@ const AddVehicleForm: React.FC<AddVehicleFormProps> = ({ vehicleToEdit, onSucces
     mileageAtStart: 0,
     mileageSinceCommissioning: 0,
     vehicleAgeAtStart: 0,
+    airConditioned: false,
+    comfortable: false,
+    soft: false,
+    screen: false,
+    wifi: false,
+    tollCharge: false,
+    carParking: false,
+    alarm: false,
+    stateTax: false,
+    driverAllowance: false,
+    pickupAndDrop: false,
+    internet: false,
+    petsAllow: false,
   });
 
   // Fichiers sélectionnés pour l'upload (spécifique web)
@@ -53,6 +66,19 @@ const AddVehicleForm: React.FC<AddVehicleFormProps> = ({ vehicleToEdit, onSucces
         mileageAtStart: vehicleToEdit.mileageAtStart || 0,
         mileageSinceCommissioning: vehicleToEdit.mileageSinceCommissioning || 0,
         vehicleAgeAtStart: vehicleToEdit.vehicleAgeAtStart || 0,
+        airConditioned: vehicleToEdit.airConditioned ?? false,
+        comfortable: vehicleToEdit.comfortable ?? false,
+        soft: vehicleToEdit.soft ?? false,
+        screen: vehicleToEdit.screen ?? false,
+        wifi: vehicleToEdit.wifi ?? false,
+        tollCharge: vehicleToEdit.tollCharge ?? false,
+        carParking: vehicleToEdit.carParking ?? false,
+        alarm: vehicleToEdit.alarm ?? false,
+        stateTax: vehicleToEdit.stateTax ?? false,
+        driverAllowance: vehicleToEdit.driverAllowance ?? false,
+        pickupAndDrop: vehicleToEdit.pickupAndDrop ?? false,
+        internet: vehicleToEdit.internet ?? false,
+        petsAllow: vehicleToEdit.petsAllow ?? false,
         vehicleMakeId: vehicleToEdit.vehicleMakeId || null,
         vehicleModelId: vehicleToEdit.vehicleModelId || null,
         transmissionTypeId: vehicleToEdit.transmissionTypeId || null,
@@ -116,7 +142,44 @@ const AddVehicleForm: React.FC<AddVehicleFormProps> = ({ vehicleToEdit, onSucces
             createdVehicle = await vehicleService.updateVehicle(vehicleToEdit.vehicleId, formData);
             toast.success("Vehicle updated.");
         } else {
-            createdVehicle = await vehicleService.createVehicle(formData);
+            const simplifiedPayload: VehicleSimplifiedPayload = {
+                makeName: formData.brand || "Unknown",
+                modelName: formData.brand || "Unknown",
+                transmissionType: "Unknown",
+                manufacturerName: formData.brand || "Unknown",
+                sizeName: "Unknown",
+                typeName: "Unknown",
+                fuelTypeName: "Unknown",
+                vehicleSerialNumber: formData.vehicleSerialNumber || "",
+                vehicleSerialPhoto: formData.vehicleSerialPhoto || "",
+                registrationNumber: formData.registrationNumber || "",
+                registrationPhoto: formData.registrationPhoto || "",
+                registrationExpiryDate: formData.registrationExpiryDate
+                    ? new Date(formData.registrationExpiryDate).toISOString()
+                    : new Date().toISOString(),
+                tankCapacity: formData.tankCapacity ?? 0,
+                luggageMaxCapacity: formData.luggageMaxCapacity ?? 0,
+                totalSeatNumber: formData.totalSeatNumber ?? 0,
+                averageFuelConsumptionPerKm: formData.averageFuelConsumptionPerKm ?? 0,
+                mileageAtStart: formData.mileageAtStart ?? 0,
+                mileageSinceCommissioning: formData.mileageSinceCommissioning ?? 0,
+                vehicleAgeAtStart: formData.vehicleAgeAtStart ?? 0,
+                brand: formData.brand || "",
+                airConditioned: formData.airConditioned ?? false,
+                comfortable: formData.comfortable ?? false,
+                soft: formData.soft ?? false,
+                screen: formData.screen ?? false,
+                wifi: formData.wifi ?? false,
+                tollCharge: formData.tollCharge ?? false,
+                carParking: formData.carParking ?? false,
+                alarm: formData.alarm ?? false,
+                stateTax: formData.stateTax ?? false,
+                driverAllowance: formData.driverAllowance ?? false,
+                pickupAndDrop: formData.pickupAndDrop ?? false,
+                internet: formData.internet ?? false,
+                petsAllow: formData.petsAllow ?? false,
+            };
+            createdVehicle = await vehicleService.createVehicle(simplifiedPayload);
             toast.success("Vehicle created.");
         }
 
@@ -282,6 +345,38 @@ const AddVehicleForm: React.FC<AddVehicleFormProps> = ({ vehicleToEdit, onSucces
                   onChange={e => handleChange('mileageSinceCommissioning', Number(e.target.value))}
                   className="w-full p-2 border rounded-lg"
                 />
+            </div>
+        </div>
+
+        {/* Amenities */}
+        <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Amenities</label>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                {[
+                    { key: 'airConditioned', label: 'Air conditioned' },
+                    { key: 'comfortable', label: 'Comfortable' },
+                    { key: 'soft', label: 'Soft seats' },
+                    { key: 'screen', label: 'Screen' },
+                    { key: 'wifi', label: 'Wi-Fi' },
+                    { key: 'tollCharge', label: 'Toll charge' },
+                    { key: 'carParking', label: 'Car parking' },
+                    { key: 'alarm', label: 'Alarm' },
+                    { key: 'stateTax', label: 'State tax' },
+                    { key: 'driverAllowance', label: 'Driver allowance' },
+                    { key: 'pickupAndDrop', label: 'Pickup & drop' },
+                    { key: 'internet', label: 'Internet' },
+                    { key: 'petsAllow', label: 'Pets allowed' },
+                ].map(item => (
+                    <label key={item.key} className="flex items-center gap-2 text-sm text-gray-700">
+                        <input
+                            type="checkbox"
+                            checked={Boolean((formData as VehiclePayload)[item.key as keyof VehiclePayload])}
+                            onChange={e => handleChange(item.key as keyof VehiclePayload, e.target.checked)}
+                            className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                        />
+                        {item.label}
+                    </label>
+                ))}
             </div>
         </div>
 

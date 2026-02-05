@@ -5,14 +5,18 @@ import { Planning, PlanningPayload } from '@/type/planning';
 
 const mapBackendPlanning = (planning: any): Planning => ({
   id: planning.id,
+  authorId: planning.authorId ?? planning.userId ?? planning.driverId ?? null,
+  authorName: planning.authorName ?? null,
+  authorImageUrl: planning.authorImageUrl ?? null,
   orgId: planning.orgId ?? null,
   clientId: planning.clientId ?? null,
   clientName: planning.clientName ?? null,
   clientPhoneNumber: planning.clientPhoneNumber ?? null,
   profileImageUrl: planning.profileImageUrl ?? null,
   title: planning.title ?? '',
-  departureLocation: planning.departureLocation ?? '',
-  dropoffLocation: planning.dropoffLocation ?? '',
+  departureLocation: planning.departureLocation ?? planning.pickupLocation ?? '',
+  pickupLocation: planning.pickupLocation ?? planning.departureLocation ?? '',
+  dropoffLocation: planning.dropoffLocation ?? planning.arrivalLocation ?? planning.destinationLocation ?? '',
   startDate: planning.startDate ?? '',
   startTime: planning.startTime ?? '',
   endDate: planning.endDate ?? '',
@@ -28,7 +32,8 @@ const mapBackendPlanning = (planning: any): Planning => ({
   pricingMethod: planning.pricingMethod,
   metadata: planning.metadata ?? [],
   paymentOption: planning.paymentOption,
-  regularAmount: planning.regularAmount?.toString() ?? '0',
+  regularAmount: planning.regularAmount?.toString() ?? planning.cost?.toString() ?? planning.amount?.toString() ?? '0',
+  cost: planning.cost ?? planning.regularAmount ?? planning.amount ?? null,
   discountPercentage: planning.discountPercentage?.toString() ?? '0',
   discountedAmount: planning.discountedAmount?.toString() ?? '0',
   negotiable: Boolean(planning.negotiable ?? planning.isNegotiable),
@@ -54,6 +59,17 @@ export const planningService = {
   getMyPlannings: async (): Promise<Planning[]> => {
     const response = await apiClient.get('/api/v1/driver/plannings');
     return response.data.map(mapBackendPlanning);
+  },
+
+  getPublishedPlannings: async (): Promise<Planning[]> => {
+    const response = await apiClient.get('/api/v1/driver/plannings');
+    const plannings = Array.isArray(response.data) ? response.data.map(mapBackendPlanning) : [];
+    return plannings.filter((planning) => planning.status === 'Published');
+  },
+
+  getPlanningsByDriver: async (userId: string): Promise<Planning[]> => {
+    const response = await apiClient.get(`/api/v1/driver/plannings/user/${userId}`);
+    return Array.isArray(response.data) ? response.data.map(mapBackendPlanning) : [];
   },
 
   getPlanningById: async (id: string): Promise<Planning> => {

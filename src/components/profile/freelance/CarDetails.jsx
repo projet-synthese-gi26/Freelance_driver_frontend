@@ -48,9 +48,22 @@ const CarDetails = ({vehicleData,isModal}) => {
             </div>
         );
     };
+    const sliderImages = (vehicleData?.illustration_images || []).map((image, index) => {
+        if (typeof image === 'string') {
+            return { url: image, alt: `${vehicleData.brand_name || 'Vehicle'} ${index + 1}` };
+        }
+        if (image?.url) {
+            return { url: image.url, alt: image.alt || `${vehicleData.brand_name || 'Vehicle'} ${index + 1}` };
+        }
+        if (image?.imagePath) {
+            return { url: image.imagePath, alt: `${vehicleData.brand_name || 'Vehicle'} ${index + 1}` };
+        }
+        return null;
+    }).filter(Boolean);
+
     return (
         <div className={styles.carDetails}>
-            <ImageSlider images={vehicleData.illustration_images} />
+            <ImageSlider images={sliderImages.length > 0 ? sliderImages : [{ url: '/img/car-list-1.jpg', alt: 'Vehicle' }]} />
             <div className={styles.toggleContainer}>
                 <button
                     className={`${styles.toggleButton} ${!showComments ? styles.active : ''}`}

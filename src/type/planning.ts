@@ -16,6 +16,9 @@ export type PaymentOption = 'CASH' | 'MOBILE_MONEY' | 'CARD' | 'TRANSFER';
 
 export interface Planning {
   id: string;
+  authorId?: string | null;
+  authorName?: string | null;
+  authorImageUrl?: string | null;
   orgId?: string | null;
   clientId?: string | null;
   clientName?: string | null;

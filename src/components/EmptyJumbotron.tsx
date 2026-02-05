@@ -20,14 +20,14 @@ const EmptyJumbotron: React.FC<EmptyJumbotronProps> = ({
       {code == "ERR_NETWORK" ? (
         <div>
           <div className="flex flex-col items-center justify-center gap-4">
-            <Image src="/img/database.png" alt="database" width={80} height={80} className="opacity-60" />
+            <Image src="/img/database.png" alt="database" width={80} height={80} className="opacity-60 w-20 h-20" />
             <h2 className="text-2xl font-semibold text-red-800">Network Error</h2>
             <p className="text-red-800">A network error occurred. Please check your internet connection and try again.</p>
           </div>
         </div>
       ) : (
         <div className="flex flex-col items-center justify-center gap-4">
-          <Image src={icon} alt="Empty" width={80} height={80} className="opacity-60" />
+          <Image src={icon} alt="Empty" width={80} height={80} className="opacity-60 w-20 h-20" />
           <h2 className="text-2xl font-semibold text-gray-800">{title}</h2>
           <p className="text-gray-600">{message}</p>
         </div>
