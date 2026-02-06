@@ -29,8 +29,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const [user, setUser] = useState<UserSessionContext | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const router = useRouter();
-    const [authUser, setAuthUser] = useState<UserSessionContext | null>(null); 
-    const [authUserIsLoading, setAuthUserIsLoading] = useState<boolean>(false)
    
     //Fonction local pour set une registration
      const handleRegister = useCallback(async (registrationData: RegistrationRequest) => {
@@ -99,13 +97,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const logout = () => {
         sessionService.clearUserData();
         setUser(null);
-        router.push('/login');
+        router.push('/freelance'); // Rediriger vers la page d'accueil au lieu de /login
         toast.success("Déconnecté");
     };
-   
+
+    // authUser est maintenant synchronisé avec user pour la compatibilité
+    const authUser = user;
+    const authUserIsLoading = isLoading;
 
     return (
-        <AuthContext.Provider value={{ user, isLoading, login, logout, authUser, register: handleRegister, checkAuth, authUserIsLoading: isLoading }}>
+        <AuthContext.Provider value={{ user, isLoading, login, logout, authUser, register: handleRegister, checkAuth, authUserIsLoading }}>
             {children}
         </AuthContext.Provider>
     );

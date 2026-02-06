@@ -21,7 +21,8 @@ import {
   ChatBubbleLeftRightIcon, CreditCardIcon, MapPinIcon, ShieldCheckIcon, UserCircleIcon,
   ArrowRightStartOnRectangleIcon, Bars3Icon, XMarkIcon, MagnifyingGlassIcon,
   ChartBarIcon,
-  StarIcon
+  StarIcon,
+  GlobeAltIcon
 } from "@heroicons/react/24/outline";
 
 export default function RootLayout({
@@ -79,11 +80,12 @@ export default function RootLayout({
 
   const NavItems = [
     { link: '/customer-dashboard', title: 'Personal Info', icon: UserCircleIcon },
+    { link: '/freelance-search', title: 'Rechercher un chauffeur', icon: MagnifyingGlassIcon },
     { link: '/customer-dashboard/user-chat', title: 'Chat', icon: ChatBubbleLeftRightIcon },
     { link: '/customer-dashboard/user-announce', title: 'Announcement', icon: BellAlertIcon },
     { link: '/customer-dashboard/user-contacts', title: 'Contacts', icon: UserCircleIcon },
     { link: '/customer-dashboard/user-security', title: 'Security', icon: ShieldCheckIcon },
-    { link: '/customer-dashboard/user-wishlist', title: 'Next Ride', icon: MagnifyingGlassIcon },
+    { link: '/customer-dashboard/user-wishlist', title: 'Next Ride', icon: GlobeAltIcon },
     { link: '/customer-dashboard/user-vehicles', title: 'Vehicles', icon: MapPinIcon },
     { link: '/customer-dashboard/user-address', title: 'Address', icon: MapPinIcon },
     { link: '/customer-dashboard/ratings', title: 'Reviews', icon:ChartBarIcon},

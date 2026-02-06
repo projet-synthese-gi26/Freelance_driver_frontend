@@ -3,43 +3,50 @@
 import apiClient from './apiClient';
 import { Vehicle, VehicleImage, VehiclePayload, VehicleSimplifiedPayload } from '@/type/vehicle';
 
+const pickFirst = <T,>(...values: T[]): T | undefined => {
+  for (const value of values) {
+    if (value !== undefined && value !== null) return value;
+  }
+  return undefined;
+};
+
 const mapApiToVehicle = (payload: any): Vehicle => ({
-  vehicleId: payload.vehicleId ?? '',
-  vehicleMakeId: payload.vehicleMakeId ?? null,
-  vehicleModelId: payload.vehicleModelId ?? null,
-  transmissionTypeId: payload.transmissionTypeId ?? null,
-  manufacturerId: payload.manufacturerId ?? null,
-  vehicleSizeId: payload.vehicleSizeId ?? null,
-  vehicleTypeId: payload.vehicleTypeId ?? null,
-  fuelTypeId: payload.fuelTypeId ?? null,
-  vehicleSerialNumber: payload.vehicleSerialNumber ?? null,
-  vehicleSerialPhoto: payload.vehicleSerialPhoto ?? null,
-  registrationNumber: payload.registrationNumber ?? null,
-  registrationPhoto: payload.registrationPhoto ?? null,
-  registrationExpiryDate: payload.registrationExpiryDate ?? null,
-  tankCapacity: payload.tankCapacity ?? null,
-  luggageMaxCapacity: payload.luggageMaxCapacity ?? null,
-  totalSeatNumber: payload.totalSeatNumber ?? null,
-  averageFuelConsumptionPerKm: payload.averageFuelConsumptionPerKm ?? null,
-  mileageAtStart: payload.mileageAtStart ?? null,
-  mileageSinceCommissioning: payload.mileageSinceCommissioning ?? null,
-  vehicleAgeAtStart: payload.vehicleAgeAtStart ?? null,
-  brand: payload.brand ?? null,
-  createdAt: payload.createdAt ?? null,
-  updatedAt: payload.updatedAt ?? null,
-  airConditioned: payload.airConditioned ?? null,
+  vehicleId: (pickFirst(payload.vehicleId, payload.vehicle_id, payload.id) as any) ?? '',
+  vehicleMakeId: (pickFirst(payload.vehicleMakeId, payload.vehicle_make_id, payload.makeId, payload.make_id) as any) ?? null,
+  vehicleModelId: (pickFirst(payload.vehicleModelId, payload.vehicle_model_id, payload.modelId, payload.model_id) as any) ?? null,
+  transmissionTypeId: (pickFirst(payload.transmissionTypeId, payload.transmission_type_id) as any) ?? null,
+  manufacturerId: (pickFirst(payload.manufacturerId, payload.manufacturer_id) as any) ?? null,
+  vehicleSizeId: (pickFirst(payload.vehicleSizeId, payload.vehicle_size_id) as any) ?? null,
+  vehicleTypeId: (pickFirst(payload.vehicleTypeId, payload.vehicle_type_id) as any) ?? null,
+  fuelTypeId: (pickFirst(payload.fuelTypeId, payload.fuel_type_id) as any) ?? null,
+  vehicleSerialNumber: (pickFirst(payload.vehicleSerialNumber, payload.vehicle_serial_number, payload.serialNumber, payload.serial_number) as any) ?? null,
+  vehicleSerialPhoto: (pickFirst(payload.vehicleSerialPhoto, payload.vehicle_serial_photo, payload.serialPhoto, payload.serial_photo) as any) ?? null,
+  registrationNumber: (pickFirst(payload.registrationNumber, payload.registration_number) as any) ?? null,
+  registrationPhoto: (pickFirst(payload.registrationPhoto, payload.registration_photo) as any) ?? null,
+  registrationExpiryDate: (pickFirst(payload.registrationExpiryDate, payload.registration_expiry_date) as any) ?? null,
+  tankCapacity: (pickFirst(payload.tankCapacity, payload.tank_capacity) as any) ?? null,
+  luggageMaxCapacity: (pickFirst(payload.luggageMaxCapacity, payload.luggage_max_capacity) as any) ?? null,
+  totalSeatNumber: (pickFirst(payload.totalSeatNumber, payload.total_seat_number) as any) ?? null,
+  averageFuelConsumptionPerKm: (pickFirst(payload.averageFuelConsumptionPerKm, payload.average_fuel_consumption_per_km, payload.average_fuel_consumption_per_kilometer) as any) ?? null,
+  mileageAtStart: (pickFirst(payload.mileageAtStart, payload.mileage_at_start) as any) ?? null,
+  mileageSinceCommissioning: (pickFirst(payload.mileageSinceCommissioning, payload.mileage_since_commissioning) as any) ?? null,
+  vehicleAgeAtStart: (pickFirst(payload.vehicleAgeAtStart, payload.vehicle_age_at_start) as any) ?? null,
+  brand: (pickFirst(payload.brand, payload.brand_name) as any) ?? null,
+  createdAt: (pickFirst(payload.createdAt, payload.created_at) as any) ?? null,
+  updatedAt: (pickFirst(payload.updatedAt, payload.updated_at) as any) ?? null,
+  airConditioned: (pickFirst(payload.airConditioned, payload.air_conditioned) as any) ?? null,
   comfortable: payload.comfortable ?? null,
   soft: payload.soft ?? null,
   screen: payload.screen ?? null,
   wifi: payload.wifi ?? null,
-  tollCharge: payload.tollCharge ?? null,
-  carParking: payload.carParking ?? null,
+  tollCharge: (pickFirst(payload.tollCharge, payload.toll_charge) as any) ?? null,
+  carParking: (pickFirst(payload.carParking, payload.car_parking) as any) ?? null,
   alarm: payload.alarm ?? null,
-  stateTax: payload.stateTax ?? null,
-  driverAllowance: payload.driverAllowance ?? null,
-  pickupAndDrop: payload.pickupAndDrop ?? null,
+  stateTax: (pickFirst(payload.stateTax, payload.state_tax) as any) ?? null,
+  driverAllowance: (pickFirst(payload.driverAllowance, payload.driver_allowance) as any) ?? null,
+  pickupAndDrop: (pickFirst(payload.pickupAndDrop, payload.pickup_and_drop) as any) ?? null,
   internet: payload.internet ?? null,
-  petsAllow: payload.petsAllow ?? null,
+  petsAllow: (pickFirst(payload.petsAllow, payload.pets_allow) as any) ?? null,
 });
 
 const mapApiToVehicleImage = (payload: any): VehicleImage => ({
@@ -54,8 +61,13 @@ export const vehicleService = {
     return Array.isArray(response.data) ? response.data.map(mapApiToVehicle) : [];
   },
   getVehiclesByDriver: async (userId: string): Promise<Vehicle[]> => {
-    const response = await apiClient.get(`/vehicles/user/${userId}`);
-    return Array.isArray(response.data) ? response.data.map(mapApiToVehicle) : [];
+    try {
+      const response = await apiClient.get(`/vehicles/user/${userId}`);
+      return Array.isArray(response.data) ? response.data.map(mapApiToVehicle) : [];
+    } catch (error) {
+      console.error('❌ [vehicleService] Error loading vehicles by user:', error);
+      return [];
+    }
   },
   getVehicle: async (id: string): Promise<Vehicle> => {
     const response = await apiClient.get(`/vehicles/${id}`);

@@ -8,16 +8,21 @@ import Information from "./Information";
 import { vehicleService } from '@/service/vehicleService';
 import { planningService } from '@/service/planningService';
 import { reviewService } from '@/service/reviewService';
+import { profileService } from '@/service/profileService';
 import {useRouter} from "next/navigation";
-import {v4 as uuidv4} from "uuid";
 import ReviewForm from './ReviewForm';
+import { useAuthContext } from "@/components/context/authContext";
 
 
 export default function  FreelanceDetailsComponent ({ data,isModal = false })   {
     const router = useRouter();
+    const { user } = useAuthContext();
+    const currentUserId = user?.user?.id;
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedPlanning, setSelectedPlanning] = useState(null);
     const [isPlanningModalOpen, setIsPlanningModalOpen] = useState(false);
+    const [isViewingVehicleComments, setIsViewingVehicleComments] = useState(false);
+    const [vehicleReviewsRefreshKey, setVehicleReviewsRefreshKey] = useState(0);
 
     let vehicleData = data.vehicleData;
     let driverData = data.driverData;
@@ -32,6 +37,64 @@ export default function  FreelanceDetailsComponent ({ data,isModal = false })   
     const [plannings, setPlannings] = useState([]);
     const [reviews, setReviews] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [reviewerProfiles, setReviewerProfiles] = useState({});
+
+    const mappedDriverReviews = React.useMemo(() => {
+        const list = Array.isArray(reviews) ? reviews : [];
+        return list.map((r) => {
+            const profile = reviewerProfiles?.[r.authorId];
+            const reviewerName = profile?.name || (r.authorId && currentUserId && r.authorId === currentUserId ? 'Vous' : (r.authorId || 'Utilisateur'));
+            return {
+                review_id: r.id,
+                rated_entity_id: r.subjectId,
+                rated_entity_type: r.subjectType,
+                comment: r.comment ?? '',
+                created_at: r.createdAt ?? '',
+                updated_at: r.createdAt ?? '',
+                note: Number(r.rating ?? 0),
+                likes_count: Number(r.reactionCounts?.LIKE ?? 0),
+                dislikes_count: Number(r.reactionCounts?.DISLIKE ?? 0),
+                icon: '',
+                reviewer_name: reviewerName,
+                reviewer_avatar: profile?.photoUri || '',
+            };
+        });
+    }, [reviews, reviewerProfiles, currentUserId]);
+
+    useEffect(() => {
+        const list = Array.isArray(reviews) ? reviews : [];
+        const missingAuthorIds = Array.from(
+            new Set(list.map((r) => r?.authorId).filter((id) => id && !reviewerProfiles?.[id]))
+        );
+        if (missingAuthorIds.length === 0) return;
+
+        let isMounted = true;
+        Promise.all(
+            missingAuthorIds.map(async (userId) => {
+                try {
+                    const user = await profileService.getPublicUserById(userId);
+                    const name = [user?.firstName, user?.lastName].filter(Boolean).join(' ').trim();
+                    const photoUri = user?.photoUri || '';
+                    return [userId, { name: name || userId, photoUri }];
+                } catch {
+                    return [userId, { name: userId, photoUri: '' }];
+                }
+            })
+        ).then((entries) => {
+            if (!isMounted) return;
+            setReviewerProfiles((prev) => {
+                const next = { ...(prev || {}) };
+                for (const [userId, data] of entries) {
+                    next[userId] = data;
+                }
+                return next;
+            });
+        });
+
+        return () => {
+            isMounted = false;
+        };
+    }, [reviews, reviewerProfiles]);
 
     useEffect(() => {
         const driverId = driverData.driver_id || driverData.id;
@@ -39,12 +102,28 @@ export default function  FreelanceDetailsComponent ({ data,isModal = false })   
         setLoading(true);
         Promise.all([
             planningService.getPlanningsByDriver(driverId),
-            reviewService.getReviewsForUser(driverId)
+            reviewService.getReviewsBySubject(driverId, 'DRIVER')
         ]).then(([planningsList, reviewsList]) => {
             setPlannings(planningsList || []);
             setReviews(reviewsList || []);
         }).finally(() => setLoading(false));
     }, [driverData.driver_id, driverData.id]);
+
+    const handleReviewCreated = (createdReview) => {
+        if (!createdReview?.id) return;
+        const subjectType = String(createdReview?.subjectType || '').toUpperCase();
+        if (subjectType === 'DRIVER') {
+            setReviews((prev) => {
+                const list = Array.isArray(prev) ? prev : [];
+                if (list.some((r) => r?.id === createdReview.id)) return list;
+                return [...list, createdReview];
+            });
+            return;
+        }
+        if (subjectType === 'VEHICLE') {
+            setVehicleReviewsRefreshKey((k) => k + 1);
+        }
+    };
 
     useEffect(() => {
         const driverId = driverData.driver_id || driverData.id;
@@ -271,7 +350,13 @@ export default function  FreelanceDetailsComponent ({ data,isModal = false })   
                         <div className={isModal ? 'col-span-1' : 'col-span-12 xl:col-span-7'}>
                             {(driverData.has_vehicle || resolvedVehicleData?.vehicleId) && (
                                 <div className="p-3 bg-white rounded-2xl mb-8">
-                                    <CarDetails vehicleData={resolvedVehicleData || vehicleData} isModal={isModal}/>
+                                    <CarDetails
+                                        vehicleData={resolvedVehicleData || vehicleData}
+                                        isModal={isModal}
+                                        onVehicleCommentsToggle={setIsViewingVehicleComments}
+                                        currentUserId={currentUserId}
+                                        reviewsRefreshKey={vehicleReviewsRefreshKey}
+                                    />
                                 </div>
                             )}
                             {vehicleLoading && (
@@ -304,7 +389,15 @@ export default function  FreelanceDetailsComponent ({ data,isModal = false })   
                                             <span className="text-xl">×</span>
                                         </button>
                                         <h2 className="text-2xl font-bold text-gray-800 mb-4">Votre avis</h2>
-                                        <ReviewForm driverId={driverData.driver_id} onSuccess={() => { setIsModalOpen(false); }} />
+                                        <ReviewForm
+                                            driverId={driverData.driver_id}
+                                            subjectId={isViewingVehicleComments ? (resolvedVehicleData || vehicleData)?.vehicleId : undefined}
+                                            subjectType={isViewingVehicleComments ? 'VEHICLE' : 'DRIVER'}
+                                            onSuccess={(createdReview) => {
+                                                handleReviewCreated(createdReview);
+                                                setIsModalOpen(false);
+                                            }}
+                                        />
                                     </div>
                                 </div>
                             )}
@@ -377,7 +470,9 @@ export default function  FreelanceDetailsComponent ({ data,isModal = false })   
                                 </div>
                             )}
 
-                            <Comment comments={reviews} isModal={isModal} rated_entity_type={"Driver"} rated_entity_id={driverData.driver_id} commentsPerPage={10}/>
+                            {!isViewingVehicleComments && (
+                                <Comment comments={mappedDriverReviews} isModal={isModal} rated_entity_type={"Driver"} rated_entity_id={driverData.driver_id} commentsPerPage={10}/>
+                            )}
 
 
                         </div>

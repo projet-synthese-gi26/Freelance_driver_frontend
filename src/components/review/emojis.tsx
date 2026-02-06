@@ -8,6 +8,7 @@ import { useAuthModal } from '@/hook/AuthModalContext';
 
 interface EmojisProps {
     driver_id: string
+    driver_actor_id?: string
 }
 
 
@@ -28,15 +29,16 @@ const formatNumber = (num: number): string => {
     return num.toString();
 };
 
-export default function Emojis({ driver_id, vertical = false }: EmojisProps & { vertical?: boolean }) {
-    if (!driver_id) {
+export default function Emojis({ driver_id, driver_actor_id, vertical = false }: EmojisProps & { vertical?: boolean }) {
+    const targetId = driver_actor_id || driver_id;
+    if (!targetId) {
         return null;
     }
-    const { user } = useAuthContext();
+    const { user, isLoading: authLoading, checkAuth } = useAuthContext();
     const { openLoginModal } = useAuthModal();
     const [isLoading, setIsLoading] = useState(false);
     const [iconsNumber, setIconsNumber] = useState({
-        driver_id: driver_id,
+        driver_id: targetId,
         handUp: 0,
         handDown: 0,
         angry: 0,
@@ -62,11 +64,11 @@ export default function Emojis({ driver_id, vertical = false }: EmojisProps & { 
     }), []);
 
     useEffect(() => {
-        if (!driver_id) return;
+        if (!targetId) return;
         const fetchIconsNumber = async () => {
             setIsLoading(true);
             try {
-                const reactions = await reactionService.getReactionsByTarget(driver_id, "DRIVER");
+                const reactions = await reactionService.getReactionsByTarget(targetId, "DRIVER");
                 const counts = reactions.reduce(
                     (acc, reaction) => {
                         acc[reaction.type] = (acc[reaction.type] || 0) + 1;
@@ -77,7 +79,7 @@ export default function Emojis({ driver_id, vertical = false }: EmojisProps & { 
 
                 setIconsNumber((prev) => ({
                     ...prev,
-                    driver_id: driver_id,
+                    driver_id: targetId,
                     handUp: counts.LIKE || 0,
                     handDown: counts.DISLIKE || 0,
                     angry: counts.ANGRY || 0,
@@ -106,11 +108,18 @@ export default function Emojis({ driver_id, vertical = false }: EmojisProps & { 
         };
 
         fetchIconsNumber();
-    }, [driver_id, currentUserId]);
+    }, [targetId, currentUserId]);
 
     const sendEmoji = async (emoji_name: EmojiName) => {
-        if (!driver_id) return;
-        if (!currentUserId) {
+        if (!targetId) return;
+        if (authLoading) {
+            try {
+                await checkAuth();
+            } catch {
+                // ignore
+            }
+        }
+        if (!user) {
             openLoginModal();
             return;
         }
@@ -118,15 +127,15 @@ export default function Emojis({ driver_id, vertical = false }: EmojisProps & { 
         setIsLoading(true);
         try {
             if (selectedEmojis[emoji_name]) {
-                await reactionService.deleteReaction(driver_id, reactionType);
+                await reactionService.deleteReaction(targetId, reactionType);
             } else {
                 await reactionService.createReaction({
-                    targetId: driver_id,
+                    targetId,
                     targetType: "DRIVER",
                     type: reactionType,
                 });
             }
-            const reactions = await reactionService.getReactionsByTarget(driver_id, "DRIVER");
+            const reactions = await reactionService.getReactionsByTarget(targetId, "DRIVER");
             const counts = reactions.reduce(
                 (acc, reaction) => {
                     acc[reaction.type] = (acc[reaction.type] || 0) + 1;
@@ -141,13 +150,23 @@ export default function Emojis({ driver_id, vertical = false }: EmojisProps & { 
                 angry: counts.ANGRY || 0,
                 heart: counts.LOVE || 0,
             }));
-            setSelectedEmojis({
-                heart: reactions.some((r) => r.actorId === currentUserId && r.type === "LOVE"),
-                handUp: reactions.some((r) => r.actorId === currentUserId && r.type === "LIKE"),
-                handDown: reactions.some((r) => r.actorId === currentUserId && r.type === "DISLIKE"),
-                angry: reactions.some((r) => r.actorId === currentUserId && r.type === "ANGRY"),
-            });
-        } catch (error) {
+            if (currentUserId) {
+                setSelectedEmojis({
+                    heart: reactions.some((r) => r.actorId === currentUserId && r.type === "LOVE"),
+                    handUp: reactions.some((r) => r.actorId === currentUserId && r.type === "LIKE"),
+                    handDown: reactions.some((r) => r.actorId === currentUserId && r.type === "DISLIKE"),
+                    angry: reactions.some((r) => r.actorId === currentUserId && r.type === "ANGRY"),
+                });
+            }
+        } catch (error: any) {
+            if (error?.response?.status === 401) {
+                if (!user) {
+                    openLoginModal();
+                } else {
+                    console.error('Erreur 401 lors de la réaction (utilisateur déjà connecté):', error);
+                }
+                return;
+            }
             console.error('Erreur lors de l\'envoi de la réaction:', error);
         } finally {
             setIsLoading(false);

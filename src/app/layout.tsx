@@ -1,4 +1,3 @@
-
 import "./globals.css";
 
 import "@public/styles/styles.scss";
@@ -52,13 +51,13 @@ export default async function RootLayout({
                 <NextIntlClientProvider messages={messages}>
                     <AuthLayoutContent>
                         <ClientRootLayout>
-                            <NewHeader />
+                            <NewHeader locale={locale} />
                             <main className="flex-grow min-h-[72vh]">
                                 <CookieRootLayout>
                                     {children}
                                 </CookieRootLayout>
                             </main>
-                            <NewFooter />
+                            <NewFooter locale={locale} />
                         </ClientRootLayout>
                     </AuthLayoutContent>
                 </NextIntlClientProvider>

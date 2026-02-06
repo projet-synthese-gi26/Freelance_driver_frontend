@@ -1,6 +1,7 @@
 // src/services/addressService.ts
 
 import apiClient from './apiClient';
+import publicClient from './publicClient';
 import { Address, AddressPayload } from '@/type/address';
 
 const mapApiToAddress = (payload: any): Address => ({
@@ -26,6 +27,7 @@ const mapApiToAddress = (payload: any): Address => ({
     updatedAt: payload.updatedAt ?? null,
     deletedAt: payload.deletedAt ?? null,
 });
+
 
 /**
  * Service pour gérer toutes les opérations CRUD pour les adresses.
@@ -69,8 +71,13 @@ export const addressService = {
     },
 
     getDriverAddressesByUserId: async (userId: string): Promise<Address[]> => {
-        const response = await apiClient.get(`/api/v1/driver/profile/addresses/user/${userId}`);
-        return Array.isArray(response.data) ? response.data.map(mapApiToAddress) : [];
+        try {
+            const response = await publicClient.get(`/api/v1/driver/profile/addresses/user/${userId}`);
+            return Array.isArray(response.data) ? response.data.map(mapApiToAddress) : [];
+        } catch (error: any) {
+            console.warn(`⚠️ [addressService] Public addresses not found for user ${userId}:`, error?.response?.status);
+            return [];
+        }
     },
 
     createDriverAddress: async (payload: AddressPayload): Promise<Address> => {

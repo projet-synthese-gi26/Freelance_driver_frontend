@@ -1,5 +1,16 @@
 import React, { useState, useEffect, useMemo } from 'react'; // <--- AJOUT DE useMemo
 import { StarIcon } from "@heroicons/react/24/solid";
+import {
+    CalendarDaysIcon,
+    ClockIcon,
+    HandThumbUpIcon,
+    MapPinIcon,
+    UserGroupIcon,
+    BriefcaseIcon,
+    Cog6ToothIcon,
+    TruckIcon,
+    ArrowRightIcon,
+} from "@heroicons/react/24/outline";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import RightModal from "@/components/modal/RightModal";
@@ -10,7 +21,6 @@ import { vehicleService } from '@/service/vehicleService';
 import { addressService } from '@/service/addressService';
 import { reviewService } from '@/service/reviewService';
 import { reactionService } from '@/service/reactionService';
-import { toast } from 'react-hot-toast';
 
 const CURRENCY = "XAF";
 
@@ -47,13 +57,13 @@ const SearchCardFreelance = ({ planning }) => {
 
     // --- CORRECTION ICI : Utilisation de useMemo ---
     const initialVehicleData = useMemo(() => ({
-        total_seat_number: "N/A",
-        luggage_max_capacity: "N/A",
-        mileage_at_mileage_since_commissioning: "N/A",
-        fuel_type_name: "N/A",
-        transmission_type_name: "N/A",
-        model: "N/A",
-        manufacturer: "N/A"
+        total_seat_number: null,
+        luggage_max_capacity: null,
+        mileage_at_mileage_since_commissioning: null,
+        fuel_type_name: null,
+        transmission_type_name: null,
+        model: null,
+        manufacturer: null,
     }), []); // Tableau vide car données statiques par défaut
 
 
@@ -67,13 +77,19 @@ const SearchCardFreelance = ({ planning }) => {
             }
             setIsLoadingDetails(true);
             try {
+                const reactableId = planning.reactableId ?? planning.reactable_id;
+                const reactableTypeRaw = planning.reactableType ?? planning.reactable_type;
+                const reactableType = typeof reactableTypeRaw === 'string' ? reactableTypeRaw.toUpperCase() : undefined;
+
                 // Utilisation de Promise.all pour paralléliser et accélérer
                 const [profile, vehicles, addresses, reviews, reactions] = await Promise.all([
                     profileService.getPublicDriverProfile(planning.authorId),
                     vehicleService.getVehiclesByDriver(planning.authorId),
                     addressService.getDriverAddressesByUserId(planning.authorId),
-                    reviewService.getReviewsBySubject(planning.authorId, "DRIVER"),
-                    reactionService.getReactionsByTarget(planning.authorId, "DRIVER")
+                    reviewService.getReviewsForUser(planning.authorId),
+                    reactableId && reactableType
+                        ? reactionService.getReactionsByTarget(reactableId, reactableType)
+                        : Promise.resolve([])
                 ]);
 
                 const mainVehicle = vehicles.length > 0 ? vehicles[0] : null;
@@ -86,18 +102,21 @@ const SearchCardFreelance = ({ planning }) => {
                     ? ratingValues.reduce((sum, rating) => sum + rating, 0) / ratingValues.length
                     : 0;
                 const likeCount = reactions.filter((reaction) => reaction.type === "LIKE").length;
+
+                const resolvedDriverActorId = profile?.actor?.id || reactableId;
                 
                 const mappedDriverData = {
                     ...initialDriverData,
                     driver_id: planning.authorId,
-                    driver_last_name: profile.driverProfile?.lastName || initialDriverData.driver_last_name,
-                    driver_first_name: profile.driverProfile?.firstName || initialDriverData.driver_first_name,
-                    driver_profile_image: profile.driverProfile?.profileImageUrl || initialDriverData.driver_profile_image,
-                    driver_languages: profile.driverProfile?.language ? [profile.driverProfile.language] : [],
-                    driver_phone_number: profile.driverProfile?.phoneNumber || "N/A",
-                    driver_email: profile.driverProfile?.contactEmail || "N/A",
-                    driver_license_number: profile.driverProfile?.licenseNumber || "N/A",
-                    Description: profile.driverProfile?.biography || "Aucune description disponible.",
+                    driver_actor_id: resolvedDriverActorId,
+                    driver_last_name: profile?.driverProfile?.lastName || initialDriverData.driver_last_name,
+                    driver_first_name: profile?.driverProfile?.firstName || initialDriverData.driver_first_name,
+                    driver_profile_image: profile?.driverProfile?.profileImageUrl || initialDriverData.driver_profile_image,
+                    driver_languages: profile?.driverProfile?.language ? [profile.driverProfile.language] : [],
+                    driver_phone_number: profile?.driverProfile?.phoneNumber || "N/A",
+                    driver_email: profile?.driverProfile?.contactEmail || "N/A",
+                    driver_license_number: profile?.driverProfile?.licenseNumber || "N/A",
+                    Description: profile?.driverProfile?.biography || "Aucune description disponible.",
                     driverLocation: mainAddress?.city || initialDriverData.driverLocation,
                     driver_experiences: [],
                     driver_specialities: ["Transport de personnes"],
@@ -115,23 +134,24 @@ const SearchCardFreelance = ({ planning }) => {
 
                 const mappedVehicleData = mainVehicle ? {
                     vehicleId: mainVehicle.vehicleId,
-                    total_seat_number: mainVehicle.totalSeatNumber ?? "N/A",
-                    luggage_max_capacity: mainVehicle.luggageMaxCapacity ?? "N/A",
-                    mileage_at_mileage_since_commissioning: mainVehicle.mileageSinceCommissioning ?? "N/A",
-                    fuel_type_name: mainVehicle.fuelTypeId || "N/A",
-                    transmission_type_name: mainVehicle.transmissionTypeId || "N/A",
-                    model_name: mainVehicle.vehicleModelId || "N/A",
-                    manufacturer_name: mainVehicle.vehicleMakeId || "N/A",
-                    brand_name: mainVehicle.brand || "N/A",
-                    size_name: mainVehicle.vehicleSizeId || "N/A",
-                    type_name: mainVehicle.vehicleTypeId || "N/A",
-                    registration_number: mainVehicle.registrationNumber || "N/A",
-                    vehicle_serial_number: mainVehicle.vehicleSerialNumber || "N/A",
-                    tank_capacity: mainVehicle.tankCapacity ?? "N/A",
-                    vehicle_age_at_start: mainVehicle.vehicleAgeAtStart ?? "N/A",
-                    average_fuel_consumption_per_kilometer: mainVehicle.averageFuelConsumptionPerKm ?? "N/A",
-                    mileage_since_commissioning: mainVehicle.mileageSinceCommissioning ?? "N/A",
-                    registration_expiry_date: mainVehicle.registrationExpiryDate || "N/A",
+                    total_seat_number: mainVehicle.totalSeatNumber ?? null,
+                    luggage_max_capacity: mainVehicle.luggageMaxCapacity ?? null,
+                    mileage_at_mileage_since_commissioning: mainVehicle.mileageSinceCommissioning ?? null,
+                    // IDs are not user-friendly; keep them nullable and let UI hide if no label is available
+                    fuel_type_name: null,
+                    transmission_type_name: null,
+                    model_name: null,
+                    manufacturer_name: null,
+                    brand_name: mainVehicle.brand || null,
+                    size_name: null,
+                    type_name: null,
+                    registration_number: mainVehicle.registrationNumber || null,
+                    vehicle_serial_number: mainVehicle.vehicleSerialNumber || null,
+                    tank_capacity: mainVehicle.tankCapacity ?? null,
+                    vehicle_age_at_start: mainVehicle.vehicleAgeAtStart ?? null,
+                    average_fuel_consumption_per_kilometer: mainVehicle.averageFuelConsumptionPerKm ?? null,
+                    mileage_since_commissioning: mainVehicle.mileageSinceCommissioning ?? null,
+                    registration_expiry_date: mainVehicle.registrationExpiryDate || null,
                     vehicle_amenities: [
                         mainVehicle.airConditioned ? 'A/C' : null,
                         mainVehicle.wifi ? 'Wi-Fi' : null,
@@ -176,17 +196,47 @@ const SearchCardFreelance = ({ planning }) => {
     const driverData = detailedData?.driverData || initialDriverData;
     const vehicleData = detailedData?.vehicleData || initialVehicleData;
 
+    const isUuidLike = (value) => {
+        if (!value) return false;
+        const v = String(value).trim();
+        return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(v);
+    };
+
+    const safeLabel = (value, fallback = "N/A") => {
+        if (value === null || value === undefined) return fallback;
+        const v = String(value).trim();
+        if (!v) return fallback;
+        if (isUuidLike(v)) return fallback;
+        return v;
+    };
+
+    const hasMeaningfulValue = (value) => {
+        if (value === null || value === undefined) return false;
+        if (typeof value === 'number') return Number.isFinite(value);
+        const v = String(value).trim();
+        if (!v) return false;
+        if (v.toLowerCase() === 'n/a') return false;
+        if (isUuidLike(v)) return false;
+        return true;
+    };
+
     const formatDateTime = (dateValue, timeValue) => {
         if (!dateValue) return "N/A";
         const parsedDate = new Date(dateValue);
         if (Number.isNaN(parsedDate.getTime())) return "N/A";
         const formattedDate = parsedDate.toLocaleDateString('fr-FR');
         if (!timeValue) return formattedDate;
-        const parsedTime = new Date(timeValue);
+        const rawTime = String(timeValue);
+        const parsedTime = new Date(rawTime);
         if (!Number.isNaN(parsedTime.getTime())) {
             return `${formattedDate} ${parsedTime.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}`;
         }
-        return `${formattedDate} ${timeValue}`;
+        // Fallback: if it's already a "HH:mm" or "HH:mm:ss" string, trim seconds
+        const match = rawTime.match(/\b(\d{1,2}):(\d{2})(?::(\d{2}))?\b/);
+        if (match) {
+            return `${formattedDate} ${match[1].padStart(2, '0')}:${match[2]}`;
+        }
+        return formattedDate;
     };
 
     const formatPrice = (value) => {
@@ -194,6 +244,69 @@ const SearchCardFreelance = ({ planning }) => {
         if (!Number.isFinite(amount)) return `0 ${CURRENCY}`;
         return `${amount.toLocaleString('fr-FR')} ${CURRENCY}`;
     };
+
+    const humanizeEnum = (value) => {
+        if (!value) return '';
+        const raw = String(value).trim();
+        const key = raw.toLowerCase().replace(/\s+/g, '_');
+
+        const map = {
+            cash: 'Cash',
+            credit_card: 'Carte',
+            card: 'Carte',
+            mobile_money: 'Mobile Money',
+            momo: 'Mobile Money',
+            om: 'Orange Money',
+            orange_money: 'Orange Money',
+            paypal: 'PayPal',
+            bank_transfer: 'Virement',
+            transfer: 'Virement',
+
+            daily: 'Par jour',
+            day: 'Par jour',
+            hourly: 'Par heure',
+            hour: 'Par heure',
+            weekly: 'Par semaine',
+            week: 'Par semaine',
+            monthly: 'Par mois',
+            month: 'Par mois',
+
+            per_km: 'Par km',
+            perkm: 'Par km',
+            km: 'Par km',
+            'per_kilometer': 'Par km',
+            'per_kilometre': 'Par km',
+
+            one_way: 'Aller simple',
+            oneway: 'Aller simple',
+            round_trip: 'Aller-retour',
+            roundtrip: 'Aller-retour',
+            both: 'Aller/Retour',
+        };
+
+        if (map[key]) return map[key];
+        return raw
+            .replace(/_/g, ' ')
+            .replace(/\b\w/g, (c) => c.toUpperCase());
+    };
+
+    const vehicleTitle = useMemo(() => {
+        const make = safeLabel(vehicleData?.manufacturer_name || vehicleData?.manufacturer || '', '');
+        const model = safeLabel(vehicleData?.model_name || vehicleData?.model || '', '');
+        const brand = safeLabel(vehicleData?.brand_name || '', '');
+        const title = [make, model].filter(Boolean).join(' ');
+        return title || brand || "Véhicule";
+    }, [vehicleData]);
+
+    const driverDisplayName = useMemo(() => {
+        const last = safeLabel(driverData?.driver_last_name, '');
+        const first = safeLabel(driverData?.driver_first_name, '');
+        const full = [last, first].filter(Boolean).join(' ').trim();
+        if (full) return full;
+        const fromPlanning = safeLabel(planning?.authorName, '');
+        if (fromPlanning) return fromPlanning;
+        return 'Chauffeur';
+    }, [driverData?.driver_last_name, driverData?.driver_first_name, planning?.authorName]);
 
     const handleSeeMore = () => {
         setIsModalOpen(true);
@@ -237,95 +350,183 @@ const SearchCardFreelance = ({ planning }) => {
 
     return (
         <div className="col-span-12 text mb-6">
-            <div className="flex flex-col text md:flex-row rounded-2xl p-6 bg-white shadow-sm border border-gray-100">
+            <div className="group relative overflow-hidden rounded-3xl border border-slate-100 bg-white shadow-sm transition hover:shadow-md">
+                <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-blue-600 via-indigo-500 to-emerald-500" />
 
-                <div className="bg-[#F5F6FF] rounded-xl shrink-0 w-full md:w-48 h-48 md:h-auto mr-0 md:mr-6 mb-4 md:mb-0 overflow-hidden relative">
-                    <Image
-                        fill
-                        src={driverData.driver_profile_image}
-                        alt={driverData.driver_first_name}
-                        className="object-cover transition-transform duration-300 hover:scale-110"
-                        // Ajout d'un placeholder pour éviter le clignotement
-                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                    />
-                </div>
-                <div className="flex-grow overflow-hidden">
-                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4">
-                        <div>
-                            <h2 className="title font-bold text-gray-800">{driverData.driver_last_name} {driverData.driver_first_name}</h2>
-                            <div className="flex items-center mb-1">
-                                <StarIcon className="w-5 h-5 text-yellow-400 mr-1"/>
-                                <span className="text-sm text-gray-500">
-                                    {driverData.driver_statistics?.average_rating?.toFixed?.(1) || "0.0"} ({driverData.driver_statistics?.review_total_number || 0} avis)
-                                </span>
-                            </div>
-                            <p className="text-gray-600 mb-1">
-                                <i className="las la-map-marker text-primary mr-1"></i> {driverData.driverLocation}
-                            </p>
-                            <p className="text-gray-600">
-                                <span className="font-semibold text-primary">{formatPrice(planning.regularAmount ?? planning.cost ?? planning.discountedAmount)}</span> / jour
-                            </p>
-                        </div>
-                        <div className="text-right mt-4 md:mt-0">
-                            <div className="flex flex-col md:flex-row gap-2 mt-2">
-                            <button
-                                onClick={handleSeeMore}
-                                disabled={isLoadingDetails}
-                                className="btn-primary bg-blue-600 text-white sm:px-3 sm:py-1 rounded-md hover:bg-blue-700 font-medium px-3 py-1 flex items-center justify-center w-full sm:w-auto transition-colors duration-300 disabled:opacity-70"
-                            >
-                                {isLoadingDetails ? 'Chargement...' : 'Voir plus'}
-                            </button>
-
-
-                            <button
-                                onClick={handleBook}
-                                className="btn-secondary bg-green-600 text-white sm:px-3 sm:py-1 rounded-md hover:bg-green-500 font-medium px-3 py-1 flex items-center justify-center w-full sm:w-auto transition-colors duration-300"
-                            >
-                                Réserver
-                            </button>
-                            </div>
+                <div className="flex flex-col md:flex-row gap-5 p-5 md:p-6">
+                    <div className="relative h-56 w-full overflow-hidden rounded-2xl bg-slate-100 md:h-auto md:w-56">
+                        <Image
+                            fill
+                            src={driverData.driver_profile_image}
+                            alt={driverData.driver_first_name}
+                            className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                            unoptimized
+                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                        />
+                        <div className="absolute left-3 top-3 inline-flex items-center gap-2 rounded-full bg-white/90 px-3 py-1 text-xs font-semibold text-slate-800 shadow-sm">
+                            <HandThumbUpIcon className="h-4 w-4 text-slate-700" />
+                            {driverData?.driver_reactions?.likeCount ?? 0}
                         </div>
                     </div>
 
-                    <ul className="grid grid-cols-2 md:grid-cols-5 gap-2 mb-4">
-                        {[
-                            {icon: "la-user-friends", text: `${vehicleData.total_seat_number} places`},
-                            {icon: "la-shopping-bag", text: `${vehicleData.luggage_max_capacity} kg`},
-                            {icon: "la-tachometer-alt", text: `${vehicleData.mileage_at_mileage_since_commissioning}` },
-                            { icon: "la-gas-pump", text:` ${vehicleData.fuel_type_name}` },
-                            { icon: "la-cog", text: `${vehicleData.transmission_type_name}` },
-                        ].map((item, index) => (
-                            <li key={index} className="bg-[#F5FCF8] rounded-lg p-2 text-center">
-                                <i className={`las ${item.icon} text-[#279155] text-xl mb-1`}></i>
-                                <span className="block text-gray-600 text-sm">{item.text}</span>
-                            </li>
-                        ))}
-                    </ul>
-                    <div className="text-sm text-gray-600">
+                    <div className="min-w-0 flex-1">
+                        <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+                            <div className="min-w-0">
+                                <h2 className="truncate text-xl font-extrabold tracking-tight text-slate-900">
+                                    {driverDisplayName}
+                                </h2>
+
+                                <div className="mt-1 flex flex-wrap items-center gap-2">
+                                    <span className="inline-flex items-center rounded-full bg-indigo-50 px-2.5 py-1 text-xs font-bold text-indigo-700">
+                                        {vehicleTitle}
+                                    </span>
+                                    {driverData?.has_vehicle ? (
+                                        <span className="inline-flex items-center rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-700">
+                                            Véhicule disponible
+                                        </span>
+                                    ) : null}
+                                </div>
+
+                                <div className="mt-1 flex flex-wrap items-center gap-3">
+                                    <div className="inline-flex items-center gap-1 rounded-full bg-yellow-50 px-2.5 py-1 text-sm font-semibold text-yellow-800">
+                                        <StarIcon className="h-4 w-4 text-yellow-500" />
+                                        {driverData.driver_statistics?.average_rating?.toFixed?.(1) || "0.0"}
+                                        <span className="text-yellow-700/70">({driverData.driver_statistics?.review_total_number || 0})</span>
+                                    </div>
+                                    <div className="inline-flex items-center gap-2 rounded-full bg-slate-50 px-3 py-1 text-sm font-semibold text-slate-700">
+                                        <MapPinIcon className="h-4 w-4 text-slate-500" />
+                                        <span className="truncate max-w-[260px]">{safeLabel(driverData.driverLocation, 'Localisation')}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div className="mt-3 flex flex-wrap items-baseline gap-2">
+                                    <span className="text-2xl font-extrabold text-blue-700">
+                                        {formatPrice(planning.regularAmount ?? planning.cost ?? planning.discountedAmount)}
+                                    </span>
+                                    <span className="text-sm font-semibold text-slate-500">/ jour</span>
+                                </div>
+                            </div>
+
+                            <div className="flex w-full flex-col gap-2 md:w-auto md:min-w-[170px]">
+                                <button
+                                    onClick={handleSeeMore}
+                                    disabled={isLoadingDetails}
+                                    className="inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-blue-700 disabled:opacity-70"
+                                >
+                                    {isLoadingDetails ? 'Chargement...' : 'Voir plus'}
+                                    <ArrowRightIcon className="h-4 w-4" />
+                                </button>
+                                <button
+                                    onClick={handleBook}
+                                    className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-emerald-700"
+                                >
+                                    Réserver
+                                    <TruckIcon className="h-4 w-4" />
+                                </button>
+                            </div>
+                        </div>
+
+                        <div className="mt-4 flex flex-wrap gap-2">
+                            {planning.paymentOption ? (
+                                <span className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700">
+                                    Paiement: {humanizeEnum(planning.paymentOption)}
+                                </span>
+                            ) : null}
+                            {planning.pricingMethod ? (
+                                <span className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700">
+                                    Méthode: {humanizeEnum(planning.pricingMethod)}
+                                </span>
+                            ) : null}
+                            <span className={`rounded-full border px-3 py-1 text-xs font-semibold ${planning.negotiable ? 'border-emerald-200 bg-emerald-50 text-emerald-700' : 'border-slate-200 bg-slate-50 text-slate-600'}`}>
+                                Négociable: {planning.negotiable ? 'Oui' : 'Non'}
+                            </span>
+                        </div>
+
+                        {(hasMeaningfulValue(vehicleData.total_seat_number) ||
+                            hasMeaningfulValue(vehicleData.luggage_max_capacity) ||
+                            hasMeaningfulValue(vehicleData.transmission_type_name) ||
+                            hasMeaningfulValue(vehicleData.fuel_type_name)) && (
+                            <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
+                                {hasMeaningfulValue(vehicleData.total_seat_number) && (
+                                    <div className="rounded-2xl border border-slate-100 bg-slate-50 p-3">
+                                        <div className="flex items-center gap-2 text-slate-700">
+                                            <UserGroupIcon className="h-5 w-5 text-slate-500" />
+                                            <span className="text-xs font-semibold">Places</span>
+                                        </div>
+                                        <div className="mt-1 text-sm font-extrabold text-slate-900">{vehicleData.total_seat_number}</div>
+                                    </div>
+                                )}
+                                {hasMeaningfulValue(vehicleData.luggage_max_capacity) && (
+                                    <div className="rounded-2xl border border-slate-100 bg-slate-50 p-3">
+                                        <div className="flex items-center gap-2 text-slate-700">
+                                            <BriefcaseIcon className="h-5 w-5 text-slate-500" />
+                                            <span className="text-xs font-semibold">Bagages</span>
+                                        </div>
+                                        <div className="mt-1 text-sm font-extrabold text-slate-900">{vehicleData.luggage_max_capacity} kg</div>
+                                    </div>
+                                )}
+                                {hasMeaningfulValue(vehicleData.transmission_type_name) && (
+                                    <div className="rounded-2xl border border-slate-100 bg-slate-50 p-3">
+                                        <div className="flex items-center gap-2 text-slate-700">
+                                            <Cog6ToothIcon className="h-5 w-5 text-slate-500" />
+                                            <span className="text-xs font-semibold">Boîte</span>
+                                        </div>
+                                        <div className="mt-1 truncate text-sm font-extrabold text-slate-900">{safeLabel(vehicleData.transmission_type_name, '')}</div>
+                                    </div>
+                                )}
+                                {hasMeaningfulValue(vehicleData.fuel_type_name) && (
+                                    <div className="rounded-2xl border border-slate-100 bg-slate-50 p-3">
+                                        <div className="flex items-center gap-2 text-slate-700">
+                                            <TruckIcon className="h-5 w-5 text-slate-500" />
+                                            <span className="text-xs font-semibold">Carburant</span>
+                                        </div>
+                                        <div className="mt-1 truncate text-sm font-extrabold text-slate-900">{safeLabel(vehicleData.fuel_type_name, '')}</div>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+
+                        <div className="mt-5 grid grid-cols-1 gap-3 text-sm text-slate-700 sm:grid-cols-2">
+                            <div className="rounded-2xl border border-slate-100 bg-white p-4">
+                                <div className="flex items-center gap-2 text-slate-500">
+                                    <MapPinIcon className="h-4 w-4" />
+                                    <span className="text-xs font-semibold uppercase tracking-wide">Trajet</span>
+                                </div>
+                                <div className="mt-2 font-semibold text-slate-900">
+                                    {planning.departureLocation || planning.pickupLocation || "N/A"}
+                                    <span className="mx-2 text-slate-300">→</span>
+                                    {planning.dropoffLocation || "N/A"}
+                                </div>
+                                <div className="mt-1 text-xs text-slate-500">
+                                    {humanizeEnum(planning.tripType) || 'N/A'} • {humanizeEnum(planning.tripIntention) || 'N/A'}
+                                </div>
+                            </div>
+
+                            <div className="rounded-2xl border border-slate-100 bg-white p-4">
+                                <div className="flex items-center gap-2 text-slate-500">
+                                    <CalendarDaysIcon className="h-4 w-4" />
+                                    <span className="text-xs font-semibold uppercase tracking-wide">Dates</span>
+                                </div>
+                                <div className="mt-2 font-semibold text-slate-900">
+                                    {formatDateTime(planning.startDate, planning.startTime)}
+                                </div>
+                                <div className="mt-1 flex items-center gap-2 text-xs text-slate-500">
+                                    <ClockIcon className="h-4 w-4" />
+                                    {formatDateTime(planning.endDate, planning.endTime)}
+                                </div>
+                            </div>
+                        </div>
+
                         {driverData.driver_languages.length > 0 && (
-                            <p><span className="font-semibold">Langues:</span> {driverData.driver_languages.join(", ")}</p>
+                            <div className="mt-4 flex flex-wrap gap-2">
+                                {driverData.driver_languages.slice(0, 3).map((lang) => (
+                                    <span key={lang} className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-700">
+                                        {lang}
+                                    </span>
+                                ))}
+                            </div>
                         )}
-                        <p>
-                            <span className="font-semibold">Départ:</span> {planning.departureLocation || planning.pickupLocation || "N/A"}
-                        </p>
-                        <p>
-                            <span className="font-semibold">Arrivée:</span> {planning.dropoffLocation || planning.dropoffLocation || "N/A"}
-                        </p>
-                        <p>
-                            <span className="font-semibold">Dates:</span> {formatDateTime(planning.startDate, planning.startTime)} - {formatDateTime(planning.endDate, planning.endTime)}
-                        </p>
-                        <p>
-                            <span className="font-semibold">Paiement:</span> {planning.paymentOption || "N/A"} • {planning.pricingMethod || "N/A"}
-                        </p>
-                        <p>
-                            <span className="font-semibold">Trajet:</span> {planning.tripType} • {planning.tripIntention}
-                        </p>
-                        {planning.baggageInfo && (
-                             <p><span className="font-semibold">Bagages:</span> {planning.baggageInfo}</p>
-                        )}
-                        <p>
-                            <span className="font-semibold">Négociable:</span> {planning.negotiable ? "Oui" : "Non"}
-                        </p>
                     </div>
                 </div>
             </div>

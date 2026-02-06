@@ -2,22 +2,25 @@ import React, { useState } from 'react';
 import { reviewService } from '@/service/reviewService';
 import { toast } from 'react-hot-toast';
 
-export default function ReviewForm({ driverId, onSuccess }) {
+export default function ReviewForm({ subjectId, subjectType, driverId, onSuccess }) {
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!driverId) {
-      toast.error("Chauffeur introuvable.");
+    const resolvedSubjectId = subjectId || driverId;
+    const resolvedSubjectType = subjectType || (driverId ? "DRIVER" : undefined);
+
+    if (!resolvedSubjectId || !resolvedSubjectType) {
+      toast.error("Sujet introuvable.");
       return;
     }
     setIsSubmitting(true);
     try {
-      await reviewService.createReview({
-        subjectId: driverId,
-        subjectType: "DRIVER",
+      const createdReview = await reviewService.createReview({
+        subjectId: resolvedSubjectId,
+        subjectType: resolvedSubjectType,
         reviewType: "RATING",
         rating: Number(rating),
         comment: comment.trim(),
@@ -25,7 +28,7 @@ export default function ReviewForm({ driverId, onSuccess }) {
       toast.success("Merci pour votre avis !");
       setComment('');
       setRating(5);
-      if (onSuccess) onSuccess();
+      if (onSuccess) onSuccess(createdReview);
     } catch (error) {
       console.error("Erreur lors de l'envoi de l'avis:", error);
       toast.error("Impossible d'envoyer l'avis.");

@@ -5,6 +5,9 @@ import Emojis from "@/components/review/emojis";
 import ShareModal from "@/components/modal/shareProfileModal";
 import {StarIcon} from "@heroicons/react/24/solid";
 import YoutubeShareIcon from "@/components/icon/youtubeShareIcon";
+import { ProtectedButton } from '@/components/general/ProtectedButton';
+import { reviewService } from '@/service/reviewService';
+import { toast } from 'react-hot-toast';
 interface DriverReview {
     review_id: string;
     rated_entity_id: string;
@@ -53,6 +56,7 @@ interface DriverStatistics {
 interface InformationProps{
     driverData: {
         driver_id:string,
+        driver_actor_id?: string,
         driver_profile_image : string,
         driver_first_name:string,
         driver_last_name:string,
@@ -76,6 +80,11 @@ interface InformationProps{
 }
 const Information = ({ driverData}: InformationProps) => {
     const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+    const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+    const [reportReason, setReportReason] = useState('');
+    const [reportComment, setReportComment] = useState('');
+    const [isSubmittingReport, setIsSubmittingReport] = useState(false);
+
     const openShareModal = () => {
         setIsShareModalOpen(true);
     };
@@ -84,11 +93,46 @@ const Information = ({ driverData}: InformationProps) => {
         setIsShareModalOpen(false);
     };
 
+    const submitReport = async (e: React.FormEvent) => {
+        e.preventDefault();
+        const driverId = driverData?.driver_id;
+        if (!driverId) {
+            toast.error("Chauffeur introuvable.");
+            return;
+        }
+        const reason = reportReason.trim();
+        if (!reason) {
+            toast.error("Veuillez renseigner le motif du signalement.");
+            return;
+        }
+
+        setIsSubmittingReport(true);
+        try {
+            await reviewService.createReview({
+                subjectId: driverId,
+                subjectType: 'DRIVER',
+                reviewType: 'REPORT',
+                reportReason: reason,
+                comment: reportComment.trim() || undefined,
+                rating: null,
+            });
+            toast.success('Signalement envoyé.');
+            setIsReportModalOpen(false);
+            setReportReason('');
+            setReportComment('');
+        } catch (error) {
+            console.error('Erreur lors du signalement:', error);
+            toast.error("Impossible d'envoyer le signalement.");
+        } finally {
+            setIsSubmittingReport(false);
+        }
+    };
+
     return (
         <div className='text relative  px-12'>
 
             <div className="absolute right-0 top-1/2 transform -translate-y-1/2">
-                <Emojis driver_id={driverData.driver_id} vertical={true}/>
+                <Emojis driver_id={driverData.driver_id} driver_actor_id={driverData.driver_actor_id} vertical={true}/>
             </div>
 
             <div
@@ -140,6 +184,13 @@ const Information = ({ driverData}: InformationProps) => {
                         <YoutubeShareIcon/>
                         <span className='text'>Share</span>
                     </button>
+
+                    <ProtectedButton
+                        onProtectedClick={() => setIsReportModalOpen(true)}
+                        className="flex text items-center px-2 py-1 rounded-full border-red-600 border-2 text-red-600 hover:bg-red-50 transition-colors"
+                    >
+                        <span className='text'>Signaler</span>
+                    </ProtectedButton>
                 </div>
             </div>
             <div className="flex justify-center">
@@ -164,6 +215,49 @@ const Information = ({ driverData}: InformationProps) => {
                             driverId={driverData.driver_id}
 
                 />
+            )}
+            {isReportModalOpen && (
+                <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
+                    <div className="bg-white rounded-xl w-full max-w-lg shadow-xl p-6 relative">
+                        <button
+                            onClick={() => setIsReportModalOpen(false)}
+                            className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
+                            aria-label="Close"
+                        >
+                            <span className="text-xl">×</span>
+                        </button>
+                        <h2 className="text-2xl font-bold text-gray-800 mb-4">Signaler le conducteur</h2>
+                        <form onSubmit={submitReport} className="space-y-4">
+                            <div>
+                                <label htmlFor="reportReason" className="block font-semibold mb-1">Motif</label>
+                                <input
+                                    id="reportReason"
+                                    className="w-full border rounded p-2"
+                                    value={reportReason}
+                                    onChange={(e) => setReportReason(e.target.value)}
+                                    required
+                                />
+                            </div>
+                            <div>
+                                <label htmlFor="reportComment" className="block font-semibold mb-1">Détails (optionnel)</label>
+                                <textarea
+                                    id="reportComment"
+                                    className="w-full border rounded p-2"
+                                    rows={4}
+                                    value={reportComment}
+                                    onChange={(e) => setReportComment(e.target.value)}
+                                />
+                            </div>
+                            <button
+                                type="submit"
+                                className="bg-red-600 text-white px-4 py-2 rounded disabled:opacity-60"
+                                disabled={isSubmittingReport}
+                            >
+                                {isSubmittingReport ? 'Envoi...' : 'Envoyer'}
+                            </button>
+                        </form>
+                    </div>
+                </div>
             )}
         </div>
     )

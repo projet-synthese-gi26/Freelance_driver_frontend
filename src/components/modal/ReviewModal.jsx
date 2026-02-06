@@ -2,14 +2,13 @@
 import React, { useState } from "react";
 import { StarIcon } from "@heroicons/react/24/solid";
 import Modal from "react-modal";
-import { v4 as uuidv4 } from "uuid";
 import { useContextProvider } from "../review/context";
+import { reviewService } from "@/service/reviewService";
 //import {REVIEW_SERVICE_URL} from "@/components/UrlConfig.js";
 
 const ReviewModal = ({ user_id, rated_entity_id, rated_entity_type, user_name }) => {
   // const REVIEW_SERVICE_URL = process.env.REVIEW_SERVICE_URL;
   // let REVIEW_SERVICE_URL = "http://localhost:8080/review-service"
-  const REVIEW_SERVICE_URL = "http://localhost:8000";
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [ratingStar, setRatingStar] = useState(0);
   const [reviewerComment, setReviewerComment] = useState("");
@@ -29,60 +28,42 @@ const ReviewModal = ({ user_id, rated_entity_id, rated_entity_type, user_name })
 
   const handleSubmitCommentForm = async (e) => {
     e.preventDefault();
-    const reviewId = uuidv4();
     const formData = new FormData(e.currentTarget);
     console.log(formData);
     const data = Object.fromEntries(formData);
 
-
-    const newComment = {
-      user_id: user_id,
-      rated_entity_id: "",
-      rated_entity_type:"",
-      reviewer_name: user_name,
-      comment: data["reviewer-comment"].toString(),
-      created_at: new Date().toString,
-      updated_at: new Date().toString(),
-      note: ratingStar + 1,
-      likes_count: 0,
-      dislikes_count: 0,
-      icon:
-        ratingStar == 1 || ratingStar == 2
-          ? "hand_down"
-          : 3
-          ? "hand_up"
-          : 4
-          ? "heart"
-          : "star",
+    const normalizeSubjectType = (value) => {
+      if (!value) return null;
+      const v = String(value).trim().toUpperCase();
+      if (v === "DRIVER" || v === "VEHICLE" || v === "PRODUCT" || v === "CLIENT" || v === "ORGANISATION" || v === "PLATFORM" || v === "REVIEW") {
+        return v;
+      }
+      return null;
     };
-    console.log("New comment", newComment);
-    const finalPath = REVIEW_SERVICE_URL + "/api/reviews/create";
-    console.log(finalPath);
+
+    const subjectType = normalizeSubjectType(rated_entity_type);
+    const subjectId = rated_entity_id;
+
+    if (!subjectType || !subjectId) {
+      console.error("ReviewModal: invalid subject", { rated_entity_type, rated_entity_id });
+      handleCloseModal();
+      return;
+    }
 
     try {
-      const response = await fetch(finalPath, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(newComment),
+      const created = await reviewService.createReview({
+        subjectId,
+        subjectType,
+        reviewType: "RATING",
+        rating: ratingStar + 1,
+        comment: (data["reviewer-comment"]?.toString() || "").trim(),
       });
 
-      if (!response.ok) {
-        console.error("Response error:", response.status, response.statusText);
-        const errorData = await response.json();
-        console.error("Error data:", errorData);
-        throw new Error(`Network response was not ok (${response.status})`);
-      }
-
-      const result = await response.json();
-      console.log("result ReviewModal: ", result);
+      console.log("result ReviewModal: ", created);
       setReload(!reload);
       setRefresh(!refresh);
-      // Gérer la réponse (par exemple, afficher un message de succès)
     } catch (error) {
       console.error("ReviewModal, Error:", error);
-      // Gérer l'erreur (par exemple, afficher un message d'erreur)
     }
     //e.currentTarget.reset();
     handleCloseModal();

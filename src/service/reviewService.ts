@@ -1,7 +1,7 @@
 // src/services/reviewService.ts
 
 import apiClient from './apiClient';
-import axios from 'axios';
+import publicClient from './publicClient';
 import { Review, ReviewPayload, ReviewSubjectType } from '@/type/review';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -12,9 +12,9 @@ export const reviewService = {
    */
   getReviewsForUser: async (userId: string): Promise<Review[]> => {
     try {
-      const response = await axios.get(`${API_URL}/api/v1/reviews/user/${userId}`);
+      const response = await publicClient.get(`/api/v1/reviews/user/${userId}`);
       return Array.isArray(response.data) ? response.data : [];
-    } catch (error) {
+    } catch (error: any) {
       console.error(`❌ [reviewService] Erreur lors de la récupération des avis:`, error);
       return [];
     }
@@ -22,11 +22,11 @@ export const reviewService = {
 
   getReviewsBySubject: async (subjectId: string, subjectType: ReviewSubjectType): Promise<Review[]> => {
     try {
-      const response = await axios.get(`${API_URL}/api/v1/reviews`, {
+      const response = await publicClient.get(`/api/v1/reviews`, {
         params: { subjectId, subjectType },
       });
       return Array.isArray(response.data) ? response.data : [];
-    } catch (error) {
+    } catch (error: any) {
       console.error(`❌ [reviewService] Erreur lors de la récupération des avis:`, error);
       return [];
     }

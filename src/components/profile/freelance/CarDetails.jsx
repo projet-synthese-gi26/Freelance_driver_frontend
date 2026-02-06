@@ -10,15 +10,83 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import styles from '@/styles/profile/CarDetails.module.css';
 import Comment from "./Comment";
+import { reviewService } from '@/service/reviewService';
+import { profileService } from '@/service/profileService';
 
-const CarDetails = ({vehicleData,isModal}) => {
+const CarDetails = ({vehicleData,isModal, onVehicleCommentsToggle, currentUserId, reviewsRefreshKey = 0}) => {
     const [iconsLoaded, setIconsLoaded] = useState(false);
     const [showComments, setShowComments] = useState(false);
+    const [vehicleReviews, setVehicleReviews] = useState([]);
+    const [reviewerProfiles, setReviewerProfiles] = useState({});
 
     useEffect(() => {
         const timer = setTimeout(() => setIconsLoaded(true), 100);
         return () => clearTimeout(timer);
     }, []);
+
+    useEffect(() => {
+        const vehicleId = vehicleData?.vehicleId;
+        if (!showComments || !vehicleId) return;
+
+        let isMounted = true;
+        reviewService
+            .getReviewsBySubject(vehicleId, 'VEHICLE')
+            .then((reviews) => {
+                if (!isMounted) return;
+                const list = Array.isArray(reviews) ? reviews : [];
+                const mapped = list.map((r) => {
+                    const profile = reviewerProfiles?.[r.authorId];
+                    const reviewerName = profile?.name || (r.authorId && currentUserId && r.authorId === currentUserId ? 'Vous' : 'Utilisateur');
+                    return {
+                    review_id: r.id,
+                    rated_entity_id: r.subjectId,
+                    rated_entity_type: r.subjectType,
+                    comment: r.comment ?? '',
+                    created_at: r.createdAt ?? '',
+                    updated_at: r.createdAt ?? '',
+                    note: Number(r.rating ?? 0),
+                    likes_count: Number(r.reactionCounts?.LIKE ?? 0),
+                    dislikes_count: Number(r.reactionCounts?.DISLIKE ?? 0),
+                    icon: '',
+                    reviewer_name: reviewerName,
+                    reviewer_avatar: profile?.photoUri || '',
+                  };
+                });
+                setVehicleReviews(mapped);
+
+                const missingAuthorIds = Array.from(new Set(list.map((r) => r?.authorId).filter((id) => id && !reviewerProfiles?.[id])));
+                if (missingAuthorIds.length > 0) {
+                    Promise.all(
+                        missingAuthorIds.map(async (userId) => {
+                            try {
+                                const user = await profileService.getPublicUserById(userId);
+                                const name = [user?.firstName, user?.lastName].filter(Boolean).join(' ').trim();
+                                const photoUri = user?.photoUri || '';
+                                return [userId, { name: name || userId, photoUri }];
+                            } catch {
+                                return [userId, { name: userId, photoUri: '' }];
+                            }
+                        })
+                    ).then((entries) => {
+                        if (!isMounted) return;
+                        setReviewerProfiles((prev) => {
+                            const next = { ...(prev || {}) };
+                            for (const [userId, data] of entries) {
+                                next[userId] = data;
+                            }
+                            return next;
+                        });
+                    });
+                }
+            })
+            .catch(() => {
+                if (isMounted) setVehicleReviews([]);
+            });
+
+        return () => {
+            isMounted = false;
+        };
+    }, [showComments, vehicleData?.vehicleId, reviewsRefreshKey, reviewerProfiles, currentUserId]);
 
 
 
@@ -48,15 +116,29 @@ const CarDetails = ({vehicleData,isModal}) => {
             </div>
         );
     };
+
+    const normalizeImageUrl = (value) => {
+        if (!value || typeof value !== 'string') return '';
+        const trimmed = value.trim();
+        if (!trimmed) return '';
+        if (trimmed.startsWith('http://') || trimmed.startsWith('https://') || trimmed.startsWith('/')) {
+            return trimmed;
+        }
+        return `https://media-service.pynfi.com/media/${trimmed}`;
+    };
+
     const sliderImages = (vehicleData?.illustration_images || []).map((image, index) => {
         if (typeof image === 'string') {
-            return { url: image, alt: `${vehicleData.brand_name || 'Vehicle'} ${index + 1}` };
+            const url = normalizeImageUrl(image);
+            return url ? { url, alt: `${vehicleData.brand_name || 'Vehicle'} ${index + 1}` } : null;
         }
         if (image?.url) {
-            return { url: image.url, alt: image.alt || `${vehicleData.brand_name || 'Vehicle'} ${index + 1}` };
+            const url = normalizeImageUrl(image.url);
+            return url ? { url, alt: image.alt || `${vehicleData.brand_name || 'Vehicle'} ${index + 1}` } : null;
         }
         if (image?.imagePath) {
-            return { url: image.imagePath, alt: `${vehicleData.brand_name || 'Vehicle'} ${index + 1}` };
+            const url = normalizeImageUrl(image.imagePath);
+            return url ? { url, alt: `${vehicleData.brand_name || 'Vehicle'} ${index + 1}` } : null;
         }
         return null;
     }).filter(Boolean);
@@ -67,14 +149,20 @@ const CarDetails = ({vehicleData,isModal}) => {
             <div className={styles.toggleContainer}>
                 <button
                     className={`${styles.toggleButton} ${!showComments ? styles.active : ''}`}
-                    onClick={() => setShowComments(false)}
+                    onClick={() => {
+                        setShowComments(false);
+                        if (onVehicleCommentsToggle) onVehicleCommentsToggle(false);
+                    }}
                 >
 
                   {iconsLoaded && <FontAwesomeIcon icon={faInfoCircle}/> }Vehicle Details
                 </button>
                 <button
                     className={`${styles.toggleButton} ${showComments ? styles.active : ''}`}
-                    onClick={() => setShowComments(true)}
+                    onClick={() => {
+                        setShowComments(true);
+                        if (onVehicleCommentsToggle) onVehicleCommentsToggle(true);
+                    }}
                 >
                     {iconsLoaded &&   <FontAwesomeIcon icon={faComments}/>  } Comments On vehicle
                 </button>
@@ -106,10 +194,10 @@ const CarDetails = ({vehicleData,isModal}) => {
                 </div>
             ) : (
                 <Comment
-                    comments={vehicleData.vehicle_reviews}
+                    comments={vehicleReviews}
                     isModal={isModal}
                     rated_entity_id={vehicleData.vehicleId}
-                    rated_entity_type='vehicle'
+                    rated_entity_type='VEHICLE'
                     commentsPerPage={1}
 
                 />

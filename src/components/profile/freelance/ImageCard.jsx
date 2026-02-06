@@ -44,8 +44,9 @@ const ImageSlider = ({ images }) => {
                             src={photo.url}
                             alt={photo.alt}
                             className="slide"
-                            layout="fill"
-                            objectFit="contain"
+                            fill
+                            unoptimized
+                            style={{ objectFit: 'contain' }}
                         />
                     </div>
                 ))}

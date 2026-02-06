@@ -19,7 +19,7 @@ import portofolio from "@public/img/cv.png"
 import support from "@public/img/support.png"
 import {
   ChatBubbleLeftRightIcon, BriefcaseIcon, ShieldCheckIcon, UserCircleIcon, ArrowRightStartOnRectangleIcon,
-  Bars3Icon, XMarkIcon, ChartBarIcon, Cog8ToothIcon, StarIcon, BanknotesIcon, ChevronDownIcon
+  Bars3Icon, XMarkIcon, ChartBarIcon, Cog8ToothIcon, StarIcon, BanknotesIcon, ChevronDownIcon, GlobeAltIcon
 } from "@heroicons/react/24/outline";
 
 export default function RootLayout({
@@ -85,6 +85,7 @@ export default function RootLayout({
   */
    const NavItems = useMemo(() => [
     {link:'/freelance-dashboard',title:'Personal Info',icon:UserCircleIcon},
+    {link:'/announcement-search',title:'Trouver des annonces',icon:GlobeAltIcon},
     {link:'/freelance-dashboard/security',title:'Security',icon:ShieldCheckIcon},
     
     {

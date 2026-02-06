@@ -1,6 +1,9 @@
 import { HandThumbUpIcon as HandThumbUpIconLine } from "@heroicons/react/24/outline";
 import { StarIcon, HandThumbUpIcon } from "@heroicons/react/24/solid";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { reactionService } from "@/service/reactionService";
+import { useAuthContext } from "@/components/context/authContext";
+import { useAuthModal } from "@/hook/AuthModalContext";
 
 
 type comment = {
@@ -15,13 +18,7 @@ type comment = {
   dislikes_count :number;
   icon :string
   reviewer_name: string;
-};
-
-
-
-
-type LikeState = {
-  [key: number]: { isLiked: Boolean; isUnliked: Boolean};
+  reviewer_avatar?: string;
 };
 
 function StarRating(rating: number) {
@@ -40,6 +37,19 @@ function StarRating(rating: number) {
   return <>{stars}</>;
 }
 
+function formatDateTime(value?: string) {
+  if (!value) return "";
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) return String(value);
+  return parsed.toLocaleString("fr-FR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
 export default function Review({
                                  comment,
                                  index,
@@ -47,56 +57,66 @@ export default function Review({
   comment: comment;
   index: number;
 }) {
-  const driverId = "797d6b41-5b9a-41ba-93d3-4a56418e4294";
-  const userId = "b21ccd75-5be8-4129-bd14-f4837b935fa3";
+  const { user } = useAuthContext();
+  const { openLoginModal } = useAuthModal();
+  const currentUserId = user?.user?.id;
 
-  const COMMENT_LIKES_PATH = "http://localhost:8000/likes";
+  const initialLikes = useMemo(() => Number(comment.likes_count ?? 0), [comment.likes_count]);
+  const initialDislikes = useMemo(() => Number(comment.dislikes_count ?? 0), [comment.dislikes_count]);
+  const [likesCount, setLikesCount] = useState(initialLikes);
+  const [dislikesCount, setDislikesCount] = useState(initialDislikes);
+  const [myReaction, setMyReaction] = useState<"LIKE" | "DISLIKE" | null>(null);
+  const [loadingReaction, setLoadingReaction] = useState(false);
 
-  const [likeState, setLikeState] = useState<LikeState>({});
-
-  const sendLike = async (LikeType: string) => {
-    var LikesData = {
-      commentId: comment.review_id,
-      driverId: driverId,
-      type: LikeType,
-    };
-
-    if (LikeType == "like") {
-      const currentState = likeState[index] || {
-        isLiked: false,
-        isUnliked: false,
-      };
-      const updatedState = {
-        isLiked: !currentState.isLiked,
-        isUnliked: currentState.isUnliked ? false : false,
-      };
-      const updatedLikeState = { ...likeState, [index]: updatedState };
-      setLikeState(updatedLikeState);
-
-      comment.likes_count += updatedState.isLiked ? 1 : -1;
-      comment.dislikes_count += currentState.isUnliked ? -1 : 0;
-    } else {
-      const currentState = likeState[index] || {
-        isLiked: false,
-        isUnliked: false,
-      };
-      const updatedState = {
-        isLiked: currentState.isUnliked ? false : false,
-        isUnliked: !currentState.isUnliked,
-      };
-      const updatedLikeState = { ...likeState, [index]: updatedState };
-      setLikeState(updatedLikeState);
-
-      comment.likes_count += currentState.isLiked ? -1 : 0;
-      comment.dislikes_count += updatedState.isUnliked ? 1 : -1;
+  const refreshCounts = useCallback(async () => {
+    if (!comment.review_id) return;
+    try {
+      const reactions = await reactionService.getReactionsByTarget(comment.review_id, "REVIEW");
+      const likes = reactions.filter((r) => r.type === "LIKE").length;
+      const dislikes = reactions.filter((r) => r.type === "DISLIKE").length;
+      setLikesCount(likes);
+      setDislikesCount(dislikes);
+      if (currentUserId) {
+        const mine = reactions.find((r) => r.actorId === currentUserId && (r.type === "LIKE" || r.type === "DISLIKE"));
+        setMyReaction((mine?.type as any) ?? null);
+      } else {
+        setMyReaction(null);
+      }
+    } catch {
+      setLikesCount(initialLikes);
+      setDislikesCount(initialDislikes);
+      setMyReaction(null);
     }
+  }, [comment.review_id, currentUserId, initialDislikes, initialLikes]);
 
-    const updatedReview = {
-      rating: 4,
-      comment: "Great driver!",
-      emojis: ["thumbs_up", "heart_eyes"],
-    };
+  useEffect(() => {
+    refreshCounts();
+  }, [refreshCounts]);
 
+  const sendReaction = async (type: "LIKE" | "DISLIKE") => {
+    if (!comment.review_id) return;
+    if (!currentUserId) {
+      openLoginModal();
+      return;
+    }
+    setLoadingReaction(true);
+    try {
+      if (myReaction === type) {
+        await reactionService.deleteReaction(comment.review_id, type);
+      } else {
+        if (myReaction) {
+          await reactionService.deleteReaction(comment.review_id, myReaction);
+        }
+        await reactionService.createReaction({
+          targetId: comment.review_id,
+          targetType: "REVIEW",
+          type,
+        });
+      }
+      await refreshCounts();
+    } finally {
+      setLoadingReaction(false);
+    }
   };
 
   return (
@@ -106,6 +126,16 @@ export default function Review({
       >
         <div className="flex items-center flex-wrap justify-between gap-4 ">
           <div className="flex gap-2 items-center">
+            {comment.reviewer_avatar ? (
+              <img
+                src={comment.reviewer_avatar}
+                alt={comment.reviewer_name || "Avatar"}
+                className="h-10 w-10 rounded-full object-cover border border-slate-200"
+                loading="lazy"
+              />
+            ) : (
+              <div className="h-10 w-10 rounded-full bg-slate-200" />
+            )}
             <div className="flex-grow">
               <h5 className="mb-1 font-semibold"> {comment.reviewer_name}</h5>
             </div>
@@ -114,7 +144,7 @@ export default function Review({
           <div className="text-sm-end">
             <p className="">
               {" "}
-              {comment.created_at} à {comment.updated_at}
+              {formatDateTime(comment.created_at)}
             </p>
           </div>
         </div>
@@ -125,30 +155,30 @@ export default function Review({
         <div className="flex flex-wrap items-center gap-10">
           <div
               className={`flex items-center gap-2 text-blue cursor-pointer ${
-                  likeState[index]?.isLiked ? "text-blue-500" : ""
+                  myReaction === "LIKE" ? "text-blue-500" : ""
               }`}
-              onClick={() => sendLike("like")}
+              onClick={() => (loadingReaction ? undefined : sendReaction("LIKE"))}
           >
-            {likeState[index]?.isLiked ? (
+            {myReaction === "LIKE" ? (
                 <HandThumbUpIcon className="w-5 h-5" />
             ) : (
                 <HandThumbUpIconLine className="w-5 h-5" />
             )}
-            <span className="inline-block"> {comment.likes_count} </span>
+            <span className="inline-block"> {likesCount} </span>
           </div>
 
           <div
               className={`flex items-center gap-2 text-red cursor-pointer ${
-                  likeState[index]?.isUnliked ? "text-red-500" : ""
+                  myReaction === "DISLIKE" ? "text-red-500" : ""
               }`}
-              onClick={() => sendLike("dislike")}
+              onClick={() => (loadingReaction ? undefined : sendReaction("DISLIKE"))}
           >
-            {likeState[index]?.isUnliked ? (
+            {myReaction === "DISLIKE" ? (
                 <HandThumbUpIcon className="w-5 h-5 rotate-180" />
             ) : (
                 <HandThumbUpIconLine className="w-5 h-5 rotate-180" />
             )}
-            <span className="inline-block"> {comment.dislikes_count} </span>
+            <span className="inline-block"> {dislikesCount} </span>
           </div>
         </div>
       </div>

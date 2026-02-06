@@ -1,6 +1,7 @@
 // src/services/planningService.ts
 
 import apiClient from './apiClient';
+import publicClient from './publicClient';
 import { Planning, PlanningPayload } from '@/type/planning';
 
 const mapBackendPlanning = (planning: any): Planning => ({
@@ -62,9 +63,17 @@ export const planningService = {
   },
 
   getPublishedPlannings: async (): Promise<Planning[]> => {
-    const response = await apiClient.get('/api/v1/driver/plannings');
-    const plannings = Array.isArray(response.data) ? response.data.map(mapBackendPlanning) : [];
-    return plannings.filter((planning) => planning.status === 'Published');
+    try {
+      const response = await publicClient.get('/api/v1/public/plannings/published');
+      return Array.isArray(response.data) ? response.data.map(mapBackendPlanning) : [];
+    } catch (error: any) {
+      if (error?.response?.status !== 401) {
+        throw error;
+      }
+      const response = await apiClient.get('/api/v1/driver/plannings');
+      const plannings = Array.isArray(response.data) ? response.data.map(mapBackendPlanning) : [];
+      return plannings.filter((planning) => planning.status === 'Published');
+    }
   },
 
   getPlanningsByDriver: async (userId: string): Promise<Planning[]> => {

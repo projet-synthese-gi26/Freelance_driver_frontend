@@ -4,13 +4,11 @@ import Select, { Props as SelectProps } from 'react-select';
 const customStyles = {
   control: (provided: any) => ({
     ...provided,
-    minHeight: '30px',
-    height: '30px',
+    minHeight: '44px',
   }),
   valueContainer: (provided: any) => ({
     ...provided,
-    height: '30px',
-    padding: '0 6px',
+    padding: '0 12px',
   }),
   input: (provided: any) => ({
     ...provided,
@@ -18,12 +16,11 @@ const customStyles = {
   }),
   indicatorsContainer: (provided: any) => ({
     ...provided,
-    height: '30px',
   }),
 };
 
 const CustomSelect: React.FC<SelectProps> = (props) => {
-  return <Select {...props} styles={customStyles} />;
+  return <Select {...props} styles={{ ...customStyles, ...(props.styles || {}) }} />;
 };
 
 export default CustomSelect;

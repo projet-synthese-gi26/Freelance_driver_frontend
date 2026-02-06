@@ -148,8 +148,10 @@ export default function DriverProfilePage() {
   }
   // Prépare les données pour FreelanceDetailsComponent
   const driverProfile = data.profileContext.driverProfile || data.profileContext.user;
+  const driverActorId = data.profileContext.actor?.id;
   const driverData = {
     driver_id: driverProfile.id,
+    driver_actor_id: driverActorId,
     driver_profile_image: driverProfile.profileImageUrl || driverProfile.photoUri || "/white-silhouette-avatar.png",
     driver_last_name: driverProfile.lastName || driverProfile.lastName,
     driver_first_name: driverProfile.firstName || driverProfile.firstName,

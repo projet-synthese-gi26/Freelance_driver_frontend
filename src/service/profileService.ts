@@ -1,9 +1,20 @@
 // src/services/profileService.ts
 
 import apiClient from './apiClient';
+import publicClient from './publicClient';
 import { UserSessionContext } from '@/type/profile'; 
 import { sessionService } from './sessionService';
 // import { UploadMediaResponse } from '@/type/media';
+
+type PublicUserProfile = {
+  id: string;
+  username?: string;
+  email?: string;
+  phone?: string;
+  firstName?: string;
+  lastName?: string;
+  photoUri?: string;
+};
 
 export const profileService = { 
   /**
@@ -27,9 +38,34 @@ export const profileService = {
     return response.data;
   },
 
-  getPublicDriverProfile: async (userId: string): Promise<UserSessionContext> => {
-    const response = await apiClient.get(`/api/v1/driver/profile/user/${userId}`);
-    return response.data;
+  getPublicDriverProfile: async (userId: string): Promise<UserSessionContext | null> => {
+    const token = sessionService.getAuthToken();
+    try {
+      if (token) {
+        const response = await apiClient.get(`/api/v1/driver/profile/user/${userId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        return response.data;
+      }
+
+      const response = await publicClient.get(`/api/v1/driver/profile/user/${userId}`);
+      return response.data;
+    } catch (error: any) {
+      console.warn(`⚠️ [profileService] Public profile not found for user ${userId}:`, error?.response?.status);
+      return null;
+    }
+  },
+
+  getPublicUserById: async (userId: string): Promise<PublicUserProfile | null> => {
+    try {
+      const response = await publicClient.get(`/api/v1/users/${userId}`);
+      return response.data;
+    } catch (error: any) {
+      console.warn(`⚠️ [profileService] Public user not found for id ${userId}:`, error?.response?.status);
+      return null;
+    }
   },
 
   /**
