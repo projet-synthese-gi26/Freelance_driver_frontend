@@ -43,6 +43,7 @@ export interface Planning {
   metadata?: unknown[];
   paymentOption: PaymentOption;
   regularAmount: string;
+  cost?: number | string | null;
   discountPercentage: string;
   discountedAmount: string;
   negotiable: boolean;

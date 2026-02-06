@@ -16,7 +16,6 @@ const mapBackendPlanning = (planning: any): Planning => ({
   profileImageUrl: planning.profileImageUrl ?? null,
   title: planning.title ?? '',
   departureLocation: planning.departureLocation ?? planning.pickupLocation ?? '',
-  pickupLocation: planning.pickupLocation ?? planning.departureLocation ?? '',
   dropoffLocation: planning.dropoffLocation ?? planning.arrivalLocation ?? planning.destinationLocation ?? '',
   startDate: planning.startDate ?? '',
   startTime: planning.startTime ?? '',
@@ -64,15 +63,23 @@ export const planningService = {
 
   getPublishedPlannings: async (): Promise<Planning[]> => {
     try {
+      console.warn('🌐 [planningService] NEXT_PUBLIC_API_URL:', process.env.NEXT_PUBLIC_API_URL);
       const response = await publicClient.get('/api/v1/public/plannings/published');
-      return Array.isArray(response.data) ? response.data.map(mapBackendPlanning) : [];
+      const data = Array.isArray(response.data) ? response.data.map(mapBackendPlanning) : [];
+      console.warn('✅ [planningService] Published plannings:', data.length);
+      return data;
     } catch (error: any) {
+      console.warn('⚠️ [planningService] getPublishedPlannings failed:', error?.response?.status ?? error?.message ?? error);
       if (error?.response?.status !== 401) {
         throw error;
       }
       const response = await apiClient.get('/api/v1/driver/plannings');
       const plannings = Array.isArray(response.data) ? response.data.map(mapBackendPlanning) : [];
-      return plannings.filter((planning) => planning.status === 'Published');
+      console.warn('✅ [planningService] Driver plannings (auth fallback):', plannings.length);
+      return plannings.filter((planning) => {
+        const status = String(planning.status ?? '').toLowerCase();
+        return status === 'published';
+      });
     }
   },
 

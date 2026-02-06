@@ -7,11 +7,8 @@ import { authService } from "@/service/authService";
 import { sessionService } from "@/service/sessionService";
 import { EyePassword, NoEyePassword } from "@/components/icon/passwordIcon";
 import { useAuthContext } from "@/components/context/authContext";
-<<<<<<< HEAD
-import { UserSessionContext } from "@/type/profile";
-=======
 import { useTranslations } from "next-intl";
->>>>>>> 8f18b3c78874340355c40ebe213831a7e1513d02
+import { UserSessionContext } from "@/type/profile";
 
 interface LoginFormProps {
     onForgottenPasswordClick: (callback: () => void) => void;
