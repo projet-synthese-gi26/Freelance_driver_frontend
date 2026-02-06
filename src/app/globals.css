@@ -48,10 +48,10 @@
     @apply text-3xl md:text-4xl lg:text-[56px] lg:leading-[68px];
   }
   .h2 {
-    @apply text-2xl font-medium sm:text-3xl xl:text-[40px] text-[#243757] sm:font-semibold;
+    @apply text-2xl font-medium sm:text-3xl xl:text-[40px] text-[var(--neutral-700)] sm:font-semibold;
   }
   .h3 {
-    @apply text-lg sm:text-2xl md:text-[32px] leading-[120%] text-[#243757] font-medium sm:font-semibold;
+    @apply text-lg sm:text-2xl md:text-[32px] leading-[120%] text-[var(--neutral-700)] font-medium sm:font-semibold;
   }
   .container {
     @apply mx-auto sm:max-w-[540px] md:max-w-[720px] lg:max-w-[960px] xl:max-w-[1140px] xxl:max-w-[1320px];
@@ -125,16 +125,35 @@
   --secondary-light: #eafbf1;
   --secondary-500: #22804a;
   --dark: #091e42;
-}
-input:checked + div {
+ }
+ .dark {
+  --bg-1: #0b1220;
+  --bg-2: #0f172a;
+  --btn-bg: #111827;
+  --border: #334155;
+  --neutral-700: #e5e7eb;
+  --primary-light: rgba(45, 58, 150, 0.25);
+  --secondary-light: rgba(55, 210, 121, 0.18);
+  --dark: #e5e7eb;
+ }
+ input:checked + div {
   @apply border-[var(--primary)];
-}
-input:checked + div svg {
+ }
+ input:checked + div svg {
   @apply block;
-}
-.scrollbar-hide::-webkit-scrollbar {
+ }
+ .scrollbar-hide::-webkit-scrollbar {
   display: none;
-}
+ }
+
+ html {
+  background: var(--bg-1);
+  color: var(--neutral-700);
+ }
+
+ html.dark {
+  color-scheme: dark;
+ }
 
 /* v */
 /* globals.css */
@@ -335,6 +354,5 @@ body {
     width: 100%;
   }
 }
-
 
 

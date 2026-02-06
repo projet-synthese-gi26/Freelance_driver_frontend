@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { toast } from 'react-hot-toast';
 import { MagnifyingGlassIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import { useTranslations } from 'next-intl';
 
 // SERVICES
 import { announcementService, PublicOfferView } from '@/service/announcementService';
@@ -22,6 +23,7 @@ interface FilterState {
 }
 
 const RidesPage = () => {
+  const t = useTranslations('Dashboard.freelance.rides');
   const [rides, setRides] = useState<PublicOfferView[]>([]);
   const [filteredRides, setFilteredRides] = useState<PublicOfferView[]>([]);
   const [loading, setLoading] = useState(true);
@@ -45,11 +47,11 @@ const RidesPage = () => {
       setRides(sorted);
     } catch (error) {
       console.error(error);
-      toast.error("Error loading your rides.");
+      toast.error(t('toasts.loadError'));
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     loadRides();
@@ -57,18 +59,18 @@ const RidesPage = () => {
 
   // 2. Handle cancellation
   const handleCancelRide = async (announcementId: string) => {
-      if(!confirm("Are you sure you want to cancel this ride? This will affect your reliability rating.")) return;
+      if(!confirm(t('confirmCancel'))) return;
       
       setCancellingId(announcementId); 
       setIsCancelling(true);
 
       try {
           await announcementService.cancelPostulation(announcementId);
-          toast.success("Ride cancelled successfully.");
+          toast.success(t('toasts.cancelled'));
           await loadRides(); // Reload list
       } catch (error: any) {
           console.error(error);
-          const msg = error.response?.data?.message || "Error cancelling the ride.";
+          const msg = error.response?.data?.message || t('toasts.cancelError');
           toast.error(msg);
       } finally {
           setIsCancelling(false);
@@ -120,8 +122,8 @@ const RidesPage = () => {
   return (
     <div className="container mx-auto p-4 md:p-6 max-w-7xl">
       <div className="mb-8">
-        <h1 className="text-2xl md:text-3xl font-bold text-gray-900">My Rides (Accepted)</h1>
-        <p className="text-sm md:text-base text-gray-500 mt-1">Manage the rides you have accepted or applied for.</p>
+        <h1 className="text-2xl md:text-3xl font-bold text-gray-900">{t('title')}</h1>
+        <p className="text-sm md:text-base text-gray-500 mt-1">{t('subtitle')}</p>
       </div>
 
       {/* Search & Filter Bar */}
@@ -129,7 +131,7 @@ const RidesPage = () => {
         <div className="relative flex-1 w-full">
             <input 
                 type="text" 
-                placeholder="Search by destination, client..." 
+                placeholder={t('searchPlaceholder')} 
                 className="w-full pl-10 pr-10 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -160,7 +162,7 @@ const RidesPage = () => {
       {loading ? (
          <div className="flex justify-center items-center py-20">
              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-             <span className="ml-3 text-gray-500">Loading your rides...</span>
+             <span className="ml-3 text-gray-500">{t('loading')}</span>
          </div>
       ) : filteredRides.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -178,8 +180,8 @@ const RidesPage = () => {
         </div>
       ) : (
         <EmptyJumbotron 
-            title="No ongoing rides" 
-            message="You haven't accepted any rides or applied for any yet." 
+            title={t('empty.title')} 
+            message={t('empty.message')} 
             icon="/img/car-placeholder.png"
         />
       )}

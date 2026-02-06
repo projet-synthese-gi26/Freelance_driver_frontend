@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslations } from "next-intl";
 
 interface LoginFormProps {
     onForgottenPasswordClick: (callback: () => void) => void;
@@ -7,10 +8,11 @@ interface LoginFormProps {
 }
 
 export default function LoginFormPhone({ onForgottenPasswordClick, onSignUpClick, onSuccess }: LoginFormProps) {
+    const t = useTranslations("Auth.login.phone");
     return (
         <div style={{ padding: 32, textAlign: 'center' }}>
-            <h2>Connexion par téléphone non implémentée</h2>
-            <p>La connexion par numéro de téléphone n'est pas disponible pour le moment.</p>
+            <h2>{t("title")}</h2>
+            <p>{t("description")}</p>
         </div>
     );
 }

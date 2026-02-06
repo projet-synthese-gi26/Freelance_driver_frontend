@@ -1,6 +1,7 @@
 "use client";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "react-hot-toast";
+import { useTranslations } from "next-intl";
 import {
   ArrowPathIcon,
   MagnifyingGlassIcon,
@@ -28,10 +29,8 @@ const emptyForm: ContactPayload = {
   isPhoneNumberVerified: false,
 };
 
-const formatName = (contact: Contact) =>
-  `${contact.firstName || ""} ${contact.lastName || ""}`.trim() || "Unnamed";
-
 export default function Page() {
+  const t = useTranslations("Dashboard.freelance.contacts");
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
@@ -40,6 +39,12 @@ export default function Page() {
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
   const [formData, setFormData] = useState<ContactPayload>(emptyForm);
 
+  const formatName = useCallback(
+    (contact: Contact) =>
+      `${contact.firstName || ""} ${contact.lastName || ""}`.trim() || t("card.unnamed"),
+    [t]
+  );
+
   const loadContacts = useCallback(async () => {
     setLoading(true);
     try {
@@ -47,11 +52,11 @@ export default function Page() {
       setContacts(data);
     } catch (error) {
       console.error(error);
-      toast.error("Unable to fetch contacts.");
+      toast.error(t("toasts.fetchError"));
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     loadContacts();
@@ -72,7 +77,7 @@ export default function Page() {
         .toLowerCase()
         .includes(query)
     );
-  }, [contacts, searchQuery]);
+  }, [contacts, searchQuery, formatName]);
 
   const openCreate = () => {
     setFormData({ ...emptyForm });
@@ -99,14 +104,14 @@ export default function Page() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this contact?")) return;
+    if (!confirm(t("confirmDelete"))) return;
     try {
       await contactService.deleteDriverContact(id);
-      toast.success("Contact deleted.");
+      toast.success(t("toasts.deleted"));
       loadContacts();
     } catch (error) {
       console.error(error);
-      toast.error("Unable to delete contact.");
+      toast.error(t("toasts.deleteError"));
     }
   };
 
@@ -115,17 +120,17 @@ export default function Page() {
     try {
       if (mode === "create") {
         await contactService.createDriverContact(formData);
-        toast.success("Contact created.");
+        toast.success(t("toasts.created"));
         setShowCreateModal(false);
       } else if (selectedContact) {
         await contactService.updateDriverContact(selectedContact.id, formData);
-        toast.success("Contact updated.");
+        toast.success(t("toasts.updated"));
         setShowEditModal(false);
       }
       await loadContacts();
     } catch (error) {
       console.error(error);
-      toast.error("Something went wrong.");
+      toast.error(t("toasts.genericError"));
     }
   };
 
@@ -134,7 +139,7 @@ export default function Page() {
       <div className="bg-white w-full max-w-xl rounded-[1.5rem] shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
         <div className="p-6 border-b flex justify-between items-center">
           <h2 className="text-xl font-bold">
-            {mode === "create" ? "Add contact" : "Edit contact"}
+            {mode === "create" ? t("modal.addTitle") : t("modal.editTitle")}
           </h2>
           <button onClick={() => (mode === "create" ? setShowCreateModal(false) : setShowEditModal(false))}>
             <XMarkIcon className="w-6 h-6" />
@@ -143,7 +148,7 @@ export default function Page() {
         <form onSubmit={(e) => handleSubmit(e, mode)} className="p-6 space-y-4 overflow-y-auto">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="text-xs font-bold text-gray-400 uppercase ml-1">First name</label>
+              <label className="text-xs font-bold text-gray-400 uppercase ml-1">{t("form.firstName")}</label>
               <input
                 required
                 className="w-full p-3 rounded-xl bg-gray-50 border-none font-semibold"
@@ -152,7 +157,7 @@ export default function Page() {
               />
             </div>
             <div>
-              <label className="text-xs font-bold text-gray-400 uppercase ml-1">Last name</label>
+              <label className="text-xs font-bold text-gray-400 uppercase ml-1">{t("form.lastName")}</label>
               <input
                 required
                 className="w-full p-3 rounded-xl bg-gray-50 border-none font-semibold"
@@ -162,7 +167,7 @@ export default function Page() {
             </div>
           </div>
           <div>
-            <label className="text-xs font-bold text-gray-400 uppercase ml-1">Title</label>
+            <label className="text-xs font-bold text-gray-400 uppercase ml-1">{t("form.title")}</label>
             <input
               className="w-full p-3 rounded-xl bg-gray-50 border-none font-semibold"
               value={formData.title || ""}
@@ -171,7 +176,7 @@ export default function Page() {
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="text-xs font-bold text-gray-400 uppercase ml-1">Phone</label>
+              <label className="text-xs font-bold text-gray-400 uppercase ml-1">{t("form.phone")}</label>
               <input
                 className="w-full p-3 rounded-xl bg-gray-50 border-none font-semibold"
                 value={formData.phoneNumber || ""}
@@ -179,7 +184,7 @@ export default function Page() {
               />
             </div>
             <div>
-              <label className="text-xs font-bold text-gray-400 uppercase ml-1">Secondary phone</label>
+              <label className="text-xs font-bold text-gray-400 uppercase ml-1">{t("form.secondaryPhone")}</label>
               <input
                 className="w-full p-3 rounded-xl bg-gray-50 border-none font-semibold"
                 value={formData.secondaryPhoneNumber || ""}
@@ -189,7 +194,7 @@ export default function Page() {
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="text-xs font-bold text-gray-400 uppercase ml-1">Email</label>
+              <label className="text-xs font-bold text-gray-400 uppercase ml-1">{t("form.email")}</label>
               <input
                 type="email"
                 className="w-full p-3 rounded-xl bg-gray-50 border-none font-semibold"
@@ -198,7 +203,7 @@ export default function Page() {
               />
             </div>
             <div>
-              <label className="text-xs font-bold text-gray-400 uppercase ml-1">Secondary email</label>
+              <label className="text-xs font-bold text-gray-400 uppercase ml-1">{t("form.secondaryEmail")}</label>
               <input
                 type="email"
                 className="w-full p-3 rounded-xl bg-gray-50 border-none font-semibold"
@@ -208,7 +213,7 @@ export default function Page() {
             </div>
           </div>
           <div>
-            <label className="text-xs font-bold text-gray-400 uppercase ml-1">Fax</label>
+            <label className="text-xs font-bold text-gray-400 uppercase ml-1">{t("form.fax")}</label>
             <input
               className="w-full p-3 rounded-xl bg-gray-50 border-none font-semibold"
               value={formData.faxNumber || ""}
@@ -223,7 +228,7 @@ export default function Page() {
                 checked={Boolean(formData.isFavorite)}
                 onChange={(e) => setFormData({ ...formData, isFavorite: e.target.checked })}
               />
-              Favorite
+              {t("form.favorite")}
             </label>
             <label className="flex items-center gap-2 text-sm font-semibold text-gray-600">
               <input
@@ -232,7 +237,7 @@ export default function Page() {
                 checked={Boolean(formData.isEmailVerified)}
                 onChange={(e) => setFormData({ ...formData, isEmailVerified: e.target.checked })}
               />
-              Email verified
+              {t("form.emailVerified")}
             </label>
             <label className="flex items-center gap-2 text-sm font-semibold text-gray-600">
               <input
@@ -243,14 +248,14 @@ export default function Page() {
                   setFormData({ ...formData, isPhoneNumberVerified: e.target.checked })
                 }
               />
-              Phone verified
+              {t("form.phoneVerified")}
             </label>
           </div>
           <button
             type="submit"
             className="w-full bg-primary text-white py-3 rounded-xl font-bold shadow-lg shadow-primary/30 hover:bg-primary/90 transition-all"
           >
-            {mode === "create" ? "Create contact" : "Save changes"}
+            {mode === "create" ? t("form.create") : t("form.save")}
           </button>
         </form>
       </div>
@@ -261,7 +266,7 @@ export default function Page() {
     <div className="p-4 md:p-8 max-w-6xl mx-auto min-h-screen pb-24 text-gray-800">
       <div className="flex flex-col gap-6 mb-8">
         <div className="flex justify-between items-center">
-          <h1 className="text-3xl font-bold tracking-tight">Contacts</h1>
+          <h1 className="text-3xl font-bold tracking-tight">{t("title")}</h1>
           <button
             onClick={openCreate}
             className="bg-primary text-white p-3 rounded-full shadow-lg hover:rotate-90 transition-all"
@@ -273,7 +278,7 @@ export default function Page() {
           <MagnifyingGlassIcon className="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
           <input
             type="text"
-            placeholder="Search contacts..."
+            placeholder={t("searchPlaceholder")}
             className="w-full pl-12 pr-4 py-4 rounded-2xl bg-white border border-gray-100 shadow-sm focus:ring-2 focus:ring-primary/20 outline-none transition-all"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -288,7 +293,7 @@ export default function Page() {
       ) : filteredContacts.length === 0 ? (
         <div className="text-center py-20 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200">
           <UserCircleIcon className="w-12 h-12 mx-auto text-gray-300 mb-2" />
-          <p className="text-gray-400 font-medium">No contacts found</p>
+          <p className="text-gray-400 font-medium">{t("empty")}</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -301,17 +306,17 @@ export default function Page() {
                 <div className="flex items-start justify-between">
                   <div>
                     <h3 className="text-xl font-bold text-gray-900">{formatName(contact)}</h3>
-                    <p className="text-sm text-gray-500">{contact.title || "Contact"}</p>
+                    <p className="text-sm text-gray-500">{contact.title || t("card.defaultTitle")}</p>
                   </div>
                   {contact.isFavorite && (
                     <span className="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase bg-yellow-50 text-yellow-600">
-                      Favorite
+                      {t("card.favorite")}
                     </span>
                   )}
                 </div>
                 <div className="space-y-1 text-sm text-gray-600">
-                  <p>{contact.phoneNumber || "No phone number"}</p>
-                  <p>{contact.email || "No email"}</p>
+                  <p>{contact.phoneNumber || t("card.noPhone")}</p>
+                  <p>{contact.email || t("card.noEmail")}</p>
                 </div>
                 <div className="flex gap-2">
                   <button
@@ -319,7 +324,7 @@ export default function Page() {
                     className="flex-1 bg-gray-100 text-gray-600 py-3 rounded-xl font-bold text-sm hover:bg-gray-200 transition-all flex items-center justify-center gap-2"
                   >
                     <PencilSquareIcon className="w-4 h-4" />
-                    Edit
+                    {t("card.edit")}
                   </button>
                   <button
                     onClick={() => handleDelete(contact.id)}

@@ -11,11 +11,15 @@ import { useAuthModal } from "@/hook/AuthModalContext";
 import LocaleSwitcher from "@/components/lang/LocalSwitcher";
 import { useAuthContext } from "@/components/context/authContext";
 import { MyAccountAvatar } from "@/components/general/MyAccountAvatar";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import Header from "../landingpage/Header";
+import ThemeToggle from "@/components/theme/ThemeToggle";
+import { useLocale } from "next-intl";
+import { useTransition } from "react";
+import type { Locale } from "@/config";
+import { setUserLocale } from "@/service/locale";
 
 const NewHeader = ({ locale }: { locale?: string }) => {
-
   const pathToRoute: Record<string, string> = {
     driver: '/driver',
     freelance: '/freelance',
@@ -25,6 +29,10 @@ const NewHeader = ({ locale }: { locale?: string }) => {
   };
 
   const pathname = usePathname() || ""; // fallback to empty string if null
+  const router = useRouter();
+  const [, startTransition] = useTransition();
+  const activeLocale = useLocale() as Locale;
+  const resolvedLocale = (locale as Locale | undefined) ?? activeLocale;
 
   const firstSegment = pathname.split("/")[1];
 
@@ -36,7 +44,7 @@ const NewHeader = ({ locale }: { locale?: string }) => {
   const isFreelance = pathname.startsWith("/freelance");
   const isInstitutions = pathname.startsWith("/institution");
   const isPassengers = pathname.startsWith("/passenger");
-  const isAgencies = pathname.startsWith("/passenger");
+  const isAgencies = pathname.startsWith("/agency");
   const isSearchPage = pathname.startsWith("/freelance-search") || pathname.startsWith("/announcement-search");
   const isBookingPage = pathname.startsWith("/freelance-booking");
 
@@ -44,28 +52,22 @@ const NewHeader = ({ locale }: { locale?: string }) => {
   const { authUser, user, isLoading: authLoading } = useAuthContext();
   const { openLoginModal, openRegisterModal } = useAuthModal();
   const t = useTranslations("Freelance.header");
-  const [visible, setVisible] = useState(false);
   const [dark, setDark] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
-  const navbarVisible = () => {
-    if (window.scrollY > 10 && window.scrollY < window.innerHeight - 80) {
-      setVisible(true);
-      setDark(false);
-    } else if (window.scrollY >= window.innerHeight - 80) {
-      setDark(true);
-      setVisible(false);
-    } else {
-      setVisible(false);
-      setDark(false);
-    }
+  const changeLocale = (nextLocale: Locale) => {
+    startTransition(async () => {
+      await setUserLocale(nextLocale);
+      router.refresh();
+    });
   };
 
   useEffect(() => {
-    window.addEventListener("scroll", navbarVisible);
-    return () => {
-      window.removeEventListener("scroll", navbarVisible);
+    const navbarVisible = () => {
+      setDark(window.scrollY >= window.innerHeight - 80);
     };
+    window.addEventListener("scroll", navbarVisible);
+    return () => window.removeEventListener("scroll", navbarVisible);
   }, []);
 
   const nav = [
@@ -113,11 +115,26 @@ const NewHeader = ({ locale }: { locale?: string }) => {
         { title: t("Agency"), url: "#" },
       ],
     },
+    {
+      title: (
+        <div className="flex items-center gap-1">
+          {resolvedLocale === 'fr' ? '🇫🇷' : resolvedLocale === 'de' ? '🇩🇪' : resolvedLocale === 'es' ? '🇪🇸' : '🇬🇧'}
+          <span className="uppercase">{resolvedLocale}</span>
+        </div>
+      ),
+      url: "#",
+      reference: "lang",
+      submenu: [
+        { title: "🇬🇧 English", url: "#", action: () => changeLocale('en') },
+        { title: "🇫🇷 Français", url: "#", action: () => changeLocale('fr') },
+        { title: "🇩🇪 Deutsch", url: "#", action: () => changeLocale('de') },
+        { title: "🇪🇸 Español", url: "#", action: () => changeLocale('es') },
+      ],
+    },
   ];
 
   const authenticationSystem = (
     <div className="hidden lg:flex items-center space-x-4">
-      {/*<LocaleSwitcher status="dark"/>*/}
       <button
         className="transition-colors rounded-md hover:bg-gray-800 hover:text-white px-2 py-2"
         onClick={openLoginModal}
@@ -156,8 +173,7 @@ const NewHeader = ({ locale }: { locale?: string }) => {
 
   return (
     <>
-      {isHomePage && <Header />}
-
+      {pathname === "/" && <Header />}
       {(isDrivers || isFreelance || isAgencies || isPassengers || isInstitutions || isSearchPage || isBookingPage) && (
         <header
           className={`bg-white  font-inter w-full text-black z-10 ${dark ? "nav-color backdrop-blur-sm shadow-md" : ""
@@ -226,8 +242,7 @@ const NewHeader = ({ locale }: { locale?: string }) => {
                 )}
               </button>
             </div>
-          </nav>
-
+        </nav>
           {/* Mobile menu */}
           {menuOpen && (
             <div className="lg:hidden">

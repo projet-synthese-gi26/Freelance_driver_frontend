@@ -6,10 +6,12 @@ import { toast } from 'react-hot-toast';
 import { authService } from '@/service/authService'; // Assurez-vous de l'import correct
 import { RegistrationRequest, AuthResponse } from '@/type/auth'; // Assurez-vous de l'import correct
 import { useAuthContext } from '@/components/context/authContext';
+import { useTranslations } from 'next-intl';
 
 export default function OTPPage() {
     const router = useRouter();
     const { checkAuth } = useAuthContext();
+    const t = useTranslations('Auth.otp');
     const [otp, setOtp] = useState("");
     const [loading, setLoading] = useState(false);
     const [regData, setRegData] = useState<RegistrationRequest | null>(null);
@@ -18,16 +20,16 @@ export default function OTPPage() {
         // Récupération des données depuis le stockage temporaire
         const stored = sessionStorage.getItem('temp_registration_data');
         if (!stored) {
-            toast.error("Session expired, please register again.");
+            toast.error(t('errors.sessionExpired'));
             router.push('/register');
             return;
         }
         setRegData(JSON.parse(stored));
-    }, [router]);
+    }, [router, t]);
 
     const handleVerify = async () => {
         if (!regData || otp.length !== 6) {
-            toast.error("Please enter a valid 6-digit code");
+            toast.error(t('errors.invalidCode'));
             return;
         }
 
@@ -61,9 +63,9 @@ export default function OTPPage() {
     return (
         <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
             <div className="max-w-md w-full bg-white p-8 rounded-xl shadow-lg text-center">
-                <h2 className="text-2xl font-bold mb-2">Verification Code</h2>
+                <h2 className="text-2xl font-bold mb-2">{t('title')}</h2>
                 <p className="text-gray-600 mb-6">
-                    We sent a code to <span className="font-bold">{regData.email}</span>
+                    {t('subtitle', {email: regData.email})}
                 </p>
 
                 <input
@@ -80,14 +82,14 @@ export default function OTPPage() {
                     disabled={loading}
                     className="w-full bg-blue-600 text-white py-3 rounded-lg font-bold hover:bg-blue-700 transition disabled:opacity-50"
                 >
-                    {loading ? "Verifying..." : "Verify & Finish"}
+                    {loading ? t('verifying') : t('verify')}
                 </button>
 
                 <button
                     onClick={() => router.back()}
                     className="mt-4 text-gray-500 hover:text-gray-700 text-sm"
                 >
-                    Back to registration
+                    {t('back')}
                 </button>
             </div>
         </div>

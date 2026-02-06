@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import LoginButtons from "@/components/auth/LoginButtons";
 import LoginFormEmail from "@/components/auth/LoginFormEmail";
 import LoginFormPhone from "@/components/auth/LoginFormPhone";
+import { useTranslations } from "next-intl";
 
 interface LoginFormProps {
   onForgottenPasswordClick: (callback: () => void) => void;
@@ -14,6 +15,7 @@ export default function LoginForm({
   onSignUpClick,
   onSuccess,
 }: LoginFormProps) {
+  const t = useTranslations("Auth.login.form");
   const [loginMethod, setLoginMethod] = useState("email");
 
   return (
@@ -21,7 +23,7 @@ export default function LoginForm({
       <LoginButtons />
       <div className="my-4 border-b text-center">
         <div className="leading-none px-2 inline-block text-sm text-gray-600 tracking-wide font-medium bg-white transform translate-y-1/2">
-          Or with email or phone
+          {t("divider")}
         </div>
       </div>
       <div className="flex justify-center space-x-4 mb-4">
@@ -32,7 +34,7 @@ export default function LoginForm({
           }`}
           onClick={() => setLoginMethod("email")}
         >
-          Email
+          {t("methods.email")}
         </button>
         <button
           type="button"
@@ -41,7 +43,7 @@ export default function LoginForm({
           }`}
           onClick={() => setLoginMethod("phone")}
         >
-          Phone
+          {t("methods.phone")}
         </button>
       </div>
       {loginMethod === "email" ? (

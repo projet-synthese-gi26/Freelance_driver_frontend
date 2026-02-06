@@ -1,8 +1,8 @@
 // pages/dashboard/driver/settings.tsx
 "use client"
 import React, { useState } from 'react';
-import { GetServerSideProps } from 'next';
 import axios from 'axios';
+import { useTranslations } from 'next-intl';
 import { DriverSettings,NotificationSettings,Preferences,RidePreferences
 ,PrivacySettings,CommunicationPreferences
 } from '@/components/freelance/settings/Interfaces';
@@ -12,8 +12,6 @@ languageOptions,
 timezoneOptions,
 currencyOptions,
 paymentMethod,
-vehiculeType
-
 } from "@/data/Structure";
 import Preference2 from "@/components/customer/preference/Preference2";
 
@@ -29,6 +27,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ initialSettings }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
+  const t = useTranslations('Dashboard.freelance.settings');
   const notificationItems: NotificationSettingsKey[] = ['newRides', 'ratings', 'practicalTips', 'promotions', 'policyUpdates', 'peakHourRecommendations'];
 
 
@@ -86,9 +85,9 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ initialSettings }) => {
     try {
       const response = await axios.put('/api/driver/settings', settings);
       setSettings(response.data);
-      setSuccessMessage('Updated successfully.');
+      setSuccessMessage(t('messages.updated'));
     } catch (error) {
-      setErrorMessage('An Error encoured while updating Settings');
+      setErrorMessage(t('messages.updateError'));
       console.error('Erreur lors de la mise à jour des paramètres:', error);
     } finally {
       setIsLoading(false);
@@ -98,15 +97,15 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ initialSettings }) => {
   return (
     <>
       <div className="container text mx-auto px-4 py-8">
-        <h1 className="title font-bold">Settings</h1>
+        <h1 className="title font-bold">{t('title')}</h1>
 
         {errorMessage && <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">{errorMessage}</div>}
         {successMessage && <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4" role="alert">{successMessage}</div>}
 
         <form onSubmit={handleSubmit} className="bg-white shadow-md rounded-lg p-4">
-          <h2 className="text font-bold mb-2">Notification settings</h2>
+          <h2 className="text font-bold mb-2">{t('sections.notificationSettings')}</h2>
           <div className="p-2">
-            <label htmlFor="notificationSettings.mode" className="block font-medium text-gray-700">Reception Mode</label>
+            <label htmlFor="notificationSettings.mode" className="block font-medium text-gray-700">{t('notifications.receptionMode')}</label>
             <select
               id="notificationSettings.mode"
               name="notificationSettings.mode"
@@ -114,10 +113,10 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ initialSettings }) => {
               onChange={handleInputChange}
               className="mt-1 block md:w-1/6 border p-2 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 rounded-md"
             >
-              <option value="email">Email</option>
-              <option value="sms">SMS</option>
-              <option value="push">Push</option>
-              <option value="all">All</option>
+              <option value="email">{t('notifications.modes.email')}</option>
+              <option value="sms">{t('notifications.modes.sms')}</option>
+              <option value="push">{t('notifications.modes.push')}</option>
+              <option value="all">{t('notifications.modes.all')}</option>
             </select>
           </div>
 
@@ -131,23 +130,23 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ initialSettings }) => {
                     onChange={handleInputChange}
                     className="form-checkbox h-5 w-5 text-indigo-600"
                 />
-                <span className="ml-2">{item.replace(/([A-Z])/g, ' $1').replace(/^./, (str) => str.toUpperCase())}</span>
+                <span className="ml-2">{t(`notifications.items.${item}`)}</span>
                 </label>
             </div>
             ))}
 
-          <h2 className="font-bold mt-8">Preferences</h2>
+          <h2 className="font-bold mt-8">{t('sections.preferences')}</h2>
         <div className='grid md:grid-cols-2'>
-            <Preference2 label="Language" type="select" defaultSelectOption="Select Language" mapSelectOption={languageOptions}/>
-          <Preference2 label="Time Zone" type="select" defaultSelectOption="Select Time Zone" mapSelectOption={timezoneOptions}/>
-          <Preference2 label="Currency" type="select" defaultSelectOption="Select Currency" mapSelectOption={currencyOptions}/>
-          <Preference2 label="Payment Method" type="select" defaultSelectOption="Select Payment Method" mapSelectOption={paymentMethod}/>
+            <Preference2 label={t('preferences.language.label')} type="select" defaultSelectOption={t('preferences.language.placeholder')} mapSelectOption={languageOptions}/>
+          <Preference2 label={t('preferences.timeZone.label')} type="select" defaultSelectOption={t('preferences.timeZone.placeholder')} mapSelectOption={timezoneOptions}/>
+          <Preference2 label={t('preferences.currency.label')} type="select" defaultSelectOption={t('preferences.currency.placeholder')} mapSelectOption={currencyOptions}/>
+          <Preference2 label={t('preferences.paymentMethod.label')} type="select" defaultSelectOption={t('preferences.paymentMethod.placeholder')} mapSelectOption={paymentMethod}/>
             <div  className="mb-4">
-              <label  className="block text-sm font-medium text-gray-700">Date Format</label>
+              <label htmlFor="preferences.dateFormat" className="block text-sm font-medium text-gray-700">{t('preferences.dateFormat.label')}</label>
               <input
                 type="text"
-                id="Date Format"
-                name="Date Format"
+                id="preferences.dateFormat"
+                name="preferences.dateFormat"
                 value={settings.preferences.dateFormat}
                 onChange={handleInputChange}
                 className="mt-1 block w-[20rem] h-[3rem] border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
@@ -155,7 +154,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ initialSettings }) => {
             </div>
         </div>
 
-          <h2 className="font-bold mt-8">Ride Preferences</h2>
+          <h2 className="font-bold mt-8">{t('sections.ridePreferences')}</h2>
           <div className="p-2">
             <label className="inline-flex items-center">
               <input
@@ -165,7 +164,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ initialSettings }) => {
                 onChange={handleInputChange}
                 className="form-checkbox h-5 w-5 text-indigo-600"
               />
-              <span className="ml-2">Short Ride</span>
+              <span className="ml-2">{t('ridePreferences.shortRides')}</span>
             </label>
           </div>
           <div className="p-2">
@@ -177,11 +176,11 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ initialSettings }) => {
                 onChange={handleInputChange}
                 className="form-checkbox h-5 w-5 text-indigo-600"
               />
-              <span className="ml-2">Long Ride</span>
+              <span className="ml-2">{t('ridePreferences.longRides')}</span>
             </label>
           </div>
 
-          <h2 className="font-bold mt-8">Privacy settings</h2>
+          <h2 className="font-bold mt-8">{t('sections.privacySettings')}</h2>
           <div className="p-2">
             <label className="inline-flex items-center">
               <input
@@ -191,11 +190,11 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ initialSettings }) => {
                 onChange={handleInputChange}
                 className="form-checkbox h-5 w-5 text-indigo-600"
               />
-              <span className="ml-2">Sharing personal information with passengers</span>
+              <span className="ml-2">{t('privacySettings.sharePersonalInfo')}</span>
             </label>
           </div>
 
-          <h2 className="font-bold mt-8">Communication Preferences</h2>
+          <h2 className="font-bold mt-8">{t('sections.communicationPreferences')}</h2>
           <div className="p-2">
             <label className="inline-flex items-center">
               <input
@@ -205,7 +204,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ initialSettings }) => {
                 onChange={handleInputChange}
                 className="form-checkbox h-5 w-5 text-indigo-600"
               />
-              <span className="ml-2">Calls</span>
+              <span className="ml-2">{t('communicationPreferences.calls')}</span>
             </label>
           </div>
           <div className="p-2">
@@ -217,7 +216,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ initialSettings }) => {
                 onChange={handleInputChange}
                 className="form-checkbox h-5 w-5 text-indigo-600"
               />
-              <span className="ml-2">Messages</span>
+              <span className="ml-2">{t('communicationPreferences.messages')}</span>
             </label>
           </div>
 
@@ -227,7 +226,7 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ initialSettings }) => {
               disabled={isLoading}
               className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
             >
-              {isLoading ? 'Updating...' : 'Save Settings'}
+              {isLoading ? t('actions.updating') : t('actions.save')}
             </button>
           </div>
         </form>

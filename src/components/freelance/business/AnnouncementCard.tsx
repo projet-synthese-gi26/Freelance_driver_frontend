@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
 import { toast } from 'react-hot-toast';
+import { useLocale, useTranslations } from 'next-intl';
 import { 
   MapPinIcon, 
   CalendarIcon, 
@@ -25,29 +26,37 @@ export const AnnouncementCard: React.FC<AnnouncementCardProps> = ({
     isCancelling = false,
     mode = 'orders' 
 }) => {
+  const t = useTranslations('Dashboard.shared.announcementCard');
+  const locale = useLocale();
   const [loading, setLoading] = useState(false);
 
   const formatDate = (dateStr?: string) => {
-    if (!dateStr) return "N/A";
-    // Formatage en anglais (UK) pour jour/mois/année
-    return new Date(dateStr).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+    if (!dateStr) return t('na');
+    return new Date(dateStr).toLocaleDateString(locale || 'en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
   };
 
   const handleApply = async () => {
-    if (!confirm(`Do you want to apply for the ride by ${item.authorName}?`)) return;
+    if (!confirm(t('confirmApply', { authorName: item.authorName }))) return;
 
     setLoading(true);
     try {
       await announcementService.applyToAnnouncement(item.id);
-      toast.success("Application sent! Waiting for client confirmation.");
+      toast.success(t('toasts.applied'));
       if (onActionCompleted) onActionCompleted();
     } catch (error: any) {
       console.error(error);
-      const msg = error.response?.data?.message || "Error applying for the ride.";
+      const msg = error.response?.data?.message || t('toasts.applyError');
       toast.error(msg);
     } finally {
       setLoading(false);
     }
+  };
+
+  const renderStatusLabel = (status?: string) => {
+    if (!status) return '';
+    if (status === 'PendingConfirmation') return t('status.pendingConfirmation');
+    if (status === 'Confirmed') return t('status.confirmed');
+    return status;
   };
 
   const handleCancel = () => {
@@ -67,7 +76,7 @@ export const AnnouncementCard: React.FC<AnnouncementCardProps> = ({
                 disabled={loading}
                 className="bg-green-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-green-700 transition disabled:opacity-50 flex items-center text-sm"
                 >
-                    {loading ? 'Sending...' : 'Apply'}
+                    {loading ? t('actions.sending') : t('actions.apply')}
                 </button>
             );
         }
@@ -75,7 +84,7 @@ export const AnnouncementCard: React.FC<AnnouncementCardProps> = ({
         if (item.status === 'PendingConfirmation') {
             return (
                 <span className="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-xs font-medium flex items-center">
-                    Pending Confirmation
+                    {t('status.pendingConfirmation')}
                 </span>
             );
         }
@@ -97,7 +106,7 @@ export const AnnouncementCard: React.FC<AnnouncementCardProps> = ({
                     disabled={isCancelling}
                     className="bg-red-500 text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-600 transition disabled:opacity-50 text-sm"
                 >
-                    {isCancelling ? 'Cancelling...' : 'Cancel Ride'}
+                    {isCancelling ? t('actions.cancelling') : t('actions.cancelRide')}
                 </button>
             );
         }
@@ -105,7 +114,7 @@ export const AnnouncementCard: React.FC<AnnouncementCardProps> = ({
         if (item.status === 'PendingConfirmation') {
              return (
                 <span className="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-xs font-medium flex items-center">
-                    Pending Confirmation
+                    {t('status.pendingConfirmation')}
                 </span>
             );
         }
@@ -113,7 +122,7 @@ export const AnnouncementCard: React.FC<AnnouncementCardProps> = ({
         if (item.status === 'Confirmed') {
              return (
                 <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-medium flex items-center">
-                    Confirmed
+                    {t('status.confirmed')}
                 </span>
             );
         }
@@ -142,14 +151,14 @@ export const AnnouncementCard: React.FC<AnnouncementCardProps> = ({
             </div>
             <div>
                 <h3 className="font-bold text-gray-800 text-sm line-clamp-1">{item.authorName}</h3>
-                <p className="text-xs text-gray-500 font-medium">Client</p>
+                <p className="text-xs text-gray-500 font-medium">{t('role.client')}</p>
             </div>
         </div>
         <div className="text-right">
             <p className="text-base font-bold text-green-600">
-                {item.cost > 0 ? `${item.cost.toLocaleString()} XAF` : 'Price N/A'}
+                {item.cost > 0 ? `${item.cost.toLocaleString()} XAF` : t('price.na')}
             </p>
-            {item.isNegotiable && <span className="text-[10px] text-blue-600 bg-blue-50 px-2 py-0.5 rounded border border-blue-100">Negotiable</span>}
+            {item.isNegotiable && <span className="text-[10px] text-blue-600 bg-blue-50 px-2 py-0.5 rounded border border-blue-100">{t('price.negotiable')}</span>}
         </div>
       </div>
 
@@ -165,11 +174,11 @@ export const AnnouncementCard: React.FC<AnnouncementCardProps> = ({
             </div>
             <div className="flex-1 space-y-3 pt-0.5">
                 <div>
-                    <p className="text-[10px] text-gray-400 uppercase font-bold tracking-wider">Pick up</p>
+                    <p className="text-[10px] text-gray-400 uppercase font-bold tracking-wider">{t('locations.pickup')}</p>
                     <p className="text-sm text-gray-700 font-medium line-clamp-1" title={item.pickupLocation}>{item.pickupLocation}</p>
                 </div>
                 <div>
-                    <p className="text-[10px] text-gray-400 uppercase font-bold tracking-wider">Drop off</p>
+                    <p className="text-[10px] text-gray-400 uppercase font-bold tracking-wider">{t('locations.dropoff')}</p>
                     <p className="text-sm text-gray-700 font-medium line-clamp-1" title={item.dropoffLocation}>{item.dropoffLocation}</p>
                 </div>
             </div>
@@ -178,7 +187,7 @@ export const AnnouncementCard: React.FC<AnnouncementCardProps> = ({
         <div className="pt-3 mt-2 border-t border-dashed border-gray-100 flex flex-wrap gap-y-2 gap-x-4 text-xs text-gray-500">
             <div className="flex items-center gap-1.5 bg-gray-50 px-2 py-1 rounded">
                 <CalendarIcon className="w-4 h-4 text-gray-400" />
-                <span className="font-medium">{formatDate(item.startDate)}</span> at <span className="font-medium">{item.startTime}</span>
+                <span className="font-medium">{formatDate(item.startDate)}</span> {t('at')} <span className="font-medium">{item.startTime}</span>
             </div>
             <div className="flex items-center gap-1.5 bg-gray-50 px-2 py-1 rounded">
                 <BanknotesIcon className="w-4 h-4 text-gray-400" />
@@ -190,11 +199,11 @@ export const AnnouncementCard: React.FC<AnnouncementCardProps> = ({
       {/* Footer : Actions */}
       <div className="p-3 bg-gray-50 border-t border-gray-100 flex justify-between items-center gap-2">
         <button 
-            onClick={() => toast('Chat feature coming soon!')}
+            onClick={() => toast(t('toasts.chatSoon'))}
             className="flex items-center text-blue-600 hover:bg-white px-3 py-1.5 rounded-lg transition text-sm font-medium border border-transparent hover:border-blue-100 hover:shadow-sm"
         >
             <ChatBubbleLeftRightIcon className="w-4 h-4 mr-1.5" />
-            Chat
+            {t('actions.chat')}
         </button>
         
         {renderStatusOrButton()}

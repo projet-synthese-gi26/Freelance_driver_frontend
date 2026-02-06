@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { toast } from 'react-hot-toast';
 import { PlusIcon, MagnifyingGlassIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import { useTranslations } from 'next-intl';
 
 // SERVICES & TYPES
 import { planningService } from '@/service/planningService';
@@ -13,25 +14,26 @@ import PlanningCard from '@/components/freelance/planning/PlanningCard';
 import PlanningFormModal from '@/components/freelance/planning/PlanningFormModal'; // On va le créer juste après
 import EmptyJumbotron from '@/components/EmptyJumbotron';
 
-// ONGLETS DE STATUT
-const STATUS_TABS = [
-    { id: 'All', label: 'Tous', color: 'bg-blue-600' },
-    { id: 'Draft', label: 'Draft', color: 'bg-gray-500' },
-    { id: 'Published', label: 'Published', color: 'bg-green-600' },
-    { id: 'PendingConfirmation', label: 'Pending', color: 'bg-yellow-500' },
-    { id: 'PendingDriverConfirmation', label: 'Driver Pending', color: 'bg-yellow-500' },
-    { id: 'Confirmed', label: 'Confirmed', color: 'bg-blue-500' },
-    { id: 'Ongoing', label: 'Ongoing', color: 'bg-orange-500' },
-    { id: 'Terminated', label: 'Terminated', color: 'bg-gray-600' },
-    { id: 'Expired', label: 'Expired', color: 'bg-gray-400' }
-];
-
 const Page = () => {
+    const t = useTranslations('Dashboard.freelance.planning');
     const { user } = useAuthContext();
     const [plannings, setPlannings] = useState<Planning[]>([]);
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState('All');
     const [searchQuery, setSearchQuery] = useState('');
+
+    // ONGLETS DE STATUT
+    const STATUS_TABS = [
+        { id: 'All', label: t('statusTabs.all'), color: 'bg-blue-600' },
+        { id: 'Draft', label: t('statusTabs.draft'), color: 'bg-gray-500' },
+        { id: 'Published', label: t('statusTabs.published'), color: 'bg-green-600' },
+        { id: 'PendingConfirmation', label: t('statusTabs.pendingConfirmation'), color: 'bg-yellow-500' },
+        { id: 'PendingDriverConfirmation', label: t('statusTabs.pendingDriverConfirmation'), color: 'bg-yellow-500' },
+        { id: 'Confirmed', label: t('statusTabs.confirmed'), color: 'bg-blue-500' },
+        { id: 'Ongoing', label: t('statusTabs.ongoing'), color: 'bg-orange-500' },
+        { id: 'Terminated', label: t('statusTabs.terminated'), color: 'bg-gray-600' },
+        { id: 'Expired', label: t('statusTabs.expired'), color: 'bg-gray-400' }
+    ];
     
     // États pour la modale
     const [showModal, setShowModal] = useState(false);
@@ -45,11 +47,11 @@ const Page = () => {
             setPlannings(data);
         } catch (error) {
             console.error("Erreur chargement plannings", error);
-            toast.error("Impossible de charger vos plannings.");
+            toast.error(t('toasts.loadError'));
         } finally {
             setLoading(false);
         }
-    }, []);
+    }, [t]);
 
     useEffect(() => {
         loadPlannings();
@@ -104,34 +106,34 @@ const Page = () => {
                 ...payload
             } = data;
             await planningService.updatePlanning(data.id, { ...payload, status: newStatus });
-            toast.success(action === 'publish' ? 'Planning publié !' : 'Planning retiré.');
+            toast.success(action === 'publish' ? t('toasts.published') : t('toasts.unpublished'));
         } catch (error) {
-            toast.error("Erreur lors de la mise à jour.");
+            toast.error(t('toasts.updateError'));
             loadPlannings(); // Revert on error
         }
     };
 
     const handleDelete = async (data: Planning) => {
-        if (!confirm("Êtes-vous sûr de vouloir supprimer ce planning ?")) return;
+        if (!confirm(t('confirmDelete'))) return;
         
         try {
             await planningService.deletePlanning(data.id);
             setPlannings(prev => prev.filter(p => p.id !== data.id));
-            toast.success("Planning supprimé.");
+            toast.success(t('toasts.deleted'));
         } catch (error) {
-            toast.error("Erreur lors de la suppression.");
+            toast.error(t('toasts.deleteError'));
         }
     };
 
     return (
         <div className="p-4 md:p-6 max-w-7xl mx-auto">
             <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
-                <h1 className="text-2xl font-bold text-gray-800">Planning Management</h1>
+                <h1 className="text-2xl font-bold text-gray-800">{t('title')}</h1>
                 <button 
                     onClick={handleAddNew}
                     className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition shadow-sm"
                 >
-                    <PlusIcon className="w-5 h-5 mr-2" /> New Planning
+                    <PlusIcon className="w-5 h-5 mr-2" /> {t('new')}
                 </button>
             </div>
 
@@ -140,7 +142,7 @@ const Page = () => {
                 <div className="relative">
                     <input 
                         type="text" 
-                        placeholder="Search a planning..." 
+                        placeholder={t('searchPlaceholder')} 
                         className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
@@ -171,7 +173,7 @@ const Page = () => {
 
             {/* Liste */}
             {loading ? (
-                <div className="text-center py-20">Loading...</div>
+                <div className="text-center py-20">{t('loading')}</div>
             ) : filteredPlannings.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {filteredPlannings.map(planning => (
@@ -186,8 +188,8 @@ const Page = () => {
                 </div>
             ) : (
                 <EmptyJumbotron 
-                    title="No planning" 
-                    message="You have no plannings matching your criteria." 
+                    title={t('empty.title')} 
+                    message={t('empty.message')} 
                 />
             )}
 

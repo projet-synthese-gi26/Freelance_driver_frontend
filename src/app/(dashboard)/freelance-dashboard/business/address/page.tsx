@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { toast } from 'react-hot-toast';
+import { useTranslations } from "next-intl";
 
 // SERVICES & TYPES
 import { addressService } from "@/service/addressService";
@@ -13,11 +14,12 @@ import BillingForm from "@/components/customer/address/BillingForm";
 import EmptyJumbotron from "@/components/EmptyJumbotron"; // Assurez-vous que ce composant existe
 
 const Page = () => {
+    const t = useTranslations("Dashboard.freelance.address");
     // Store addresses from backend
     const [addresses, setAddresses] = useState<Address[]>([]);
     const [loading, setLoading] = useState(true);
     const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
-    const [locationInfo, setLocationInfo] = useState<string>("Loading...");
+    const [locationInfo, setLocationInfo] = useState<string>(t("location.loading"));
 
     // Load addresses from the API
     const loadAddresses = useCallback(async () => {
@@ -29,13 +31,13 @@ const Page = () => {
             // Default selection and location info
             if (data.length > 0) {
                 if (!selectedAddressId) setSelectedAddressId(data[0].id);
-                setLocationInfo(data[0].city || data[0].state || "N/A");
+                setLocationInfo(data[0].city || data[0].state || t("location.na"));
             } else {
-                setLocationInfo("No address defined");
+                setLocationInfo(t("location.none"));
             }
         } catch (error) {
             console.error("Error loading addresses", error);
-            toast.error("Unable to fetch your addresses.");
+            toast.error(t("toasts.fetchError"));
         } finally {
             setLoading(false);
         }
@@ -50,35 +52,34 @@ const Page = () => {
         setSelectedAddressId(id);
         const selected = addresses.find(a => a.id === id);
         if (selected) {
-            setLocationInfo(selected.city || selected.state || "N/A");
+            setLocationInfo(selected.city || selected.state || t("location.na"));
         }
     };
 
     // Handle delete via API
     const handleDeleteAddress = async (id: string) => {
-        if (!confirm("Are you sure you want to delete this address?")) return;
+        if (!confirm(t("confirmDelete"))) return;
         
         try {
             await addressService.deleteDriverAddress(id);
-            toast.success("Address deleted.");
+            toast.success(t("toasts.deleted"));
             loadAddresses(); // Rafraîchir la liste
         } catch (error) {
             console.error(error);
-            toast.error("Error while deleting address.");
+            toast.error(t("toasts.deleteError"));
         }
     };
 
     return (
       <div className="p-3 text rounded-2xl bg-white shadow-3 mb-[20%]">
-        <h3 className="mb-0 title font-bold flex-grow"> My Addresses </h3>
+        <h3 className="mb-0 title font-bold flex-grow"> {t("title")} </h3>
         <div className="border border-t my-3"></div>
         <p className="text-sm clr-neutral-500 mb-3">
-          Cards will be charged either at the end of the month or whenever your
-          balance exceeds the usage threshold. All major credit/debit cards accepted.
+          {t("description")}
         </p>
 
         {loading ? (
-            <div className="text-center py-10">Loading your addresses...</div>
+            <div className="text-center py-10">{t("loading")}</div>
         ) : (
             <ul className="flex flex-col gap-6">
                 <li>
@@ -93,8 +94,8 @@ const Page = () => {
                         />
                     ) : (
                         <EmptyJumbotron 
-                            title="No address" 
-                            message="You haven't added any business address yet." 
+                            title={t("empty.title")} 
+                            message={t("empty.message")} 
                         />
                     )}
                 </li>
@@ -112,11 +113,11 @@ const Page = () => {
 
         <div className="mt-6">
           <div className="flex gap-2">
-            <p className="text-sm clr-neutral-500"> Tax location </p>
+            <p className="text-sm clr-neutral-500"> {t("taxLocation.title")} </p>
             <Link
               href="#"
               className="link inline-block text-primary hover:text-primary font-medium">
-              More Info
+              {t("taxLocation.moreInfo")}
             </Link>
           </div>
           <h5 className="clr-neutral-500 font-semibold">
@@ -126,12 +127,12 @@ const Page = () => {
         </div>
         <div className="">
           <p className="text-sm clr-neutral-500"> 
-            Your tax location determines the taxes that are applied to your bill.
+            {t("taxLocation.helpText")}
           </p>
           <Link
             href="#"
             className="link inline-block text-primary hover:text-primary font-medium">
-            How do I correct my tax location?
+            {t("taxLocation.howTo")}
           </Link>
         </div>
       </div>

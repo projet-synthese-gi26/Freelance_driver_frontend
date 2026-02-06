@@ -21,10 +21,7 @@ export default function LocaleSwitcher() {
                     value: 'de',
                     label: 'DE'
                 },
-                {
-                    value: 'es',
-                    label: 'ES'
-                }
+                
             ]}
             label={t('label')}
         />

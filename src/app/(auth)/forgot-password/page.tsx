@@ -5,9 +5,11 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import logo from '@public/img/MainLogo1.png';
 import { ForgotPasswordForm } from '@/components/auth/ForgotPasswordForm';
+import { useTranslations } from 'next-intl';
 
 const ForgotPasswordPage: React.FC = () => {
     const router = useRouter();
+    const t = useTranslations('Auth.forgotPassword');
 
     const handleSuccess = () => {
         router.push('/login');
@@ -22,7 +24,7 @@ const ForgotPasswordPage: React.FC = () => {
                             <Image src={logo} alt="logo" width={150} height={80} />
                         </Link>
                         <h2 className="text-center text-3xl font-extrabold text-gray-900 font-poppins">
-                            Reset your password
+                            {t('title')}
                         </h2>
                     </div>
 

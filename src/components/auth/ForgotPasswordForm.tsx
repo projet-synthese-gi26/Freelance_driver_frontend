@@ -1,12 +1,6 @@
 // import {toast} from "react-toastify";
 import { toast } from "react-hot-toast";
-
-interface ForgotPasswordFormProps {
-    onSignInClick: (callback: () => void) => void;
-    onSignUpClick: (callback: () => void) => void;
-}
-
-
+import { useTranslations } from "next-intl";
 
 interface ForgotPasswordFormProps {
     onSuccess: () => void;
@@ -19,14 +13,12 @@ export const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
                                                                           onSignInClick,
                                                                           onSignUpClick,
                                                                       }) => {
-    
-
-    
+    const t = useTranslations("Auth.forgotPassword.form");
 
      return (
             <div style={{ padding: 32, textAlign: 'center' }}>
-              <h2>Fonctionnalité non implémentée</h2>
-              <p>La réinitialisation du mot de passe n'est pas disponible pour le moment.</p>
+              <h2>{t("title")}</h2>
+              <p>{t("description")}</p>
             </div>
           );
 };

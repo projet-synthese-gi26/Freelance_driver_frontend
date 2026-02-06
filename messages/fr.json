@@ -299,5 +299,557 @@
 "es": "Espagnol",
 "de": "Allemand"
 }
+},
+"Auth": {
+"login": {
+"title": "Se connecter à {app}",
+"goHome": "Aller à l’accueil",
+"form": {
+"divider": "Ou avec e-mail ou téléphone",
+"methods": {
+"email": "E-mail",
+"phone": "Téléphone"
+}
+},
+"email": {
+"placeholders": {
+"email": "E-mail",
+"password": "Mot de passe"
+},
+"forgotPassword": "Mot de passe oublié ?",
+"signingIn": "Connexion...",
+"signIn": "Se connecter",
+"noAccount": "Vous n’avez pas de compte ?",
+"signUp": "S’inscrire"
+},
+"phone": {
+"title": "Connexion par téléphone non implémentée",
+"description": "La connexion par numéro de téléphone n'est pas disponible pour le moment."
+}
+},
+"register": {
+"title": "Créer un compte sur {app}",
+"goHome": "Aller à l’accueil"
+},
+"registerForm": {
+"role": {
+"driver": "Chauffeur",
+"passenger": "Passager"
+},
+"fields": {
+"firstName": "Prénom",
+"lastName": "Nom",
+"email": "Adresse e-mail",
+"phone": "Numéro de téléphone",
+"password": "Mot de passe",
+"confirmPassword": "Confirmer le mot de passe",
+"organisationName": "Nom de l’organisation",
+"title": "Titre (Ex: Chauffeur, Propriétaire)",
+"organisationDescription": "Description de l’organisation",
+"address": "Adresse"
+},
+"errors": {
+"fillAllFields": "Veuillez remplir tous les champs",
+"passwordsDoNotMatch": "Les mots de passe ne correspondent pas"
+},
+"passwordStrength": {
+"tooShort": "Mot de passe trop court (min 8 caractères)",
+"missingUppercase": "Lettre majuscule manquante",
+"missingLowercase": "Lettre minuscule manquante",
+"missingNumber": "Chiffre manquant"
+},
+"success": {
+"verificationCodeSent": "Code de vérification envoyé à votre e-mail !"
+},
+"creatingAccount": "Création du compte...",
+"signUp": "S’inscrire",
+"alreadyHaveAccount": "Vous avez déjà un compte ?",
+"signIn": "Se connecter"
+},
+"forgotPassword": {
+"title": "Réinitialiser votre mot de passe",
+"form": {
+"title": "Fonctionnalité non implémentée",
+"description": "La réinitialisation du mot de passe n'est pas disponible pour le moment."
+}
+},
+"otp": {
+"title": "Code de vérification",
+"subtitle": "Nous avons envoyé un code à {email}",
+"verifying": "Vérification...",
+"verify": "Vérifier et terminer",
+"back": "Retour à l’inscription",
+"errors": {
+"sessionExpired": "Session expirée, veuillez vous réinscrire.",
+"invalidCode": "Veuillez entrer un code valide à 6 chiffres"
+}
+},
+"chooseProfile": {
+"title": "Bon retour !",
+"subtitle": "Choisissez comment vous souhaitez continuer.",
+"continueDriver": "Continuer en tant que chauffeur",
+"continuePassenger": "Continuer en tant que passager"
+}
+},
+"Dashboard": {
+"shared": {
+"emptyJumbotron": {
+"default": {
+"title": "Aucun élément",
+"message": "Aucun contenu à afficher pour le moment."
+},
+"network": {
+"title": "Erreur réseau",
+"message": "Une erreur réseau est survenue. Vérifiez votre connexion internet et réessayez."
+}
+},
+"clientFilterModal": {
+"title": "Filtrer les annonces",
+"fields": {
+"pickupLocation": {
+"label": "Lieu de départ",
+"placeholder": "Ex: Yaoundé"
+},
+"dropoffLocation": {
+"label": "Lieu d'arrivée",
+"placeholder": "Ex: Douala"
+},
+"startDate": {
+"label": "Date de début",
+"placeholder": "Sélectionner une date"
+},
+"maxCost": {
+"label": "Coût maximum (FCFA)",
+"placeholder": "Ex: 50000"
+},
+"paymentMethod": {
+"label": "Méthode de paiement",
+"placeholder": "Ex: cash, mobile_money"
+},
+"negotiable": {
+"label": "Prix négociable"
+}
+},
+"actions": {
+"clear": "Effacer",
+"apply": "Appliquer"
+},
+"trigger": {
+"activeFilters": "Filtres actifs",
+"filter": "Filtrer"
+}
+},
+"announcementCard": {
+"na": "N/A",
+"at": "à",
+"confirmApply": "Voulez-vous postuler à la course de {authorName} ?",
+"role": {
+"client": "Client"
+},
+"price": {
+"na": "Prix indisponible",
+"negotiable": "Négociable"
+},
+"locations": {
+"pickup": "Départ",
+"dropoff": "Arrivée"
+},
+"status": {
+"pendingConfirmation": "En attente de confirmation",
+"confirmed": "Confirmé"
+},
+"actions": {
+"sending": "Envoi...",
+"apply": "Postuler",
+"cancelling": "Annulation...",
+"cancelRide": "Annuler",
+"chat": "Chat"
+},
+"toasts": {
+"applied": "Candidature envoyée ! En attente de confirmation du client.",
+"applyError": "Erreur lors de la candidature.",
+"chatSoon": "Le chat sera disponible bientôt !"
+}
+},
+"planningCard": {
+"label": "Planning",
+"na": "N/A",
+"negotiable": "Négociable",
+"price": "Prix",
+"timer": {
+"status": "Statut",
+"scheduled": "Planifié",
+"expired": "Expiré",
+"completed": "Terminé",
+"startsIn": "Commence dans",
+"endsIn": "Se termine dans"
+},
+"actions": {
+"edit": "Modifier",
+"publish": "Publier",
+"unpublish": "Retirer",
+"delete": "Supprimer"
+}
+},
+"vehicleCard": {
+"na": "N/A",
+"actions": {
+"edit": "Modifier",
+"delete": "Supprimer"
+},
+"fallback": {
+"vehicle": "Véhicule",
+"registration": "Immatriculation N/A",
+"serial": "Numéro de série N/A"
+},
+"specs": {
+"seats": "Places",
+"tank": "Réservoir",
+"fuel": "Carburant",
+"luggage": "Bagages"
+},
+"technicalDetails": "Détails techniques",
+"details": {
+"serialNumber": "Numéro de série",
+"registrationExpiry": "Expiration immatriculation",
+"mileage": "Kilométrage"
+}
+}
+},
+"freelance": {
+"basicPlan": "Plan de base",
+"driverProfileFallback": "Profil chauffeur",
+"address": {
+"title": "Mes adresses",
+"description": "Les cartes seront débitée soit à la fin du mois, soit lorsque votre solde dépasse le seuil d’utilisation. Toutes les principales cartes de crédit/débit sont acceptées.",
+"loading": "Chargement de vos adresses...",
+"confirmDelete": "Êtes-vous sûr de vouloir supprimer cette adresse ?",
+"empty": {
+"title": "Aucune adresse",
+"message": "Vous n’avez pas encore ajouté d’adresse professionnelle."
+},
+"toasts": {
+"fetchError": "Impossible de récupérer vos adresses.",
+"deleted": "Adresse supprimée.",
+"deleteError": "Erreur lors de la suppression de l’adresse."
+},
+"location": {
+"loading": "Chargement...",
+"na": "N/A",
+"none": "Aucune adresse définie"
+},
+"taxLocation": {
+"title": "Localisation fiscale",
+"moreInfo": "Plus d’infos",
+"helpText": "Votre localisation fiscale détermine les taxes appliquées à votre facture.",
+"howTo": "Comment corriger ma localisation fiscale ?"
+}
+},
+"contacts": {
+"title": "Contacts",
+"searchPlaceholder": "Rechercher des contacts...",
+"empty": "Aucun contact trouvé",
+"confirmDelete": "Êtes-vous sûr de vouloir supprimer ce contact ?",
+"modal": {
+"addTitle": "Ajouter un contact",
+"editTitle": "Modifier le contact"
+},
+"form": {
+"firstName": "Prénom",
+"lastName": "Nom",
+"title": "Titre",
+"phone": "Téléphone",
+"secondaryPhone": "Téléphone secondaire",
+"email": "E-mail",
+"secondaryEmail": "E-mail secondaire",
+"fax": "Fax",
+"favorite": "Favori",
+"emailVerified": "E-mail vérifié",
+"phoneVerified": "Téléphone vérifié",
+"create": "Créer le contact",
+"save": "Enregistrer"
+},
+"card": {
+"unnamed": "Sans nom",
+"defaultTitle": "Contact",
+"favorite": "Favori",
+"noPhone": "Aucun numéro",
+"noEmail": "Aucun e-mail",
+"edit": "Modifier"
+},
+"toasts": {
+"fetchError": "Impossible de récupérer les contacts.",
+"deleted": "Contact supprimé.",
+"deleteError": "Impossible de supprimer le contact.",
+"created": "Contact créé.",
+"updated": "Contact mis à jour.",
+"genericError": "Une erreur est survenue."
+}
+},
+"planning": {
+"title": "Gestion des plannings",
+"new": "Nouveau planning",
+"searchPlaceholder": "Rechercher un planning...",
+"loading": "Chargement...",
+"confirmDelete": "Êtes-vous sûr de vouloir supprimer ce planning ?",
+"statusTabs": {
+"all": "Tous",
+"draft": "Brouillon",
+"published": "Publié",
+"pendingConfirmation": "En attente",
+"pendingDriverConfirmation": "En attente chauffeur",
+"confirmed": "Confirmé",
+"ongoing": "En cours",
+"terminated": "Terminé",
+"expired": "Expiré"
+},
+"empty": {
+"title": "Aucun planning",
+"message": "Aucun planning ne correspond à vos critères."
+},
+"toasts": {
+"loadError": "Impossible de charger vos plannings.",
+"published": "Planning publié !",
+"unpublished": "Planning retiré.",
+"updateError": "Erreur lors de la mise à jour.",
+"deleted": "Planning supprimé.",
+"deleteError": "Erreur lors de la suppression."
+}
+},
+"rides": {
+"title": "Mes courses (acceptées)",
+"subtitle": "Gérez les courses que vous avez acceptées ou demandées.",
+"searchPlaceholder": "Rechercher par destination, client...",
+"loading": "Chargement de vos courses...",
+"confirmCancel": "Êtes-vous sûr de vouloir annuler cette course ? Cela peut affecter votre fiabilité.",
+"empty": {
+"title": "Aucune course en cours",
+"message": "Vous n’avez accepté aucune course et n’avez postulé à aucune pour le moment."
+},
+"toasts": {
+"loadError": "Erreur lors du chargement des courses.",
+"cancelled": "Course annulée avec succès.",
+"cancelError": "Erreur lors de l’annulation de la course."
+}
+},
+"vehicles": {
+"title": "Mes véhicules",
+"new": "Nouveau véhicule",
+"loading": "Chargement...",
+"confirmDelete": "Êtes-vous sûr de vouloir supprimer ce véhicule ?",
+"empty": {
+"title": "Aucun véhicule",
+"message": "Vous n’avez ajouté aucun véhicule pour le moment."
+},
+"toasts": {
+"loadError": "Impossible de charger les véhicules.",
+"deleted": "Véhicule supprimé.",
+"deleteError": "Erreur lors de la suppression du véhicule."
+}
+},
+"orders": {
+"title": "Offres de transport (commandes)",
+"subtitle": "Parcourez les demandes des clients et proposez vos services.",
+"searchPlaceholder": "Rechercher une ville, un client...",
+"loading": "Chargement des offres...",
+"empty": {
+"title": "Aucune offre",
+"message": "Aucune offre client ne correspond à vos critères pour le moment."
+},
+"toasts": {
+"loadError": "Erreur lors du chargement des offres.",
+"newOffer": "Nouvelle offre disponible !"
+}
+},
+"settings": {
+"title": "Paramètres",
+"sections": {
+"notificationSettings": "Paramètres de notification",
+"preferences": "Préférences",
+"ridePreferences": "Préférences de course",
+"privacySettings": "Paramètres de confidentialité",
+"communicationPreferences": "Préférences de communication"
+},
+"notifications": {
+"receptionMode": "Mode de réception",
+"modes": {
+"email": "E-mail",
+"sms": "SMS",
+"push": "Push",
+"all": "Tous"
+},
+"items": {
+"newRides": "Nouvelles courses",
+"ratings": "Évaluations",
+"practicalTips": "Conseils pratiques",
+"promotions": "Promotions",
+"policyUpdates": "Mises à jour des politiques",
+"peakHourRecommendations": "Recommandations heures de pointe"
+}
+},
+"preferences": {
+"language": {
+"label": "Langue",
+"placeholder": "Sélectionner une langue"
+},
+"timeZone": {
+"label": "Fuseau horaire",
+"placeholder": "Sélectionner un fuseau horaire"
+},
+"currency": {
+"label": "Devise",
+"placeholder": "Sélectionner une devise"
+},
+"paymentMethod": {
+"label": "Méthode de paiement",
+"placeholder": "Sélectionner une méthode de paiement"
+},
+"dateFormat": {
+"label": "Format de date"
+}
+},
+"ridePreferences": {
+"shortRides": "Courses courtes",
+"longRides": "Courses longues"
+},
+"privacySettings": {
+"sharePersonalInfo": "Partager mes informations personnelles avec les passagers"
+},
+"communicationPreferences": {
+"calls": "Appels",
+"messages": "Messages"
+},
+"actions": {
+"save": "Enregistrer",
+"updating": "Mise à jour..."
+},
+"messages": {
+"updated": "Paramètres mis à jour.",
+"updateError": "Erreur lors de la mise à jour des paramètres."
+}
+},
+"security": {
+"title": "Changer le mot de passe",
+"description": "Mettez à jour votre mot de passe à l’aide de vos identifiants actuels.",
+"fields": {
+"currentPassword": "Mot de passe actuel",
+"newPassword": "Nouveau mot de passe",
+"confirmPassword": "Confirmer le nouveau mot de passe"
+},
+"actions": {
+"updating": "Mise à jour...",
+"update": "Mettre à jour"
+},
+"toasts": {
+"requiredFields": "Veuillez remplir tous les champs requis.",
+"confirmationMismatch": "La confirmation du nouveau mot de passe ne correspond pas.",
+"updated": "Mot de passe mis à jour.",
+"updateFailed": "Impossible de mettre à jour le mot de passe."
+}
+},
+"nav": {
+  "personalInfo": "Informations personnelles",
+  "security": "Sécurité",
+  "business": {
+"title": "Entreprise",
+"address": "Adresse",
+"contacts": "Contacts",
+"planning": "Planning",
+"rides": "Courses",
+"vehicles": "Véhicules",
+"orders": "Commandes"
+},
+"portfolio": {
+"title": "Portfolio",
+"experience": "Expérience"
+},
+"reviews": "Avis",
+"support": "Support",
+"settings": "Paramètres",
+"chat": "Chat",
+"rateApp": "Noter l’app",
+"logout": "Déconnexion"
+},
+"toasts": {
+"updatingPhoto": "Mise à jour de la photo...",
+"photoUpdated": "Photo mise à jour !",
+"updateFailed": "Échec de la mise à jour."
+}
+}
+},
+"Landing": {
+"hero": {
+"backgroundAlt": "Arrière-plan de l'accueil",
+"title": "Transformez votre expérience de voyage avec Let's Go",
+"description": "Réservez des trajets, planifiez vos voyages et connectez-vous avec des chauffeurs et des agences de confiance à travers le Cameroun. Profitez d'un transport sûr, abordable et efficace en quelques clics.",
+"appStore": "Télécharger sur l’App Store",
+"googlePlay": "Obtenir sur Google Play",
+"tiers": {
+"economy": "Économique",
+"comfort": "Confort",
+"vip": "VIP"
+},
+"form": {
+"from": "Départ",
+"to": "Arrivée",
+"date": "Date",
+"passengers": "Nombre de passagers"
+},
+"seePrices": "Voir les prix"
+},
+"whyChoose": {
+"tag": "Pourquoi choisir LetsGo",
+"title": "La façon la plus intelligente de voyager",
+"description": "Allez où vous voulez avec des chauffeurs vérifiés, une tarification transparente et une plateforme simple d’utilisation — connectée à chaque coin du Cameroun.",
+"cta": "Commencer",
+"cards": {
+"safe": {
+"title": "Trajets sûrs et fiables",
+"description": "Votre sécurité passe avant tout. Voyagez en toute confiance avec des chauffeurs vérifiés, le suivi en temps réel et un support 24/7 pour des trajets fluides et sécurisés."
+},
+"pricing": {
+"title": "Tarification transparente",
+"description": "Pas de surprises, juste des tarifs justes. Nos prix affichés à l’avance vous permettent de savoir exactement ce que vous payez avant de réserver, avec des tarifs compétitifs au Cameroun."
+},
+"ux": {
+"title": "Expérience simple",
+"description": "Réserver n’a jamais été aussi simple. Notre application et notre site intuitifs facilitent la demande, le suivi et le paiement de vos trajets, au même endroit."
+}
+}
+},
+"driverSection": {
+"tag": "LetsGo pour les chauffeurs",
+"title": "Conduisez et gagnez selon vos règles",
+"description": "Rejoignez un réseau de chauffeurs en pleine croissance et gagnez de l’argent selon votre propre rythme. Let's Go vous connecte aux passagers et aux agences, avec des opportunités flexibles pour augmenter vos revenus. Profitez aussi d’avantages et de récompenses exclusifs.",
+"cta": "S’inscrire comme chauffeur"
+},
+"agencySection": {
+"imageAlt": "Image section agence",
+"tag": "LetsGo pour les agences",
+"title": "Simplifiez vos opérations",
+"description": "Gérez facilement votre flotte et vos plannings grâce à notre plateforme intuitive. Simplifiez les réservations, optimisez vos opérations et atteignez plus de passagers. Idéal pour les agences de voyage et les entreprises de transport qui veulent se développer.",
+"cta": "Inscrire votre agence"
+},
+"institutionSection": {
+"imageAlt": "Image section institution",
+"tag": "LetsGo pour les institutions",
+"title": "Optimisez vos services de conduite",
+"description": "Ajoutez et gérez facilement des chauffeurs, suivez les performances et accédez à des analyses avancées. Let's Go aide les institutions à offrir des services de conduite efficaces et fiables à leurs clients.",
+"cta": "Inscrire votre institution"
+},
+"downloadApp": {
+"title": "Téléchargez notre application",
+"description": "Rejoignez des milliers de passagers, chauffeurs et agences qui profitent d’un transport fluide à travers le Cameroun. Disponible sur iOS et Android.",
+"appStore": "Télécharger sur l’App Store",
+"googlePlay": "Obtenir sur Google Play"
+},
+"newsletter": {
+"title": "Abonnez-vous à notre newsletter",
+"description": "Saisissez votre e-mail pour recevoir des histoires originales, des conseils de voyage et des informations à travers le Cameroun",
+"emailPlaceholder": "Adresse e-mail",
+"cta": "S’abonner",
+"privacyPrefix": "Vous pouvez vous désabonner à tout moment. En savoir plus sur notre",
+"privacyLink": "Politique de confidentialité"
+}
 }
 }
