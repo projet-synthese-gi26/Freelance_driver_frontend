@@ -1,6 +1,7 @@
 // src/services/announcementService.ts
 
 import apiClient from './apiClient';
+import publicClient from './publicClient';
 import axios from 'axios';
 import {
   Announcement,
@@ -37,28 +38,36 @@ export interface PublicOfferView {
 
 // Fonction de mapping (Product -> PublicOfferView)
 export const mapProductToPublicView = (product: any): PublicOfferView => {
-    const pickup = product.pickupLocation || 'Non défini';
+    const pickup = product.departureLocation || product.pickupLocation || 'Non défini';
     const dropoff = product.dropoffLocation || 'Non défini';
     const id = product.id || product.key?.id || product.resource_id || 'UNKNOWN_ID';
 
+    const rawCost =
+        product.cost ??
+        product.defaultSellPrice ??
+        product.price ??
+        product.regularAmount ??
+        product.discountedAmount;
+    const costNumber = Number(rawCost);
+
     const mappedProduct: PublicOfferView = { 
         id: id,
-        title: product.name || 'Annonce sans titre',
+        title: product.title || product.name || 'Annonce sans titre',
         pickupLocation: pickup,
         dropoffLocation: dropoff,
         fullLocation: `${pickup} ➔ ${dropoff}`,
-        cost: product.defaultSellPrice || 0,
+        cost: Number.isFinite(costNumber) ? costNumber : 0,
         startDate: product.startDate || '',
         startTime: product.startTime || '',
         endDate: product.endDate || '',
         endTime: product.endTime || '',
         paymentMethod: product.paymentMethod || 'Non précisé',
-        baggageInfo: product.shortDescription || 'Aucun bagage',
-        isNegotiable: product.isNegotiable || false,
-        authorName: product.authorName || product.clientName || 'Anonyme', 
-        authorId: product.authorId || product.clientId || '',
-        authorPhoneNumber: product.authorPhoneNumber || product.clientPhoneNumber || '',
-        authorImageUrl: product.authorProfileImageUrl || product.clientProfileImageUrl || undefined,
+        baggageInfo: product.baggageInfo || product.shortDescription || 'Aucun bagage',
+        isNegotiable: Boolean(product.isNegotiable ?? product.negotiable ?? false),
+        authorName: product.clientName || product.authorName || 'Anonyme', 
+        authorId: product.clientId || product.authorId || '',
+        authorPhoneNumber: product.clientPhoneNumber || product.authorPhoneNumber || '',
+        authorImageUrl: product.profileImageUrl || product.authorImageUrl || undefined,
         status: product.status || 'Draft',
         reservedByDriverId: product.reservedByDriverId || undefined, 
         reservedByDriverName: product.reservedByDriverName || undefined, 
@@ -131,8 +140,33 @@ export const announcementService = {
     // --- Fonctions de RECHERCHE PUBLIQUE (Sans Token) ---
 
     getPublishedAnnouncements: async (): Promise<PublicOfferView[]> => {
-      const response = await axios.get(`${API_URL}/api/announcements`);
-      return response.data.map(mapProductToPublicView);
+      if (!API_URL) {
+        console.warn('⚠️ [announcementService] NEXT_PUBLIC_API_URL is missing');
+      }
+
+      try {
+        const response = await publicClient.get('/api/v1/client/annonces', {
+          headers: {
+            Authorization: 'Anonymous',
+          },
+        });
+        const raw = Array.isArray(response.data) ? response.data : [];
+        const publishedOnly = raw.filter((item: any) => String(item?.status ?? '').toLowerCase() === 'published');
+        return publishedOnly.map(mapProductToPublicView);
+      } catch (error: any) {
+        const status = error?.response?.status;
+        console.warn(
+          '⚠️ [announcementService] public published announcements failed:',
+          status ?? error?.message ?? error,
+          '| url:',
+          `${API_URL ?? ''}/api/v1/client/annonces`
+        );
+
+        // At this point the configured backend does not expose the public endpoint we need.
+        // Fix the configured API base URL (NEXT_PUBLIC_API_URL) so it targets the BackendPostgre server
+        // that permits GET /api/v1/client/annonces (see SecurityConfig).
+        throw error;
+      }
     },
 
     getPublishedPlannings: async (): Promise<PublicOfferView[]> => {

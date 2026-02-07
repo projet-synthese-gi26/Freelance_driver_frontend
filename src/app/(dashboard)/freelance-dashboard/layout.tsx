@@ -86,14 +86,8 @@ export default function RootLayout({
   ], []);
   */
    const NavItems = useMemo(() => [
-<<<<<<< HEAD
-    {link:'/freelance-dashboard',title:'Personal Info',icon:UserCircleIcon},
-    {link:'/announcement-search',title:'Trouver des annonces',icon:GlobeAltIcon},
-    {link:'/freelance-dashboard/security',title:'Security',icon:ShieldCheckIcon},
-=======
     {link:'/freelance-dashboard',title:t('nav.personalInfo'),icon:UserCircleIcon},
     {link:'/freelance-dashboard/security',title:t('nav.security'),icon:ShieldCheckIcon},
->>>>>>> 8f18b3c78874340355c40ebe213831a7e1513d02
     
     {
       title:t('nav.business.title'),

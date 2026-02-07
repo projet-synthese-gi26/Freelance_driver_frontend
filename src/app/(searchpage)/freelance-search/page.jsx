@@ -114,7 +114,7 @@ const Search = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-sky-200 to-blue-300">
             <div className="container mx-auto px-4 py-8 font-inter">
                 {/* Hero Section */}
                 <div className="mb-8 flex flex-col items-center gap-2 text-center">

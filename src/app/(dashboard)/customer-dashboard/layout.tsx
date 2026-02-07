@@ -81,19 +81,6 @@ export default function RootLayout({
   */
 
   const NavItems = [
-<<<<<<< HEAD
-    { link: '/customer-dashboard', title: 'Personal Info', icon: UserCircleIcon },
-    { link: '/freelance-search', title: 'Rechercher un chauffeur', icon: MagnifyingGlassIcon },
-    { link: '/customer-dashboard/user-chat', title: 'Chat', icon: ChatBubbleLeftRightIcon },
-    { link: '/customer-dashboard/user-announce', title: 'Announcement', icon: BellAlertIcon },
-    { link: '/customer-dashboard/user-contacts', title: 'Contacts', icon: UserCircleIcon },
-    { link: '/customer-dashboard/user-security', title: 'Security', icon: ShieldCheckIcon },
-    { link: '/customer-dashboard/user-wishlist', title: 'Next Ride', icon: GlobeAltIcon },
-    { link: '/customer-dashboard/user-vehicles', title: 'Vehicles', icon: MapPinIcon },
-    { link: '/customer-dashboard/user-address', title: 'Address', icon: MapPinIcon },
-    { link: '/customer-dashboard/ratings', title: 'Reviews', icon:ChartBarIcon},
-    { link: '/customer-dashboard/rate_app', title: 'Rate App',icon:StarIcon}
-=======
     { link: '/customer-dashboard', title: t('nav.personalInfo'), icon: UserCircleIcon },
     { link: '/customer-dashboard/user-chat', title: t('nav.chat'), icon: ChatBubbleLeftRightIcon },
     { link: '/customer-dashboard/user-announce', title: t('nav.announcement'), icon: BellAlertIcon },
@@ -104,7 +91,6 @@ export default function RootLayout({
     { link: '/customer-dashboard/user-address', title: t('nav.address'), icon: MapPinIcon },
     { link: '/customer-dashboard/ratings', title: t('nav.reviews'), icon:ChartBarIcon},
     { link: '/customer-dashboard/rate_app', title: t('nav.rateApp'),icon:StarIcon}
->>>>>>> 8f18b3c78874340355c40ebe213831a7e1513d02
   ];
 
 

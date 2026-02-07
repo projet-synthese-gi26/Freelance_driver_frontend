@@ -171,7 +171,7 @@ const AnnouncementMapNavigoo: React.FC<AnnouncementMapNavigooProps> = ({
           className="bg-white p-2 rounded-lg shadow-lg hover:bg-gray-100 transition-colors"
           title="Ma position"
         >
-          <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
           </svg>
@@ -182,7 +182,7 @@ const AnnouncementMapNavigoo: React.FC<AnnouncementMapNavigooProps> = ({
           className="bg-white p-2 rounded-lg shadow-lg hover:bg-gray-100 transition-colors"
           title="Annonce la plus proche"
         >
-          <svg className="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
           </svg>
         </button>
@@ -191,7 +191,7 @@ const AnnouncementMapNavigoo: React.FC<AnnouncementMapNavigooProps> = ({
       {/* Indicateur de chargement */}
       {!isMapReady && (
         <div className="absolute inset-0 flex items-center justify-center bg-gray-100 rounded-lg">
-          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-orange-600"></div>
+          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-emerald-600"></div>
         </div>
       )}
 
@@ -199,7 +199,7 @@ const AnnouncementMapNavigoo: React.FC<AnnouncementMapNavigooProps> = ({
       <div className="absolute bottom-4 left-4 bg-white p-3 rounded-lg shadow-lg z-[1000]">
         <div className="text-sm font-semibold mb-2">Légende</div>
         <div className="flex items-center gap-2 text-xs">
-          <div className="w-3 h-3 bg-orange-500 rounded-full"></div>
+          <div className="w-3 h-3 bg-emerald-500 rounded-full"></div>
           <span>Annonces clients ({announcements.length})</span>
         </div>
         {userPosition && (
@@ -259,13 +259,13 @@ const AnnouncementMapNavigoo: React.FC<AnnouncementMapNavigooProps> = ({
           <div className="flex gap-2 mt-3">
             <button
               onClick={() => showRouteToAnnouncement(selectedAnnouncement)}
-              className="flex-1 bg-blue-500 text-white py-2 px-3 rounded-lg text-sm hover:bg-blue-600 transition-colors"
+              className="flex-1 bg-emerald-500 text-white py-2 px-3 rounded-lg text-sm hover:bg-emerald-600 transition-colors"
             >
               Itinéraire
             </button>
             <button
               onClick={() => onAnnouncementSelect && onAnnouncementSelect(selectedAnnouncement)}
-              className="flex-1 bg-orange-500 text-white py-2 px-3 rounded-lg text-sm hover:bg-orange-600 transition-colors"
+              className="flex-1 bg-slate-900 text-white py-2 px-3 rounded-lg text-sm hover:bg-slate-800 transition-colors"
             >
               Postuler
             </button>

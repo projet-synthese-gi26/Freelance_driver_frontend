@@ -37,11 +37,7 @@ const Page = () => {
     } finally {
       setLoading(false);
     }
-<<<<<<< HEAD
   }, [user?.user?.id]);
-=======
-  }, [t]);
->>>>>>> 8f18b3c78874340355c40ebe213831a7e1513d02
 
   useEffect(() => {
     loadVehicles();

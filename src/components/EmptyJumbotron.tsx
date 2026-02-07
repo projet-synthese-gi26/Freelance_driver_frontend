@@ -26,28 +26,16 @@ const EmptyJumbotron: React.FC<EmptyJumbotronProps> = ({
       {code == "ERR_NETWORK" ? (
         <div>
           <div className="flex flex-col items-center justify-center gap-4">
-<<<<<<< HEAD
-            <Image src="/img/database.png" alt="database" width={80} height={80} className="opacity-60 w-20 h-20" />
-            <h2 className="text-2xl font-semibold text-red-800">Network Error</h2>
-            <p className="text-red-800">A network error occurred. Please check your internet connection and try again.</p>
-=======
             <Image src="/img/database.png" alt="database" width={80} height={80} className="opacity-60" />
             <h2 className="text-2xl font-semibold text-red-800">{t("network.title")}</h2>
             <p className="text-red-800">{t("network.message")}</p>
->>>>>>> 8f18b3c78874340355c40ebe213831a7e1513d02
           </div>
         </div>
       ) : (
         <div className="flex flex-col items-center justify-center gap-4">
-<<<<<<< HEAD
-          <Image src={icon} alt="Empty" width={80} height={80} className="opacity-60 w-20 h-20" />
-          <h2 className="text-2xl font-semibold text-gray-800">{title}</h2>
-          <p className="text-gray-600">{message}</p>
-=======
           <Image src={icon} alt="Empty" width={80} height={80} className="opacity-60" />
           <h2 className="text-2xl font-semibold text-gray-800">{resolvedTitle}</h2>
           <p className="text-gray-600">{resolvedMessage}</p>
->>>>>>> 8f18b3c78874340355c40ebe213831a7e1513d02
         </div>
       )}
 

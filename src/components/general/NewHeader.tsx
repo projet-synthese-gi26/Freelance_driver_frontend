@@ -45,7 +45,10 @@ const NewHeader = ({ locale }: { locale?: string }) => {
   const isInstitutions = pathname.startsWith("/institution");
   const isPassengers = pathname.startsWith("/passenger");
   const isAgencies = pathname.startsWith("/agency");
-  const isSearchPage = pathname.startsWith("/freelance-search") || pathname.startsWith("/announcement-search");
+  const isSearchPage =
+    pathname.startsWith("/freelance-search") ||
+    pathname.startsWith("/announcement-search") ||
+    pathname.startsWith("/client-search");
   const isBookingPage = pathname.startsWith("/freelance-booking");
 
   // Utiliser user au lieu de authUser pour être sûr d'avoir les données à jour

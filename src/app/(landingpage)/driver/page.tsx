@@ -117,6 +117,18 @@ const NewHero = () => {
               <SearchComponent />
             </div>
 
+            <div className="-ml-4 mt-4">
+              <Link
+                href="/client-search"
+                className="group inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-emerald-200 bg-gradient-to-r from-emerald-50 via-green-50 to-emerald-50 px-5 py-3 text-center text font-semibold text-emerald-800 shadow-sm transition hover:-translate-y-[1px] hover:border-emerald-300 hover:shadow-md sm:w-auto"
+              >
+                <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-600 text-white shadow-sm transition group-hover:bg-emerald-700">
+                  <UserGroupIcon className="h-5 w-5" />
+                </span>
+                <span>{t("P1find_clients_cta")}</span>
+              </Link>
+            </div>
+
             {!authUser ? (
               authenticationSystem
             ) : (
