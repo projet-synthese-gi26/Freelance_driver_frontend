@@ -34,6 +34,10 @@ export interface PublicOfferView {
   reservedByDriverId?: string;
   reservedByDriverName?: string;
   createdAt?: string;
+  reactableId?: string;
+  reactableType?: string;
+  reviewableId?: string;
+  reviewableType?: string;
 }
 
 // Fonction de mapping (Product -> PublicOfferView)
@@ -72,6 +76,10 @@ export const mapProductToPublicView = (product: any): PublicOfferView => {
         reservedByDriverId: product.reservedByDriverId || undefined, 
         reservedByDriverName: product.reservedByDriverName || undefined, 
         createdAt: product.createdAt || undefined,
+        reactableId: product.reactableId || product.reactable_id || undefined,
+        reactableType: product.reactableType || product.reactable_type || undefined,
+        reviewableId: product.reviewableId || product.reviewable_id || undefined,
+        reviewableType: product.reviewableType || product.reviewable_type || undefined,
     };
     return mappedProduct;
 };

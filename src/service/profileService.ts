@@ -61,7 +61,18 @@ export const profileService = {
   getPublicUserById: async (userId: string): Promise<PublicUserProfile | null> => {
     try {
       const response = await publicClient.get(`/api/v1/users/${userId}`);
-      return response.data;
+      const payload = response.data;
+      const user = payload?.user ?? payload;
+      if (!user) return null;
+      return {
+        id: user.id ?? userId,
+        username: user.username,
+        email: user.email,
+        phone: user.phone,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        photoUri: user.photoUri,
+      };
     } catch (error: any) {
       console.warn(`⚠️ [profileService] Public user not found for id ${userId}:`, error?.response?.status);
       return null;

@@ -161,7 +161,7 @@ export default function RootLayout({
               </div>
               
               <div onClick={handlePencilClick} className="cursor-pointer border-2 border-white overflow-hidden w-[40px] h-[40px] rounded-full bg-white relative mx-auto shadow-sm">
-                <Image src={avatarUrl} alt="avatar" fill sizes="40px" className="rounded-full h-full w-full object-cover" />
+                <Image src={avatarUrl} alt="avatar" fill sizes="40px" unoptimized className="rounded-full h-full w-full object-cover" />
               </div>
 
               <div className="font-medium text">

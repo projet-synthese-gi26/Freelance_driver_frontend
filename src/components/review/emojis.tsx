@@ -2,13 +2,14 @@
 import { HandThumbDownIcon, HandThumbUpIcon, HeartIcon } from "@heroicons/react/24/solid";
 import React, { useEffect, useMemo, useState } from 'react';
 import { reactionService } from '@/service/reactionService';
-import { ReactionType } from '@/type/reaction';
+import { ReactionTargetType, ReactionType } from '@/type/reaction';
 import { useAuthContext } from '@/components/context/authContext';
 import { useAuthModal } from '@/hook/AuthModalContext';
 
 interface EmojisProps {
     driver_id: string
     driver_actor_id?: string
+    targetType?: ReactionTargetType
 }
 
 
@@ -29,11 +30,12 @@ const formatNumber = (num: number): string => {
     return num.toString();
 };
 
-export default function Emojis({ driver_id, driver_actor_id, vertical = false }: EmojisProps & { vertical?: boolean }) {
+export default function Emojis({ driver_id, driver_actor_id, targetType, vertical = false }: EmojisProps & { vertical?: boolean }) {
     const targetId = driver_actor_id || driver_id;
     if (!targetId) {
         return null;
     }
+    const resolvedTargetType: ReactionTargetType = targetType || "DRIVER";
     const { user, isLoading: authLoading, checkAuth } = useAuthContext();
     const { openLoginModal } = useAuthModal();
     const [isLoading, setIsLoading] = useState(false);
@@ -68,7 +70,7 @@ export default function Emojis({ driver_id, driver_actor_id, vertical = false }:
         const fetchIconsNumber = async () => {
             setIsLoading(true);
             try {
-                const reactions = await reactionService.getReactionsByTarget(targetId, "DRIVER");
+                const reactions = await reactionService.getReactionsByTarget(targetId, resolvedTargetType);
                 const counts = reactions.reduce(
                     (acc, reaction) => {
                         acc[reaction.type] = (acc[reaction.type] || 0) + 1;
@@ -108,7 +110,7 @@ export default function Emojis({ driver_id, driver_actor_id, vertical = false }:
         };
 
         fetchIconsNumber();
-    }, [targetId, currentUserId]);
+    }, [targetId, currentUserId, resolvedTargetType]);
 
     const sendEmoji = async (emoji_name: EmojiName) => {
         if (!targetId) return;
@@ -131,11 +133,11 @@ export default function Emojis({ driver_id, driver_actor_id, vertical = false }:
             } else {
                 await reactionService.createReaction({
                     targetId,
-                    targetType: "DRIVER",
+                    targetType: resolvedTargetType,
                     type: reactionType,
                 });
             }
-            const reactions = await reactionService.getReactionsByTarget(targetId, "DRIVER");
+            const reactions = await reactionService.getReactionsByTarget(targetId, resolvedTargetType);
             const counts = reactions.reduce(
                 (acc, reaction) => {
                     acc[reaction.type] = (acc[reaction.type] || 0) + 1;

@@ -261,13 +261,29 @@ export default function RootLayout({
               <button onClick={handleOpen} className="lg:hidden text-gray-500 hover:text-gray-700">
                 <Bars3Icon className="w-6 h-6" />
               </button>
-              
+
               <div className="hidden">
-                <input type="file" id="imageUpload" accept=".png, .jpg, .jpeg" ref={inputFileRef} onChange={handleFileChange} />
+                <input
+                  type="file"
+                  id="imageUpload"
+                  accept=".png, .jpg, .jpeg"
+                  ref={inputFileRef}
+                  onChange={handleFileChange}
+                />
               </div>
 
-              <div onClick={handlePencilClick} className="cursor-pointer border-2 border-white overflow-hidden w-[40px] h-[40px] rounded-full bg-white relative mx-auto shadow-sm">
-                <Image src={avatarUrl} alt="avatar" fill sizes="40px" className="rounded-full object-cover" />
+              <div
+                onClick={handlePencilClick}
+                className="cursor-pointer border-2 border-white overflow-hidden w-[40px] h-[40px] rounded-full bg-white relative mx-auto shadow-sm"
+              >
+                <Image
+                  src={avatarUrl}
+                  alt="avatar"
+                  fill
+                  sizes="40px"
+                  unoptimized
+                  className="rounded-full h-full w-full object-cover"
+                />
               </div>
 
               <div className="font-medium text-sm">
@@ -275,23 +291,19 @@ export default function RootLayout({
                 {userContact && <span className="text-xs text-gray-600">{userContact}</span>}
               </div>
             </div>
-            
-            {/* --- INTÉGRATION DU PROFILE SWITCHER ICI --- */}
+
             <div className="flex items-center gap-3 pr-4">
-                <ProfileSwitcher />
-                
-                <Link
-                  className="text-sm font-bold cursor-pointer flex items-center gap-1.5 p-2 rounded-lg border-2 border-gray-700 hover:bg-gray-700 hover:text-white transition-colors"
-                  href={`/freelance-profile?id=${user.user.id}`}
-                >
-                  View Profile
-                </Link>
+              <ProfileSwitcher />
+              <Link
+                className="text-sm font-bold cursor-pointer flex items-center gap-1.5 p-2 rounded-lg border-2 border-gray-700 hover:bg-gray-700 hover:text-white transition-colors"
+                href={`/freelance-profile?id=${user.user?.id}`}
+              >
+                View Profile
+              </Link>
             </div>
           </div>
-          
-          <section className="transition-all duration-300 ease-out container p-4">
-            {children}
-          </section>
+
+          <section className="transition-all duration-300 ease-out container p-4">{children}</section>
         </div>
       </section>
 

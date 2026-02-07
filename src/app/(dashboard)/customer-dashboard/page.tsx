@@ -1,5 +1,6 @@
-"use client"
-import React, { useState, useEffect } from 'react'
+"use client";
+import React, { useRef, useState, useEffect } from 'react'
+import Image from 'next/image';
 import { PencilSquareIcon } from "@heroicons/react/24/solid";
 import { toast } from 'react-hot-toast';
 import { languageOptions } from "@/data/Structure";
@@ -8,6 +9,7 @@ import { DriverDTO, driverDTO } from '@/app/(dashboard)/freelance-dashboard/Free
 
 import { profileService } from '@/service/profileService';
 import { sessionService } from '@/service/sessionService';
+import { useAuthContext } from '@/components/context/authContext';
 
 interface FieldConfig {
     field: keyof DriverDTO;
@@ -17,9 +19,11 @@ interface FieldConfig {
 }
 
 const Page = () => {
+    const { checkAuth } = useAuthContext();
     const [editable, setEditable] = useState<boolean>(false)
     const [formData, setFormData] = useState<DriverDTO>(driverDTO)
     const [loading, setLoading] = useState<boolean>(true);
+    const inputFileRef = useRef<HTMLInputElement>(null);
 
     const fields: FieldConfig[] = [
         { field: 'first_name', title: 'First Name', type: 'text' },
@@ -83,6 +87,7 @@ const Page = () => {
 
             const updatedContext = await profileService.updateClientProfile(payload);
             sessionService.saveSessionContext(updatedContext);
+            await checkAuth();
             
             toast.dismiss(loadingToast);
             toast.success('Profile updated successfully');
@@ -97,7 +102,28 @@ const Page = () => {
         setFormData(prev => ({ ...prev, [field]: value }));
     };
 
+    const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files && e.target.files[0]) {
+            const file = e.target.files[0];
+            const loadingToast = toast.loading("Téléversement de la photo...");
+            try {
+                const updatedContext = await profileService.updateProfilePicture(file);
+                sessionService.saveSessionContext(updatedContext);
+                await checkAuth();
+                toast.success("Photo de profil mise à jour !", { id: loadingToast });
+            } catch (error) {
+                console.error(error);
+                toast.error("Échec du changement de photo.", { id: loadingToast });
+            } finally {
+                if (inputFileRef.current) inputFileRef.current.value = "";
+            }
+        }
+    };
+
     if (loading) return <div className="p-10 text-center font-bold text-primary">Loading profile...</div>;
+
+    const context = sessionService.getUserSessionContext() as any;
+    const avatarUrl = context?.user?.photoUri || "/white-silhouette-avatar.png";
 
     return (
         <div className="p-4 max-w-6xl mx-auto mb-10">
@@ -112,6 +138,35 @@ const Page = () => {
             </div>
 
             <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <div className="flex items-center gap-4">
+                        <div className="relative h-16 w-16 overflow-hidden rounded-full border border-gray-200 bg-white">
+                            <Image src={avatarUrl} alt="avatar" fill sizes="64px" unoptimized className="object-cover" />
+                        </div>
+                        <div>
+                            <p className="text-sm font-semibold text-gray-800">Photo de profil</p>
+                            <p className="text-xs text-gray-500">PNG/JPG · max 10MB</p>
+                        </div>
+                    </div>
+
+                    <div>
+                        <input
+                            ref={inputFileRef}
+                            type="file"
+                            accept=".png, .jpg, .jpeg"
+                            onChange={handleAvatarChange}
+                            className="hidden"
+                        />
+                        <button
+                            type="button"
+                            onClick={() => inputFileRef.current?.click()}
+                            className="px-4 py-2 rounded-lg bg-primary/10 text-primary font-semibold"
+                        >
+                            Changer la photo
+                        </button>
+                    </div>
+                </div>
+
                 <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
                     <div className="grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-6">
                         {fields.map((item) => (

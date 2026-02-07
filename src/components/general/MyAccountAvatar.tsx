@@ -31,7 +31,7 @@ export const MyAccountAvatar = () => {
     const isOnDriverDashboard = pathname?.startsWith('/freelance-dashboard');
     const isOnClientDashboard = pathname?.startsWith('/customer-dashboard');
     const isOnDashboard = isOnDriverDashboard || isOnClientDashboard;
-    const isOnSearchPage = pathname?.startsWith('/freelance-search') || pathname?.startsWith('/announcement-search');
+    const isOnSearchPage = pathname?.startsWith('/freelance-search') || pathname?.startsWith('/client-search');
 
     // Déterminer le mode actuel (chauffeur ou client)
     // Par défaut, si on a les deux rôles, on considère qu'on est client sauf si on est sur le dashboard chauffeur
@@ -46,7 +46,7 @@ export const MyAccountAvatar = () => {
         (targetRole === 'DRIVER' && !hasDriverRole);
 
     // Page de recherche selon le mode actuel
-    const searchPage = currentMode === 'DRIVER' ? '/announcement-search' : '/freelance-search';
+    const searchPage = currentMode === 'DRIVER' ? '/client-search' : '/freelance-search';
     const searchLabel = currentMode === 'DRIVER' ? 'Trouver des clients' : 'Trouver un chauffeur';
 
     // Dashboard selon le mode actuel
@@ -74,7 +74,7 @@ export const MyAccountAvatar = () => {
             router.push(pageToRedirect);
         } else {
             // Rediriger vers la page de recherche appropriée
-            const searchPageTarget = targetRole === 'DRIVER' ? '/announcement-search' : '/freelance-search';
+            const searchPageTarget = targetRole === 'DRIVER' ? '/client-search' : '/freelance-search';
             toast.success(`Mode ${targetRole === 'DRIVER' ? 'Chauffeur' : 'Client'} activé`);
             router.push(searchPageTarget);
         }

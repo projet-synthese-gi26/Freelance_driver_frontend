@@ -215,9 +215,7 @@ export default function ClientSearchPage() {
 
   const handleAnnouncementSelect = (announcement) => {
     if (!announcement?.id) return;
-    const params = new URLSearchParams();
-    params.set("selected", announcement.id);
-    router.push(`/announcement-search?${params.toString()}`);
+    return;
   };
 
   return (

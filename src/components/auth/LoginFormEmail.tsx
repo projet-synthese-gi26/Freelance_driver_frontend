@@ -82,11 +82,11 @@ export default function LoginFormEmail({ onForgottenPasswordClick, onSignUpClick
             const isHomePage = pathname === '/' || pathname === '/freelance' || pathname === '/driver' || pathname === '/passenger';
 
             // Si on est sur une page d'auth ou la page d'accueil, rediriger vers la page de RECHERCHE appropriée
-            // Chauffeur → /announcement-search (voir les annonces des clients)
+            // Chauffeur → /client-search (voir les annonces des clients)
             // Client → /freelance-search (voir les chauffeurs disponibles)
             if (isAuthPage || isHomePage) {
                 if (resolvedRoles?.includes('DRIVER')) {
-                    router.push('/announcement-search');
+                    router.push('/client-search');
                 } else if (resolvedRoles?.includes('CLIENT')) {
                     router.push('/freelance-search');
                 } else {

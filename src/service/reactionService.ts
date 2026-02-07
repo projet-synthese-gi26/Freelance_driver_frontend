@@ -44,7 +44,12 @@ export const reactionService = {
   createReaction: async (payload: ReactionPayload): Promise<Reaction> => {
     const token = sessionService.getAuthToken();
     console.warn("🔐 [reactionService] createReaction token present:", Boolean(token));
-    const response = await apiClient.post("/api/v1/reactions", payload, {
+    const base = (API_URL || apiClient.defaults.baseURL || "").toString().replace(/\/$/, "");
+    if (!base) {
+      console.warn("⚠️ [reactionService] Missing NEXT_PUBLIC_API_URL; reactions will likely 404 (relative URL).");
+    }
+    const url = base ? `${base}/api/v1/reactions` : "/api/v1/reactions";
+    const response = await apiClient.post(url, payload, {
       headers: {
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
       },
@@ -55,7 +60,12 @@ export const reactionService = {
   deleteReaction: async (targetId: string, type: ReactionPayload["type"]): Promise<void> => {
     const token = sessionService.getAuthToken();
     console.warn("🔐 [reactionService] deleteReaction token present:", Boolean(token));
-    await apiClient.delete("/api/v1/reactions", {
+    const base = (API_URL || apiClient.defaults.baseURL || "").toString().replace(/\/$/, "");
+    if (!base) {
+      console.warn("⚠️ [reactionService] Missing NEXT_PUBLIC_API_URL; reactions will likely 404 (relative URL).");
+    }
+    const url = base ? `${base}/api/v1/reactions` : "/api/v1/reactions";
+    await apiClient.delete(url, {
       params: { targetId, type },
       headers: {
         ...(token ? { Authorization: `Bearer ${token}` } : {}),

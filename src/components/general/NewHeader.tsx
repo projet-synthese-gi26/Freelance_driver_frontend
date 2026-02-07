@@ -47,7 +47,6 @@ const NewHeader = ({ locale }: { locale?: string }) => {
   const isAgencies = pathname.startsWith("/agency");
   const isSearchPage =
     pathname.startsWith("/freelance-search") ||
-    pathname.startsWith("/announcement-search") ||
     pathname.startsWith("/client-search");
   const isBookingPage = pathname.startsWith("/freelance-booking");
 
