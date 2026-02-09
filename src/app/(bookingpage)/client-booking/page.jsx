@@ -5,6 +5,8 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Tab } from "@headlessui/react";
 import Image from "next/image";
 import { ProtectedButton } from "@/components/general/ProtectedButton";
+import { announcementService } from "@/service/announcementService";
+import { sessionService } from "@/service/sessionService";
 import {
   BanknotesIcon,
   CalendarDaysIcon,
@@ -77,8 +79,39 @@ export default function Page() {
     return <div className="p-4">No booking data available</div>;
   }
 
-  const handleProceed = () => {
-    router.push("/payement");
+  const handleProceed = async () => {
+    try {
+      const userId = sessionService.getAuthUserId();
+
+      if (!announcement?.id) {
+        throw new Error("annonce id missing");
+      }
+
+      if (!userId) {
+        throw new Error("user id missing");
+      }
+
+      const doBooking = () => announcementService.updateAnnouncement(announcement.id, {
+        reservedById: userId,
+      });
+
+      try {
+        await doBooking();
+      } catch (err) {
+        const status = err?.response?.status;
+        if (status === 401) {
+          await new Promise((r) => setTimeout(r, 350));
+          await doBooking();
+        } else {
+          throw err;
+        }
+      }
+
+      alert("Demande envoyée avec succès. Veuillez attendre la confirmation.");
+    } catch (e) {
+      console.error("booking failed", e);
+      alert("Reservation failed");
+    }
   };
 
   return (

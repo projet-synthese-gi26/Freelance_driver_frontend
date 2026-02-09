@@ -27,6 +27,31 @@ export const sessionService = {
     return undefined;
   },
 
+  getAuthUserId: (): string => {
+    if (typeof window === 'undefined') return '';
+
+    const profileString = localStorage.getItem(PROFILE_KEY);
+    if (profileString) {
+      try {
+        const context: UserSessionContext = JSON.parse(profileString);
+        const directId = (context as any)?.userId ?? context?.user?.id;
+        if (directId) return String(directId);
+      } catch (error) {
+        console.error('Erreur parsing user id depuis contexte:', error);
+      }
+    }
+
+    const token = sessionService.getAuthToken();
+    if (!token) return '';
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      return String(payload?.sub ?? '');
+    } catch (error) {
+      console.error('Erreur parsing sub depuis token:', error);
+      return '';
+    }
+  },
+
   getRefreshToken: () => {
     const cookieToken = Cookies.get(REFRESH_TOKEN_KEY);
     if (cookieToken) return cookieToken;
@@ -61,7 +86,7 @@ export const sessionService = {
       if (!profileString) throw new Error("Contexte utilisateur non trouvé.");
       
       const context: UserSessionContext = JSON.parse(profileString);
-      const organizationId = context?.organisation?.organization_id;
+      const organizationId = (context?.organisation as any)?.id ?? (context?.organisation as any)?.organization_id;
       
       if (!organizationId) throw new Error("ID d'organisation non trouvé.");
       return organizationId;

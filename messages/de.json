@@ -1,5 +1,15 @@
 
 {
+  "Common":{
+    "dashboard":"Dashboard",
+    "notifications":"Benachrichtigungen",
+    "driver":"Fahrer",
+    "client":"Kunde",
+    "becomeDriver":"Fahrer werden",
+    "becomeClient":"Kunde werden",
+    "become":"{role} werden",
+    "switchTo":"Zu {role} wechseln"
+  },
   "Freelance":{
     "header":{
       "headerlogin":"Anmelden",

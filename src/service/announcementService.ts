@@ -132,7 +132,7 @@ const mapAnnouncementToPayload = (
   endDate: payload.endDate ?? '',
   endTime: payload.endTime ?? '',
   status: payload.status ?? 'Draft',
-  reservedById: payload.reservedById ?? undefined,
+  reservedById: (payload as any).reservedById === null ? null : payload.reservedById ?? undefined,
   tripType: payload.tripType ?? 'ONE_WAY',
   meetupPoint: payload.meetupPoint ?? '',
   tripIntention: payload.tripIntention ?? 'PASSENGERS',
@@ -143,6 +143,34 @@ const mapAnnouncementToPayload = (
   cost: payload.cost ?? '',
   baggageInfo: payload.baggageInfo ?? '',
 });
+
+const mapAnnouncementToPartialPayload = (
+  payload: Partial<AnnouncementRequestPayload>
+): Partial<AnnouncementRequestPayload> => {
+  const out: any = {};
+
+  if (payload.title !== undefined) out.title = payload.title;
+  if (payload.departureLocation !== undefined) out.departureLocation = payload.departureLocation;
+  if (payload.dropoffLocation !== undefined) out.dropoffLocation = payload.dropoffLocation;
+  if (payload.startDate !== undefined) out.startDate = payload.startDate;
+  if (payload.startTime !== undefined) out.startTime = payload.startTime;
+  if (payload.endDate !== undefined) out.endDate = payload.endDate;
+  if (payload.endTime !== undefined) out.endTime = payload.endTime;
+  if (payload.status !== undefined) out.status = payload.status;
+  if ((payload as any).reservedById === null) out.reservedById = null;
+  else if (payload.reservedById !== undefined) out.reservedById = payload.reservedById;
+  if (payload.tripType !== undefined) out.tripType = payload.tripType;
+  if (payload.meetupPoint !== undefined) out.meetupPoint = payload.meetupPoint;
+  if (payload.tripIntention !== undefined) out.tripIntention = payload.tripIntention;
+  if (payload.pricingMethod !== undefined) out.pricingMethod = payload.pricingMethod;
+  if (payload.isNegotiable !== undefined) out.isNegotiable = payload.isNegotiable;
+  if (payload.negotiable !== undefined) out.negotiable = payload.negotiable;
+  if (payload.paymentMethod !== undefined) out.paymentMethod = payload.paymentMethod;
+  if (payload.cost !== undefined) out.cost = payload.cost;
+  if (payload.baggageInfo !== undefined) out.baggageInfo = payload.baggageInfo;
+
+  return out;
+};
 
 export const announcementService = {
     // --- Fonctions de RECHERCHE PUBLIQUE (Sans Token) ---
@@ -196,7 +224,7 @@ export const announcementService = {
     },
 
     updateAnnouncement: async (id: string, announcement: Partial<AnnouncementRequestPayload>): Promise<Announcement> => {
-        const payload = mapAnnouncementToPayload(announcement);
+        const payload = mapAnnouncementToPartialPayload(announcement);
         const response = await apiClient.put(`/api/v1/client/annonces/${id}`, payload);
         return mapBackendAnnonceToAnnouncement(response.data);
     },

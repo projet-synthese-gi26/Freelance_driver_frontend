@@ -18,6 +18,8 @@ import ChatBox from "@/components/modal/chatModal";
 import { ProtectedButton } from '@/components/general/ProtectedButton';
 import {v4 as uuidv4} from "uuid";
 import { vehicleService } from "@/service/vehicleService";
+import { planningService } from "@/service/planningService";
+import { sessionService } from "@/service/sessionService";
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
@@ -160,21 +162,39 @@ export default function Page() {
     setIsChat((prevIsChat) => !prevIsChat);
   };
 
-  const handlePayment=()=> {
+  const handlePayment = async () => {
+    try {
+      const userId = sessionService.getAuthUserId();
+      if (!driver_availability_id) {
+        throw new Error("planning id missing");
+      }
 
-      const data = {
-        vehicleData,
-        driverData,
+      if (!userId) {
+        throw new Error("user id missing");
+      }
 
-      };
-      const queryString = new URLSearchParams(
-          Object.entries(data).map(([key, value]) => [
-            key,
-            String(value),
-          ])
-      ).toString();
-      router.push( `/payement?${queryString}`);
-  }
+      const doBooking = () => planningService.updatePlanning(driver_availability_id, {
+        reservedById: userId,
+      });
+
+      try {
+        await doBooking();
+      } catch (err) {
+        const status = err?.response?.status;
+        if (status === 401) {
+          await new Promise((r) => setTimeout(r, 350));
+          await doBooking();
+        } else {
+          throw err;
+        }
+      }
+
+      alert("Demande envoyée avec succès. Veuillez attendre la confirmation du chauffeur.");
+    } catch (e) {
+      console.error("booking failed", e);
+      alert("Réservation échouée");
+    }
+  };
 
 
   const handleDetails = () => {

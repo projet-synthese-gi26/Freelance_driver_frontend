@@ -1,4 +1,14 @@
 {
+    "Common":{
+        "dashboard":"Dashboard",
+        "notifications":"Notifications",
+        "driver":"Driver",
+        "client":"Client",
+        "becomeDriver":"Become a driver",
+        "becomeClient":"Become a client",
+        "become":"Become {role}",
+        "switchTo":"Switch to {role}"
+    },
     "Freelance":{
         "header":{
             "headerlogin":"Sign In",

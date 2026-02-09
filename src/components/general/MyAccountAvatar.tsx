@@ -115,59 +115,17 @@ export const MyAccountAvatar = () => {
         };
     }, []);
 
-    const avatarSrc = authUser?.profileImageUrl || user?.clientProfile?.profileImageUrl || user?.driverProfile?.profileImageUrl || "/dark_avatar.svg";
-    const userName = user?.firstName || authUser?.firstName || 'Mon Compte';
-    const userEmail = authUser?.email || user?.email || '';
+    const avatarSrc =
+        user?.user?.photoUri ||
+        user?.actor?.avatarUrl ||
+        user?.driverProfile?.profileImageUrl ||
+        user?.clientProfile?.profileImageUrl ||
+        "/dark_avatar.svg";
+    const userName = [user?.user?.firstName, user?.user?.lastName].filter(Boolean).join(' ').trim() || 'Mon Compte';
+    const userEmail = user?.user?.email || '';
 
     return (
-        <div className="flex items-center gap-2">
-            {/* Bouton Switch de rôle - Toujours visible */}
-            <button
-                onClick={handleRoleSwitch}
-                className={`hidden md:flex items-center gap-2 px-3 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
-                    targetRole === 'DRIVER' 
-                        ? 'bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200' 
-                        : 'bg-orange-50 text-orange-700 hover:bg-orange-100 border border-orange-200'
-                }`}
-                title={needsToCreateTargetRole ? `Devenir ${targetRole === 'DRIVER' ? 'Chauffeur' : 'Client'}` : `Passer en mode ${targetRole === 'DRIVER' ? 'Chauffeur' : 'Client'}`}
-            >
-                {targetRole === 'DRIVER' ? (
-                    <TruckIcon className="w-4 h-4" />
-                ) : (
-                    <UserCircleIcon className="w-4 h-4" />
-                )}
-                <span className="hidden lg:inline">
-                    {needsToCreateTargetRole 
-                        ? `Devenir ${targetRole === 'DRIVER' ? 'Chauffeur' : 'Client'}`
-                        : `Mode ${targetRole === 'DRIVER' ? 'Chauffeur' : 'Client'}`
-                    }
-                </span>
-            </button>
-
-            {/* Bouton Recherche - Si pas sur page de recherche */}
-            {!isOnSearchPage && (
-                <button
-                    onClick={goToSearch}
-                    className="hidden md:flex items-center gap-2 px-3 py-2 bg-gray-100 text-gray-700 rounded-full text-sm font-medium hover:bg-gray-200 transition-all duration-200 border border-gray-200"
-                    title={searchLabel}
-                >
-                    <MapIcon className="w-4 h-4" />
-                    <span className="hidden lg:inline">{searchLabel}</span>
-                </button>
-            )}
-
-            {/* Bouton Dashboard - Si pas sur dashboard */}
-            {!isOnDashboard && (
-                <button
-                    onClick={goToDashboard}
-                    className="flex items-center gap-2 px-3 py-2 bg-[#243757] text-white rounded-full text-sm font-medium hover:bg-[#1a2a42] transition-all duration-200 shadow-sm"
-                    title="Aller au Dashboard"
-                >
-                    <HomeIcon className="w-4 h-4" />
-                    <span className="hidden lg:inline">Dashboard</span>
-                </button>
-            )}
-
+        <div className="flex items-center">
             {/* Menu Avatar */}
             <div className="relative" ref={dropdownRef}>
                 <button
@@ -183,6 +141,7 @@ export const MyAccountAvatar = () => {
                             alt="User Avatar"
                             width={40}
                             height={40}
+                            unoptimized
                             className="rounded-full border-2 border-gray-200 object-cover"
                         />
                         {/* Indicateur de statut en ligne */}
@@ -204,6 +163,7 @@ export const MyAccountAvatar = () => {
                                     alt="User Avatar"
                                     width={48}
                                     height={48}
+                                    unoptimized
                                     className="rounded-full border-2 border-white/30 object-cover"
                                 />
                                 <div className="flex-1 min-w-0">

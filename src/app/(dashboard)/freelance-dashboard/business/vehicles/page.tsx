@@ -99,15 +99,9 @@ const Page = () => {
         <div className="text-center py-20 text-gray-500">{t('loading')}</div>
       ) : vehicles.length === 0 ? (
         <EmptyJumbotron 
-<<<<<<< HEAD
-            title="No vehicles" 
-            message="You haven't added any vehicles yet." 
-            icon="/img/car-list-1.jpg"
-=======
             title={t('empty.title')} 
             message={t('empty.message')} 
             icon="/img/car-placeholder.png" // Assurez-vous d'avoir une icône ou utilisez celle par défaut
->>>>>>> 8f18b3c78874340355c40ebe213831a7e1513d02
         />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

@@ -67,12 +67,19 @@ export default function PlanningFormModal({ isOpen, onClose, planningToEdit, onS
             return iso;
         };
 
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
+        const now = new Date();
         const startDate = new Date(formData.startDate);
         const endDate = new Date(formData.endDate);
-        if (startDate < today) {
-            toast.error("Start date cannot be before today.");
+
+        // Backend: CreatePlanningRequest.startDate est annoté @Future => doit être strictement dans le futur.
+        const startDateTime = new Date(`${formData.startDate}T${formatTime(formData.startTime)}`);
+        if (Number.isNaN(startDateTime.getTime())) {
+            toast.error("Invalid start date/time.");
+            setLoading(false);
+            return;
+        }
+        if (startDateTime <= now) {
+            toast.error("Start date/time must be in the future.");
             setLoading(false);
             return;
         }
@@ -109,12 +116,19 @@ export default function PlanningFormModal({ isOpen, onClose, planningToEdit, onS
             onSuccess();
             onClose();
         } catch (error: any) {
-            console.error("❌ [PlanningFormModal] Save failed", {
+            const status = error?.response?.status;
+            const data = error?.response?.data;
+            console.error("❌ [PlanningFormModal] Save failed (raw)", error);
+            console.error("❌ [PlanningFormModal] Save failed (details)", {
                 message: error?.message,
-                status: error?.response?.status,
-                data: error?.response?.data,
+                name: error?.name,
+                code: error?.code,
+                status,
+                data,
+                url: error?.config?.url,
+                method: error?.config?.method,
             });
-            toast.error("Erreur lors de la sauvegarde.");
+            toast.error(status ? `Erreur lors de la sauvegarde (${status}).` : "Erreur lors de la sauvegarde.");
         } finally {
             setLoading(false);
         }

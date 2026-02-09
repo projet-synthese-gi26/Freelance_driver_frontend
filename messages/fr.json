@@ -1,6 +1,16 @@
 
 
 {
+"Common":{
+"dashboard":"Dashboard",
+"notifications":"Notifications",
+"driver":"Chauffeur",
+"client":"Client",
+"becomeDriver":"Devenir chauffeur",
+"becomeClient":"Devenir client",
+"become":"Devenir {role}",
+"switchTo":"Passer en mode {role}"
+},
 "Freelance":{
 "header":{
 "headerlogin":"Se connecter",

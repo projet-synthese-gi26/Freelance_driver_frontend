@@ -1,4 +1,14 @@
 {
+    "Common":{
+        "dashboard":"Panel",
+        "notifications":"Notificaciones",
+        "driver":"Conductor",
+        "client":"Cliente",
+        "becomeDriver":"Convertirse en conductor",
+        "becomeClient":"Convertirse en cliente",
+        "become":"Convertirse en {role}",
+        "switchTo":"Cambiar a {role}"
+    },
     "Freelance":{
         "header":{
             "headerlogin":"Iniciar sesión",

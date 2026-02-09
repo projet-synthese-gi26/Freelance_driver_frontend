@@ -43,7 +43,7 @@ const SearchCardFreelance = ({ planning }) => {
 
         return {
             driver_id: planning.authorId,
-            driver_profile_image: planning.authorImageUrl || "/img/default-avatar.jpeg",
+            driver_profile_image: planning.authorImageUrl || planning.profileImageUrl || "/img/default-avatar.jpeg",
             driver_last_name,
             driver_first_name,
             driverLocation: planning.departureLocation,
@@ -104,6 +104,13 @@ const SearchCardFreelance = ({ planning }) => {
                 const likeCount = reactions.filter((reaction) => reaction.type === "LIKE").length;
 
                 const resolvedDriverActorId = profile?.actor?.id || reactableId;
+
+                const resolvedProfileImage =
+                    profile?.driverProfile?.profileImageUrl ||
+                    profile?.user?.photoUri ||
+                    profile?.actor?.avatarUrl ||
+                    initialDriverData.driver_profile_image ||
+                    "/img/default-avatar.jpeg";
                 
                 const mappedDriverData = {
                     ...initialDriverData,
@@ -111,7 +118,7 @@ const SearchCardFreelance = ({ planning }) => {
                     driver_actor_id: resolvedDriverActorId,
                     driver_last_name: profile?.driverProfile?.lastName || initialDriverData.driver_last_name,
                     driver_first_name: profile?.driverProfile?.firstName || initialDriverData.driver_first_name,
-                    driver_profile_image: profile?.driverProfile?.profileImageUrl || initialDriverData.driver_profile_image,
+                    driver_profile_image: resolvedProfileImage,
                     driver_languages: profile?.driverProfile?.language ? [profile.driverProfile.language] : [],
                     driver_phone_number: profile?.driverProfile?.phoneNumber || "N/A",
                     driver_email: profile?.driverProfile?.contactEmail || "N/A",
@@ -195,6 +202,10 @@ const SearchCardFreelance = ({ planning }) => {
     // Si on a déjà chargé les détails, on les utilise, sinon on utilise les données initiales
     const driverData = detailedData?.driverData || initialDriverData;
     const vehicleData = detailedData?.vehicleData || initialVehicleData;
+
+    const driverImageSrc = driverData?.driver_profile_image && String(driverData.driver_profile_image).trim() !== ''
+        ? driverData.driver_profile_image
+        : "/img/default-avatar.jpeg";
 
     const isUuidLike = (value) => {
         if (!value) return false;
@@ -357,7 +368,7 @@ const SearchCardFreelance = ({ planning }) => {
                     <div className="relative h-56 w-full overflow-hidden rounded-2xl bg-slate-100 md:h-auto md:w-56">
                         <Image
                             fill
-                            src={driverData.driver_profile_image}
+                            src={driverImageSrc}
                             alt={driverData.driver_first_name}
                             className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
                             unoptimized

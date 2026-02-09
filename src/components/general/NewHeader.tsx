@@ -18,6 +18,8 @@ import { useLocale } from "next-intl";
 import { useTransition } from "react";
 import type { Locale } from "@/config";
 import { setUserLocale } from "@/service/locale";
+import { BellIcon, HomeIcon, TruckIcon, UserCircleIcon } from "@heroicons/react/24/outline";
+import apiClient from "@/service/apiClient";
 
 const NewHeader = ({ locale }: { locale?: string }) => {
   const pathToRoute: Record<string, string> = {
@@ -54,8 +56,29 @@ const NewHeader = ({ locale }: { locale?: string }) => {
   const { authUser, user, isLoading: authLoading } = useAuthContext();
   const { openLoginModal, openRegisterModal } = useAuthModal();
   const t = useTranslations("Freelance.header");
+  const tCommon = useTranslations("Common");
   const [dark, setDark] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [unreadNotifications, setUnreadNotifications] = useState(0);
+
+  const roles = user?.user?.roles ?? [];
+  const hasDriverRole = roles.some((r: any) => String(r?.roleType ?? '').toUpperCase() === 'DRIVER');
+  const hasClientRole = roles.some((r: any) => String(r?.roleType ?? '').toUpperCase() === 'CLIENT');
+
+  const actorRoleType = String(user?.actor?.roleType ?? '').toUpperCase();
+  const currentMode: 'DRIVER' | 'CLIENT' = actorRoleType === 'DRIVER'
+      ? 'DRIVER'
+      : actorRoleType === 'CLIENT'
+          ? 'CLIENT'
+          : hasDriverRole && !hasClientRole
+              ? 'DRIVER'
+              : 'CLIENT';
+
+  const targetRole: 'DRIVER' | 'CLIENT' = currentMode === 'DRIVER' ? 'CLIENT' : 'DRIVER';
+  const needsToCreateTargetRole = (targetRole === 'CLIENT' && !hasClientRole) || (targetRole === 'DRIVER' && !hasDriverRole);
+  const becomeHref = targetRole === 'CLIENT' ? '/onboarding/become-client' : '/onboarding/become-driver';
+  const dashboardHref = currentMode === 'DRIVER' ? '/freelance-dashboard' : '/customer-dashboard';
+  const notificationsHref = '/notifications';
 
   const changeLocale = (nextLocale: Locale) => {
     startTransition(async () => {
@@ -71,6 +94,31 @@ const NewHeader = ({ locale }: { locale?: string }) => {
     window.addEventListener("scroll", navbarVisible);
     return () => window.removeEventListener("scroll", navbarVisible);
   }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    const loadUnread = async () => {
+      try {
+        if (!user) {
+          if (!cancelled) setUnreadNotifications(0);
+          return;
+        }
+        const res = await apiClient.get<any[]>("/api/v1/notifications/me");
+        const list = Array.isArray(res.data) ? res.data : [];
+        const unread = list.filter((n: any) => !Boolean(n?.read)).length;
+        if (!cancelled) setUnreadNotifications(unread);
+      } catch {
+        if (!cancelled) setUnreadNotifications(0);
+      }
+    };
+
+    loadUnread();
+    const id = window.setInterval(loadUnread, 15000);
+    return () => {
+      cancelled = true;
+      window.clearInterval(id);
+    };
+  }, [user]);
 
   const nav = [
     {
@@ -227,7 +275,42 @@ const NewHeader = ({ locale }: { locale?: string }) => {
             {(!user && !authLoading) ? (
               authenticationSystem
             ) : user ? (
-              <div className=" hidden lg:flex">
+              <div className=" hidden lg:flex items-center gap-3">
+                <Link
+                  href={notificationsHref}
+                  className="relative inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
+                  title={tCommon("notifications")}
+                >
+                  <BellIcon className="h-5 w-5" />
+                  {unreadNotifications > 0 ? (
+                    <span className="absolute -top-0.5 -right-0.5 inline-flex h-4 min-w-[16px] items-center justify-center rounded-full bg-rose-600 px-1 text-[10px] font-extrabold leading-none text-white">
+                      {unreadNotifications > 9 ? "9+" : unreadNotifications}
+                    </span>
+                  ) : null}
+                </Link>
+
+                <Link
+                  href={dashboardHref}
+                  className="inline-flex items-center gap-2 rounded-full bg-[#243757] px-4 py-2 text-sm font-semibold text-white hover:bg-[#1a2a42]"
+                  title={tCommon("dashboard")}
+                >
+                  <HomeIcon className="h-4 w-4" />
+                  <span className="hidden xl:inline">{tCommon("dashboard")}</span>
+                </Link>
+
+                <Link
+                  href={needsToCreateTargetRole ? becomeHref : (targetRole === 'DRIVER' ? '/client-search' : '/freelance-search')}
+                  className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+                  title={needsToCreateTargetRole ? tCommon("become", { role: targetRole === 'DRIVER' ? tCommon("driver") : tCommon("client") }) : tCommon("switchTo", { role: targetRole === 'DRIVER' ? tCommon("driver") : tCommon("client") })}
+                >
+                  {targetRole === 'DRIVER' ? <TruckIcon className="h-4 w-4" /> : <UserCircleIcon className="h-4 w-4" />}
+                  <span className="hidden xl:inline">
+                    {needsToCreateTargetRole
+                        ? (targetRole === 'DRIVER' ? tCommon("becomeDriver") : tCommon("becomeClient"))
+                        : tCommon("switchTo", { role: targetRole === 'DRIVER' ? tCommon("driver") : tCommon("client") })}
+                  </span>
+                </Link>
+
                 <MyAccountAvatar />
               </div>
             ) : null}

@@ -49,10 +49,13 @@ const mapBackendPlanning = (planning: any): Planning => ({
 
 const mapPlanningPayload = (planning: PlanningPayload) => ({
   ...planning,
+  // Backend attend 'isNegotiable' (pas 'negotiable')
   isNegotiable: planning.negotiable,
-  regularAmount: planning.regularAmount?.toString() ?? '0',
-  discountPercentage: planning.discountPercentage?.toString() ?? '0',
-  discountedAmount: planning.discountedAmount?.toString() ?? '0',
+  // Evite d'envoyer la clé 'negotiable' au backend (Create/Update DTO ne la supporte pas)
+  negotiable: undefined,
+  regularAmount: planning.regularAmount != null ? planning.regularAmount.toString() : undefined,
+  discountPercentage: planning.discountPercentage != null ? planning.discountPercentage.toString() : undefined,
+  discountedAmount: planning.discountedAmount != null ? planning.discountedAmount.toString() : undefined,
 });
 
 export const planningService = {
@@ -94,7 +97,9 @@ export const planningService = {
   },
 
   createPlanning: async (planning: PlanningPayload): Promise<Planning> => {
-    const payload = mapPlanningPayload(planning);
+    const payload: any = mapPlanningPayload(planning);
+    // CreatePlanningRequest ne contient pas 'status' (le backend met Draft).
+    delete payload.status;
     const response = await apiClient.post('/api/v1/driver/plannings', payload);
     return mapBackendPlanning(response.data);
   },

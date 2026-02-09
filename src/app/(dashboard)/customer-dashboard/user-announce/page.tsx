@@ -11,6 +11,7 @@ import { toast } from 'react-hot-toast';
 // Services
 import { announcementService } from '@/service/announcementService';
 import { Announcement, AnnouncementStatus, PricingMethod, TripIntention, TripType } from '@/type/announcement';
+import { CAMEROON_REGIONS } from '@/data/cameroonLocations';
 
 type AnnouncementCardItem = {
     id: string;
@@ -31,6 +32,31 @@ type AnnouncementCardItem = {
     tripIntention: TripIntention;
     pricingMethod: PricingMethod;
     authorName?: string;
+};
+
+const getDepartments = (regionName: string) => {
+    const region = CAMEROON_REGIONS.find((r) => r.name === regionName);
+    return region?.departments ?? [];
+};
+
+const getArrondissements = (regionName: string, departmentName: string) => {
+    const department = getDepartments(regionName).find((d) => d.name === departmentName);
+    return department?.arrondissements ?? [];
+};
+
+const parseLocationParts = (value?: string) => {
+    if (!value) {
+        return { region: '', department: '', arrondissement: '' };
+    }
+    const parts = value
+        .split(',')
+        .map((p) => p.trim())
+        .filter(Boolean);
+
+    const region = parts[0] ?? '';
+    const department = parts[1] ?? '';
+    const arrondissement = parts[2] ?? '';
+    return { region, department, arrondissement };
 };
 
 // --- COMPOSANT TIMER ---
@@ -132,6 +158,14 @@ export default function AnnouncementsPage() {
     const [editingAnnouncement, setEditingAnnouncement] = useState<AnnouncementCardItem | null>(null);
     const [activeStatusFilter, setActiveStatusFilter] = useState<AnnouncementStatus | 'All'>('All');
 
+    const [departureRegion, setDepartureRegion] = useState('');
+    const [departureDepartment, setDepartureDepartment] = useState('');
+    const [departureArrondissement, setDepartureArrondissement] = useState('');
+
+    const [arrivalRegion, setArrivalRegion] = useState('');
+    const [arrivalDepartment, setArrivalDepartment] = useState('');
+    const [arrivalArrondissement, setArrivalArrondissement] = useState('');
+
     const [formData, setFormData] = useState<{
         title: string;
         departureLocation: string;
@@ -165,6 +199,16 @@ export default function AnnouncementsPage() {
         isNegotiable: false,
         paymentMethod: 'cash',
     });
+
+    const setDepartureLocation = (region: string, department: string, arrondissement: string) => {
+        const value = [region, department, arrondissement].filter(Boolean).join(', ');
+        setFormData((prev) => ({ ...prev, departureLocation: value }));
+    };
+
+    const setArrivalLocation = (region: string, department: string, arrondissement: string) => {
+        const value = [region, department, arrondissement].filter(Boolean).join(', ');
+        setFormData((prev) => ({ ...prev, dropoffLocation: value }));
+    };
 
 
     const fetchData = useCallback(async () => {
@@ -260,6 +304,16 @@ export default function AnnouncementsPage() {
         const toDateInput = (value?: string) => (value ? value.split('T')[0] : '');
         const toTimeInput = (value?: string) => (value ? value.slice(0, 5) : '');
         setEditingAnnouncement(item);
+
+        const dep = parseLocationParts(item.departureLocation);
+        const arr = parseLocationParts(item.dropoffLocation);
+        setDepartureRegion(dep.region);
+        setDepartureDepartment(dep.department);
+        setDepartureArrondissement(dep.arrondissement);
+        setArrivalRegion(arr.region);
+        setArrivalDepartment(arr.department);
+        setArrivalArrondissement(arr.arrondissement);
+
         setFormData({
             title: item.title,
             departureLocation: item.departureLocation,
