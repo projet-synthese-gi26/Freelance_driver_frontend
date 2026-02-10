@@ -34,10 +34,26 @@ const AnnouncementMapNavigoo: React.FC<AnnouncementMapNavigooProps> = ({
   };
 
   // Convertir une annonce en POI pour Navigoo
-  const announcementToPOI = (announcement: PublicOfferView): PointOfInterestData => {
-    // Utiliser des coordonnées simulées pour le moment
-    // En production, les annonces devraient avoir des coordonnées GPS
-    const coords: [number, number] = getRandomCoords(DEFAULT_CENTER);
+  const announcementToPOI = useCallback((announcement: PublicOfferView): PointOfInterestData => {
+    // Vérifier si l'annonce a déjà des coordonnées stockées
+    // Si non, utiliser des coordonnées simulées autour de Yaoundé
+    let coords: [number, number];
+    
+    // TODO: Remplacer par les vraies coordonnées quand disponibles dans l'API
+    // Pour l'instant, utiliser un hash de l'ID pour avoir des coordonnées consistantes
+    const hash = announcement.id ? announcement.id.split('').reduce((a, b) => {
+      a = ((a << 5) - a) + b.charCodeAt(0);
+      return a & a;
+    }, 0) : 0;
+    
+    // Générer des coordonnées consistantes basées sur l'ID de l'annonce
+    const latOffset = ((hash % 100) - 50) / 1000; // -0.05 à 0.05
+    const lngOffset = (((hash >> 8) % 100) - 50) / 1000; // -0.05 à 0.05
+    
+    coords = [
+      DEFAULT_CENTER[0] + lngOffset,
+      DEFAULT_CENTER[1] + latOffset
+    ];
     
     return {
       id: announcement.id,
@@ -47,7 +63,7 @@ const AnnouncementMapNavigoo: React.FC<AnnouncementMapNavigooProps> = ({
       description: `${announcement.pickupLocation} → ${announcement.dropoffLocation}`,
       imageUrl: announcement.authorImageUrl || '/dark_avatar.svg'
     };
-  };
+  }, []);
 
   // Initialiser la carte Navigoo
   useEffect(() => {
@@ -94,12 +110,20 @@ const AnnouncementMapNavigoo: React.FC<AnnouncementMapNavigooProps> = ({
 
     const map = mapInstanceRef.current;
     
+    // D'abord, effacer tous les POIs existants pour éviter les doublons
+    try {
+      map.clearAllPointsOfInterest();
+    } catch (e) {
+      console.warn('Impossible de nettoyer les POIs:', e);
+    }
+    
+    // Ensuite, ajouter les nouveaux POIs
     announcements.forEach((announcement) => {
       const poi = announcementToPOI(announcement);
       try {
         map.addPointOfInterest(poi);
       } catch (e) {
-        // Le POI existe peut-être déjà
+        console.warn('Impossible d\'ajouter le POI:', e);
       }
     });
   }, [announcements, isMapReady]);
