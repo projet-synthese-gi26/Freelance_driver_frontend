@@ -113,9 +113,29 @@ const Search = () => {
         }
     };
 
+    const goToClientSearch = () => {
+        const params = new URLSearchParams(searchParams?.toString());
+        router.push(`/client-search?${params.toString()}`);
+    };
+
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 via-sky-200 to-blue-300">
             <div className="container mx-auto px-4 py-8 font-inter">
+                <div className="mb-6 rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
+                    <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                        <div className="text-sm font-semibold text-slate-700">
+                            Are you a client? Find a driver.
+                        </div>
+                        <button
+                            type="button"
+                            onClick={goToClientSearch}
+                            className="inline-flex items-center justify-center rounded-xl bg-slate-900 px-4 py-2 text-sm font-bold text-white hover:bg-slate-800"
+                        >
+                            Go to client search
+                        </button>
+                    </div>
+                </div>
+
                 {/* Hero Section */}
                 <div className="mb-8 flex flex-col items-center gap-2 text-center">
                     <div className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-white/80 shadow-sm ring-1 ring-slate-200">

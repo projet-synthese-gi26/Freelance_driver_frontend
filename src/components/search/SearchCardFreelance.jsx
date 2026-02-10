@@ -111,13 +111,24 @@ const SearchCardFreelance = ({ planning }) => {
                     profile?.actor?.avatarUrl ||
                     initialDriverData.driver_profile_image ||
                     "/img/default-avatar.jpeg";
+
+                const resolvedFirstName =
+                    profile?.driverProfile?.firstName ||
+                    profile?.user?.firstName ||
+                    initialDriverData.driver_first_name ||
+                    '';
+                const resolvedLastName =
+                    profile?.driverProfile?.lastName ||
+                    profile?.user?.lastName ||
+                    initialDriverData.driver_last_name ||
+                    '';
                 
                 const mappedDriverData = {
                     ...initialDriverData,
                     driver_id: planning.authorId,
                     driver_actor_id: resolvedDriverActorId,
-                    driver_last_name: profile?.driverProfile?.lastName || initialDriverData.driver_last_name,
-                    driver_first_name: profile?.driverProfile?.firstName || initialDriverData.driver_first_name,
+                    driver_last_name: resolvedLastName,
+                    driver_first_name: resolvedFirstName,
                     driver_profile_image: resolvedProfileImage,
                     driver_languages: profile?.driverProfile?.language ? [profile.driverProfile.language] : [],
                     driver_phone_number: profile?.driverProfile?.phoneNumber || "N/A",
@@ -312,7 +323,7 @@ const SearchCardFreelance = ({ planning }) => {
     const driverDisplayName = useMemo(() => {
         const last = safeLabel(driverData?.driver_last_name, '');
         const first = safeLabel(driverData?.driver_first_name, '');
-        const full = [last, first].filter(Boolean).join(' ').trim();
+        const full = [first, last].filter(Boolean).join(' ').trim();
         if (full) return full;
         const fromPlanning = safeLabel(planning?.authorName, '');
         if (fromPlanning) return fromPlanning;

@@ -18,7 +18,7 @@ import { useLocale } from "next-intl";
 import { useTransition } from "react";
 import type { Locale } from "@/config";
 import { setUserLocale } from "@/service/locale";
-import { BellIcon, HomeIcon, TruckIcon, UserCircleIcon } from "@heroicons/react/24/outline";
+import { BellIcon, HomeIcon, TruckIcon, UserCircleIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import apiClient from "@/service/apiClient";
 
 const NewHeader = ({ locale }: { locale?: string }) => {
@@ -30,11 +30,17 @@ const NewHeader = ({ locale }: { locale?: string }) => {
     agency: '/agency', // optionnel
   };
 
-  const pathname = usePathname() || ""; // fallback to empty string if null
+  const rawPathname = usePathname() || ""; // fallback to empty string if null
   const router = useRouter();
   const [, startTransition] = useTransition();
   const activeLocale = useLocale() as Locale;
   const resolvedLocale = (locale as Locale | undefined) ?? activeLocale;
+
+  const pathnameParts = rawPathname.split("/");
+  const supportedLocales: string[] = ["en", "fr", "de", "es"];
+  const pathname = supportedLocales.includes(pathnameParts[1])
+    ? `/${pathnameParts.slice(2).join("/")}`
+    : rawPathname;
 
   const firstSegment = pathname.split("/")[1];
 
@@ -47,10 +53,13 @@ const NewHeader = ({ locale }: { locale?: string }) => {
   const isInstitutions = pathname.startsWith("/institution");
   const isPassengers = pathname.startsWith("/passenger");
   const isAgencies = pathname.startsWith("/agency");
+  const isCustomerDashboard = pathname.startsWith("/customer-dashboard");
+  const isFreelanceDashboard = pathname.startsWith("/freelance-dashboard");
   const isSearchPage =
     pathname.startsWith("/freelance-search") ||
     pathname.startsWith("/client-search");
   const isBookingPage = pathname.startsWith("/freelance-booking");
+  const isNotificationsPage = pathname.startsWith("/notifications");
 
   // Utiliser user au lieu de authUser pour être sûr d'avoir les données à jour
   const { authUser, user, isLoading: authLoading } = useAuthContext();
@@ -77,8 +86,15 @@ const NewHeader = ({ locale }: { locale?: string }) => {
   const targetRole: 'DRIVER' | 'CLIENT' = currentMode === 'DRIVER' ? 'CLIENT' : 'DRIVER';
   const needsToCreateTargetRole = (targetRole === 'CLIENT' && !hasClientRole) || (targetRole === 'DRIVER' && !hasDriverRole);
   const becomeHref = targetRole === 'CLIENT' ? '/onboarding/become-client' : '/onboarding/become-driver';
-  const dashboardHref = currentMode === 'DRIVER' ? '/freelance-dashboard' : '/customer-dashboard';
+  const dashboardHref = isCustomerDashboard
+    ? '/customer-dashboard'
+    : isFreelanceDashboard
+      ? '/freelance-dashboard'
+      : currentMode === 'DRIVER'
+        ? '/freelance-dashboard'
+        : '/customer-dashboard';
   const notificationsHref = '/notifications';
+  const searchHref = currentMode === 'DRIVER' ? '/client-search' : '/freelance-search';
 
   const changeLocale = (nextLocale: Locale) => {
     startTransition(async () => {
@@ -224,7 +240,16 @@ const NewHeader = ({ locale }: { locale?: string }) => {
   return (
     <>
       {pathname === "/" && <Header />}
-      {(isDrivers || isFreelance || isAgencies || isPassengers || isInstitutions || isSearchPage || isBookingPage) && (
+      {(isDrivers ||
+        isFreelance ||
+        isAgencies ||
+        isPassengers ||
+        isInstitutions ||
+        isCustomerDashboard ||
+        isFreelanceDashboard ||
+        isSearchPage ||
+        isBookingPage ||
+        isNotificationsPage) && (
         <header
           className={`bg-white  font-inter w-full text-black z-10 ${dark ? "nav-color backdrop-blur-sm shadow-md" : ""
             } border-b`}
@@ -277,6 +302,14 @@ const NewHeader = ({ locale }: { locale?: string }) => {
             ) : user ? (
               <div className=" hidden lg:flex items-center gap-3">
                 <Link
+                  href={searchHref}
+                  className="relative inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
+                  title={resolvedLocale === 'fr' ? 'Rechercher' : 'Search'}
+                >
+                  <MagnifyingGlassIcon className="h-5 w-5" />
+                </Link>
+
+                <Link
                   href={notificationsHref}
                   className="relative inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
                   title={tCommon("notifications")}
@@ -298,23 +331,9 @@ const NewHeader = ({ locale }: { locale?: string }) => {
                   <span className="hidden xl:inline">{tCommon("dashboard")}</span>
                 </Link>
 
-                <Link
-                  href={needsToCreateTargetRole ? becomeHref : (targetRole === 'DRIVER' ? '/client-search' : '/freelance-search')}
-                  className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
-                  title={needsToCreateTargetRole ? tCommon("become", { role: targetRole === 'DRIVER' ? tCommon("driver") : tCommon("client") }) : tCommon("switchTo", { role: targetRole === 'DRIVER' ? tCommon("driver") : tCommon("client") })}
-                >
-                  {targetRole === 'DRIVER' ? <TruckIcon className="h-4 w-4" /> : <UserCircleIcon className="h-4 w-4" />}
-                  <span className="hidden xl:inline">
-                    {needsToCreateTargetRole
-                        ? (targetRole === 'DRIVER' ? tCommon("becomeDriver") : tCommon("becomeClient"))
-                        : tCommon("switchTo", { role: targetRole === 'DRIVER' ? tCommon("driver") : tCommon("client") })}
-                  </span>
-                </Link>
-
                 <MyAccountAvatar />
               </div>
             ) : null}
-
             <div className="lg:hidden">
               <button
                 onClick={() => setMenuOpen(!menuOpen)}

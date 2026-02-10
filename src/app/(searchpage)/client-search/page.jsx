@@ -140,6 +140,11 @@ export default function ClientSearchPage() {
     });
   };
 
+  const goToFreelanceSearch = () => {
+    const params = new URLSearchParams(searchParams?.toString());
+    router.push(`/freelance-search?${params.toString()}`);
+  };
+
   useEffect(() => {
     const locationAutocomplete = createAutocomplete("location", (selectedValue) => {
       setLocation(selectedValue);
@@ -221,6 +226,21 @@ export default function ClientSearchPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-emerald-50 to-green-50">
       <div className="container mx-auto px-4 py-8 font-inter">
+        <div className="mb-6 rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <div className="text-sm font-semibold text-slate-700">
+              Are you a driver? Find a client.
+            </div>
+            <button
+              type="button"
+              onClick={goToFreelanceSearch}
+              className="inline-flex items-center justify-center rounded-xl bg-slate-900 px-4 py-2 text-sm font-bold text-white hover:bg-slate-800"
+            >
+              Go to freelance search
+            </button>
+          </div>
+        </div>
+
         <div className="mb-8 flex flex-col items-center gap-2 text-center">
           <div className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-white/80 shadow-sm ring-1 ring-slate-200">
             <MagnifyingGlassIcon className="h-7 w-7 text-slate-700" />

@@ -51,12 +51,25 @@ export default function NotificationsPage() {
 
   const notifications = items;
 
+  const markRead = async (id: string, read: boolean) => {
+    try {
+      await apiClient.patch(`/api/v1/notifications/${id}/read`, { read });
+      setItems((prev) => prev.map((n) => (n.id === id ? { ...n, read } : n)));
+    } catch (e) {
+      console.error("markRead failed", e);
+    }
+  };
+
   const openDetails = async (n: NotificationItem) => {
     const productType = String(n.data.productType ?? "").toUpperCase();
     const fromUserId = String(n.data.fromUserId ?? "");
     if (!fromUserId) {
       alert("Détails indisponibles");
       return;
+    }
+
+    if (!n.read) {
+      await markRead(n.id, true);
     }
 
     setDetailsOpen(true);
@@ -206,15 +219,6 @@ export default function NotificationsPage() {
     if (filter === "ALL") return notifications;
     return notifications.filter((n) => n.kind === filter);
   }, [filter, notifications]);
-
-  const markRead = async (id: string, read: boolean) => {
-    try {
-      await apiClient.patch(`/api/v1/notifications/${id}/read`, { read });
-      setItems((prev) => prev.map((n) => (n.id === id ? { ...n, read } : n)));
-    } catch (e) {
-      console.error("markRead failed", e);
-    }
-  };
 
   const handleAccept = async (n: NotificationItem) => {
     try {

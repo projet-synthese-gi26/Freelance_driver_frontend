@@ -195,25 +195,6 @@ export const MyAccountAvatar = () => {
 
                         {/* Actions rapides pour mobile */}
                         <div className="md:hidden border-b border-gray-100 py-2">
-                            <button
-                                onClick={handleRoleSwitch}
-                                className={`flex items-center gap-3 w-full px-4 py-2.5 text-sm transition-colors ${
-                                    targetRole === 'DRIVER' 
-                                        ? 'text-blue-700 hover:bg-blue-50' 
-                                        : 'text-orange-700 hover:bg-orange-50'
-                                }`}
-                            >
-                                {targetRole === 'DRIVER' ? (
-                                    <TruckIcon className="w-5 h-5" />
-                                ) : (
-                                    <UserCircleIcon className="w-5 h-5" />
-                                )}
-                                {needsToCreateTargetRole 
-                                    ? `Devenir ${targetRole === 'DRIVER' ? 'Chauffeur' : 'Client'}`
-                                    : `Passer en mode ${targetRole === 'DRIVER' ? 'Chauffeur' : 'Client'}`
-                                }
-                            </button>
-
                             {!isOnSearchPage && (
                                 <button
                                     onClick={goToSearch}
@@ -227,6 +208,25 @@ export const MyAccountAvatar = () => {
 
                         {/* Liens du menu */}
                         <div className="py-2">
+                            <button
+                                onClick={handleRoleSwitch}
+                                className={`flex items-center gap-3 w-full px-4 py-2.5 text-sm transition-colors text-left ${
+                                    targetRole === 'DRIVER'
+                                        ? 'text-blue-700 hover:bg-blue-50'
+                                        : 'text-orange-700 hover:bg-orange-50'
+                                }`}
+                            >
+                                {targetRole === 'DRIVER' ? (
+                                    <TruckIcon className="w-5 h-5" />
+                                ) : (
+                                    <UserCircleIcon className="w-5 h-5" />
+                                )}
+                                {needsToCreateTargetRole
+                                    ? `Devenir ${targetRole === 'DRIVER' ? 'Chauffeur' : 'Client'}`
+                                    : `Passer en mode ${targetRole === 'DRIVER' ? 'Chauffeur' : 'Client'}`
+                                }
+                            </button>
+
                             <Link 
                                 href={`${dashboardPage}`} 
                                 className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
