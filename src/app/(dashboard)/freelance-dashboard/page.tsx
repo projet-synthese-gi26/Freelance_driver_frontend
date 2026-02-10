@@ -92,20 +92,22 @@ export default function PersonalInfoPage() {
     // Chargement initial des données utilisateur
     useEffect(() => {
         const loadProfile = async () => {
-            if (user?.driverProfile) {
-                setDriverProfile(user.driverProfile);
+            const driverProfileFromContext = (user as any)?.driverProfile as DriverProfile | undefined;
+
+            if (driverProfileFromContext) {
+                setDriverProfile(driverProfileFromContext);
                 setFormData({
-                    firstName: user.driverProfile.firstName || '',
-                    lastName: user.driverProfile.lastName || '',
-                    nickname: user.driverProfile.nickname || '',
-                    birthDate: user.driverProfile.birthDate || '',
-                    phoneNumber: user.driverProfile.phoneNumber || '',
-                    nationality: user.driverProfile.nationality || '',
-                    gender: user.driverProfile.gender || '',
-                    language: user.driverProfile.language || '',
-                    biography: user.driverProfile.biography || '',
-                    vehicleDetails: user.driverProfile.vehicleDetails || '',
-                    profileImageUrl: user.driverProfile.profileImageUrl || '',
+                    firstName: driverProfileFromContext.firstName || '',
+                    lastName: driverProfileFromContext.lastName || '',
+                    nickname: driverProfileFromContext.nickname || '',
+                    birthDate: driverProfileFromContext.birthDate || '',
+                    phoneNumber: driverProfileFromContext.phoneNumber || '',
+                    nationality: driverProfileFromContext.nationality || '',
+                    gender: driverProfileFromContext.gender || '',
+                    language: driverProfileFromContext.language || '',
+                    biography: driverProfileFromContext.biography || '',
+                    vehicleDetails: driverProfileFromContext.vehicleDetails || '',
+                    profileImageUrl: driverProfileFromContext.profileImageUrl || '',
                 });
                 setLoading(false);
                 return;

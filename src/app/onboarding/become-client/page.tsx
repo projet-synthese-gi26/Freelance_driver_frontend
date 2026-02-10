@@ -16,11 +16,13 @@ export default function BecomeClientPage() {
         e.preventDefault();
         setLoading(true);
         try {
+            const driverProfile = (user as any)?.driverProfile as any;
+            const baseUser = user?.user;
             const payload = {
-                firstName: user?.driverProfile?.firstName || 'Client',
-                lastName: user?.driverProfile?.lastName || '',
-                phoneNumber: user?.driverProfile?.phoneNumber || '',
-                email: user?.driverProfile?.contactEmail || '',
+                firstName: driverProfile?.firstName || baseUser?.firstName || 'Client',
+                lastName: driverProfile?.lastName || baseUser?.lastName || '',
+                phoneNumber: driverProfile?.phoneNumber || baseUser?.phone || '',
+                email: driverProfile?.contactEmail || baseUser?.email || '',
                 companyName: companyName || 'Mon Compte Personnel',
                 companyDescription: 'Compte client personnel'
             };

@@ -4,6 +4,10 @@ import apiClient from './apiClient';
 import publicClient from './publicClient';
 import { Planning, PlanningPayload } from '@/type/planning';
 
+type PlanningUpdatePayload = Partial<PlanningPayload> & {
+  reservedById?: string | null;
+};
+
 const mapBackendPlanning = (planning: any): Planning => ({
   id: planning.id,
   authorId: planning.authorId ?? planning.userId ?? planning.driverId ?? null,
@@ -47,10 +51,10 @@ const mapBackendPlanning = (planning: any): Planning => ({
   ownerId: planning.ownerId,
 });
 
-const mapPlanningPayload = (planning: PlanningPayload) => ({
+const mapPlanningPayload = (planning: PlanningUpdatePayload) => ({
   ...planning,
   // Backend attend 'isNegotiable' (pas 'negotiable')
-  isNegotiable: planning.negotiable,
+  ...(planning.negotiable !== undefined ? { isNegotiable: planning.negotiable } : {}),
   // Evite d'envoyer la clé 'negotiable' au backend (Create/Update DTO ne la supporte pas)
   negotiable: undefined,
   regularAmount: planning.regularAmount != null ? planning.regularAmount.toString() : undefined,
@@ -104,7 +108,7 @@ export const planningService = {
     return mapBackendPlanning(response.data);
   },
 
-  updatePlanning: async (id: string, planning: PlanningPayload): Promise<Planning> => {
+  updatePlanning: async (id: string, planning: PlanningUpdatePayload): Promise<Planning> => {
     const payload = mapPlanningPayload(planning);
     const response = await apiClient.put(`/api/v1/driver/plannings/${id}`, payload);
     return mapBackendPlanning(response.data);

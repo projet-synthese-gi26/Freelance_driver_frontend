@@ -4,16 +4,19 @@ import { useAuthContext } from "@/components/context/authContext";
 export default function useAuth() {
     const { user, isLoading, login, logout, register } = useAuthContext();
 
+    const driverProfile = (user as any)?.driverProfile;
+    const clientProfile = (user as any)?.clientProfile;
+
     return {
         // Mapping pour garder la compatibilité avec l'ancien code
         authUser: user ? {
-            user_id: user.userId,
-            user_email: user.clientProfile?.contactEmail || user.driverProfile?.contactEmail || '',
+            user_id: user.user?.id,
+            user_email: clientProfile?.contactEmail || driverProfile?.contactEmail || user.user?.email || '',
             emailVerified: true, // Par défaut true car le backend gère ça
             // On injecte le profil complet pour que les composants puissent y accéder
             userData: user, 
-            driverProfile: user.driverProfile,
-            clientProfile: user.clientProfile
+            driverProfile: driverProfile,
+            clientProfile: clientProfile
         } : null,
         
         authUserIsLoading: isLoading,

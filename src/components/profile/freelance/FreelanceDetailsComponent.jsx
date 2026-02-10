@@ -24,6 +24,14 @@ export default function  FreelanceDetailsComponent ({ data,isModal = false })   
     const [isViewingVehicleComments, setIsViewingVehicleComments] = useState(false);
     const [vehicleReviewsRefreshKey, setVehicleReviewsRefreshKey] = useState(0);
 
+    if (!data) {
+        return (
+            <div className="p-6 text-sm font-semibold text-slate-600">
+                Chargement...
+            </div>
+        );
+    }
+
     let vehicleData = data.vehicleData;
     let driverData = data.driverData;
     if (vehicleData && !Array.isArray(vehicleData.illustration_images)) {

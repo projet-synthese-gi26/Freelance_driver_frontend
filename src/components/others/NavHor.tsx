@@ -153,7 +153,7 @@ const MenuItems: React.FC<MenuItemsProps> = ({ items, depthLevel }) => {
 
 /////////////////////////////////
 type linkProps = {
-  title?: string;
+  title?: string | JSX.Element;
   reference: string;
   items:any;
   id?: any; // Use 'id' instead of 'key' if you need this value within the component

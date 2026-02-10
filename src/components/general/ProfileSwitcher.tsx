@@ -10,12 +10,17 @@ export const ProfileSwitcher: React.FC = () => {
   const pathname = usePathname(); // Plus fiable que window.location
   const { user } = useAuthContext();
 
-  if (!user || !user.roles) {
+  const roleTypes: string[] = [
+    ...((user?.user?.roles ?? []).map((r: any) => String(r?.roleType ?? r?.type ?? ''))),
+    ...(((user as any)?.roles ?? []) as any[]).map((r: any) => String(r?.roleType ?? r?.type ?? r)),
+  ].filter(Boolean);
+
+  if (!user || roleTypes.length === 0) {
     return null; // Ne rien afficher si l'utilisateur n'est pas chargé
   }
 
-  const hasDriverRole = user.roles.includes('DRIVER');
-  const hasClientRole = user.roles.includes('CLIENT');
+  const hasDriverRole = roleTypes.includes('DRIVER');
+  const hasClientRole = roleTypes.includes('CLIENT');
 
   // 1. Déterminer le rôle ACTIF basé sur l'URL actuelle
   const isActiveRoleDriver = pathname?.startsWith('/freelance-dashboard');

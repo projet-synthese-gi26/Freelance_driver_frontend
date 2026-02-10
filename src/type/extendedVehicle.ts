@@ -16,7 +16,7 @@ export interface ExtendedVehicle extends Partial<Omit<Vehicle, 'immatriculation'
   size?: string;
   fuelType?: string;
   manufacturer?: string;
-  tankCapacity?: string;
+  tankCapacity?: number | null;
   registrationExpiryDate?: string;
   vehicleAge?: string;
   avgFuelConsumption?: string;

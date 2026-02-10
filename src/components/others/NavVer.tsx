@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { IoCaretUpOutline } from "react-icons/io5";
 
 type linkProps = {
-    title?: string;
+    title?: string | JSX.Element;
     reference: string;
     items?: any;
 };

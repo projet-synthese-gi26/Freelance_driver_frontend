@@ -44,7 +44,15 @@ const RightModal = ({ isOpen, onClose, children, pageContent, data }) => {
             </button>
 
             <div className="modal-content">
-                {pageContent ? <FreelanceDetailsComponent data={data} isModal={true} /> : children}
+                {pageContent ? (
+                    data ? (
+                        <FreelanceDetailsComponent data={data} isModal={true} />
+                    ) : (
+                        <div className="p-6 text-sm font-semibold text-slate-600">Chargement...</div>
+                    )
+                ) : (
+                    children
+                )}
             </div>
         </div>
     );

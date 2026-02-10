@@ -92,6 +92,10 @@ export default function DriverProfilePage() {
         reviewService.getReviewsBySubject(driverId, "DRIVER"),
         addressService.getDriverAddressesByUserId(driverId),
       ]);
+
+      if (!profileData) {
+        throw new Error("driver profile not found");
+      }
       setData({
         profileContext: profileData,
         vehicles: vehiclesData,

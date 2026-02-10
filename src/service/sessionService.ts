@@ -161,14 +161,16 @@ export const sessionService = {
     if (!profileString) return null;
 
     const context: UserSessionContext = JSON.parse(profileString);
+    const clientProfile = (context as any)?.clientProfile;
+    const driverProfile = (context as any)?.driverProfile;
     
     // Mappe les données pour correspondre à ce que vos composants attendent
     return {
-        id: context.userId,
-        name: context.clientProfile?.firstName || context.driverProfile?.firstName || 'Utilisateur',
-        email: context.clientProfile?.contactEmail || context.driverProfile?.contactEmail || '', // Adaptez selon votre modèle exact
-        phoneNumber: context.clientProfile?.phoneNumber || context.driverProfile?.phoneNumber || '',
-        roles: context.roles
+        id: (context as any)?.userId ?? context.user?.id,
+        name: clientProfile?.firstName || driverProfile?.firstName || context.user?.firstName || 'Utilisateur',
+        email: clientProfile?.contactEmail || driverProfile?.contactEmail || context.user?.email || '', // Adaptez selon votre modèle exact
+        phoneNumber: clientProfile?.phoneNumber || driverProfile?.phoneNumber || context.user?.phone || '',
+        roles: (context as any)?.roles ?? context.user?.roles
     };
   },
 

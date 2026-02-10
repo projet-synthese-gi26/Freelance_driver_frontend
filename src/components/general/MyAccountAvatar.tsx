@@ -26,8 +26,13 @@ export const MyAccountAvatar = () => {
     const toggleDropdown = () => setIsOpen(!isOpen);
 
     // Déterminer les rôles de l'utilisateur
-    const hasDriverRole = user?.roles?.includes('DRIVER');
-    const hasClientRole = user?.roles?.includes('CLIENT');
+    const roleTypes: string[] = [
+        ...((user?.user?.roles ?? []).map((r: any) => String(r?.roleType ?? r?.type ?? ''))),
+        ...(((user as any)?.roles ?? []) as any[]).map((r: any) => String(r?.roleType ?? r?.type ?? r)),
+    ].filter(Boolean);
+
+    const hasDriverRole = roleTypes.includes('DRIVER');
+    const hasClientRole = roleTypes.includes('CLIENT');
     const isOnDriverDashboard = pathname?.startsWith('/freelance-dashboard');
     const isOnClientDashboard = pathname?.startsWith('/customer-dashboard');
     const isOnDashboard = isOnDriverDashboard || isOnClientDashboard;
@@ -115,11 +120,13 @@ export const MyAccountAvatar = () => {
         };
     }, []);
 
+    const driverProfile = (user as any)?.driverProfile as any;
+    const clientProfile = (user as any)?.clientProfile as any;
     const avatarSrc =
         user?.user?.photoUri ||
         user?.actor?.avatarUrl ||
-        user?.driverProfile?.profileImageUrl ||
-        user?.clientProfile?.profileImageUrl ||
+        driverProfile?.profileImageUrl ||
+        clientProfile?.profileImageUrl ||
         "/dark_avatar.svg";
     const userName = [user?.user?.firstName, user?.user?.lastName].filter(Boolean).join(' ').trim() || 'Mon Compte';
     const userEmail = user?.user?.email || '';

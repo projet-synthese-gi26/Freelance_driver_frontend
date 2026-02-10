@@ -28,11 +28,13 @@ export default function BecomeDriverPage() {
         try {
             // Préparer les données (fusionner avec les infos existantes de l'utilisateur)
             // Sur mobile, on prend les infos du profil client si elles existent
+            const clientProfile = (user as any)?.clientProfile as any;
+            const baseUser = user?.user;
             const payload = {
-                firstName: user?.clientProfile?.firstName || 'Chauffeur',
-                lastName: user?.clientProfile?.lastName || '',
-                phoneNumber: user?.clientProfile?.phoneNumber || '',
-                email: user?.clientProfile?.contactEmail || '',
+                firstName: clientProfile?.firstName || baseUser?.firstName || 'Chauffeur',
+                lastName: clientProfile?.lastName || baseUser?.lastName || '',
+                phoneNumber: clientProfile?.phoneNumber || baseUser?.phone || '',
+                email: clientProfile?.contactEmail || baseUser?.email || '',
                 ...formData
             };
 

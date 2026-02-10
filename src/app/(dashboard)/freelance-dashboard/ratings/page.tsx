@@ -5,10 +5,36 @@ import { toast } from 'react-hot-toast';
 import { StarIcon, ChatBubbleBottomCenterTextIcon } from '@heroicons/react/24/solid';
 
 // SERVICES
-import { reviewService, Review } from '@/service/reviewService';
+import { reviewService } from '@/service/reviewService';
+import type { Review } from '@/type/review';
 import { sessionService } from '@/service/sessionService';
 import { useAuthContext } from '@/components/context/authContext';
 import EmptyJumbotron from '@/components/EmptyJumbotron';
+
+const getReviewScore = (review: Review) => {
+  const anyReview = review as any;
+  const raw = review.rating ?? anyReview.score;
+  const n = Number(raw);
+  return Number.isFinite(n) ? n : 0;
+};
+
+const getReviewAuthorName = (review: Review) => {
+  const anyReview = review as any;
+  const first = anyReview.authorFirstName ?? '';
+  const last = anyReview.authorLastName ?? '';
+  const full = `${first} ${last}`.trim();
+  return full || 'Anonyme';
+};
+
+const getReviewAuthorAvatar = (review: Review) => {
+  const anyReview = review as any;
+  return anyReview.authorProfileImageUrl || anyReview.authorImageUrl || "/img/default-avatar.jpeg";
+};
+
+const getReviewCreatedAt = (review: Review) => {
+  const anyReview = review as any;
+  return review.createdAt ?? anyReview.createdAt ?? null;
+};
 
 // --- COMPOSANT HEADER STATISTIQUES ---
 const StatsHeader = ({ average, count }: { average: number; count: number }) => (
@@ -30,7 +56,7 @@ const ReviewCard = ({ review }: { review: Review }) => (
     <div className="bg-white rounded-xl p-6 mb-4 shadow-sm border border-gray-100 hover:shadow-md transition-shadow flex items-start gap-4">
         <div className="relative w-12 h-12 flex-shrink-0">
              <Image 
-                src={review.authorProfileImageUrl || "/img/default-avatar.jpeg"} 
+                src={getReviewAuthorAvatar(review)} 
                 alt="Avatar" 
                 fill
                 className="rounded-full object-cover border border-gray-200"
@@ -40,14 +66,18 @@ const ReviewCard = ({ review }: { review: Review }) => (
             <div className="flex justify-between items-start mb-1">
                 <div>
                     <h3 className="font-bold text-gray-900 text-lg">
-                        {review.authorFirstName} {review.authorLastName}
+                        {getReviewAuthorName(review)}
                     </h3>
                     <p className="text-xs text-gray-500">
-                        {new Date(review.createdAt).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}
+                        {(() => {
+                          const createdAt = getReviewCreatedAt(review);
+                          if (!createdAt) return '';
+                          return new Date(createdAt).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+                        })()}
                     </p>
                 </div>
                 <div className="flex items-center bg-yellow-50 px-2 py-1 rounded-lg">
-                    <span className="font-bold text-yellow-600 mr-1">{review.score}</span>
+                    <span className="font-bold text-yellow-600 mr-1">{getReviewScore(review)}</span>
                     <StarIcon className="w-4 h-4 text-yellow-400" />
                 </div>
             </div>
@@ -70,13 +100,20 @@ const RatingsPage = () => {
   const [loading, setLoading] = useState(true);
 
   const loadReviews = useCallback(async () => {
-    if (!user?.userId) return; // Attendre que l'utilisateur soit chargé
+    const userId = user?.user?.id;
+    if (!userId) return; // Attendre que l'utilisateur soit chargé
     
     setLoading(true);
     try {
-      const data = await reviewService.getReviewsForUser(user.userId);
+      const data = await reviewService.getReviewsForUser(userId);
       // Tri du plus récent au plus ancien
-      const sorted = data.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+      const sorted = data.sort((a, b) => {
+        const aCreatedAt = getReviewCreatedAt(a);
+        const bCreatedAt = getReviewCreatedAt(b);
+        const aTime = aCreatedAt ? new Date(aCreatedAt).getTime() : 0;
+        const bTime = bCreatedAt ? new Date(bCreatedAt).getTime() : 0;
+        return bTime - aTime;
+      });
       setReviews(sorted);
     } catch (error) {
       console.error(error);
@@ -84,7 +121,7 @@ const RatingsPage = () => {
     } finally {
       setLoading(false);
     }
-  }, [user?.userId]);
+  }, [user?.user?.id]);
 
   useEffect(() => {
     loadReviews();
@@ -93,7 +130,7 @@ const RatingsPage = () => {
   // Calculs statistiques
   const reviewCount = reviews.length;
   const averageRating = reviewCount > 0 
-    ? reviews.reduce((sum, r) => sum + r.score, 0) / reviewCount 
+    ? reviews.reduce((sum, r) => sum + getReviewScore(r), 0) / reviewCount 
     : 0;
 
   if (loading) return <div className="text-center py-20 text-gray-500">Chargement des avis...</div>;
