@@ -16,7 +16,6 @@ import { ProfileSwitcher } from "@/components/general/ProfileSwitcher"; // <-- I
 import { useTranslations } from "next-intl";
 
 // ICONS
-import portofolio from "@public/img/cv.png"
 import support from "@public/img/support.png"
 import {
   ChatBubbleLeftRightIcon, BriefcaseIcon, ShieldCheckIcon, UserCircleIcon, ArrowRightStartOnRectangleIcon,
@@ -102,12 +101,7 @@ export default function RootLayout({
         {link:'/freelance-dashboard/business/orders',title:t('nav.business.orders')},
       ]
     },
-    {title:t('nav.portfolio.title'),icon:portofolio,
-      subItems: [
-        {link:'/freelance-dashboard/portofolio',title:t('nav.portfolio.experience')},
-        
-      ]
-    },
+    {link:'/freelance-dashboard/finance/wallet',title:t('nav.wallet'),icon:BanknotesIcon},
     
     {link:'/freelance-dashboard/ratings',title:t('nav.reviews'),icon:ChartBarIcon},
     {title:t('nav.support'),icon:support,link:'/freelance-dashboard/support'},

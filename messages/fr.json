@@ -781,6 +781,7 @@
 "title": "Portfolio",
 "experience": "Expérience"
 },
+"wallet": "Porte-monnaie",
 "reviews": "Avis",
 "support": "Support",
 "settings": "Paramètres",
@@ -792,7 +793,6 @@
 "updatingPhoto": "Mise à jour de la photo...",
 "photoUpdated": "Photo mise à jour !",
 "updateFailed": "Échec de la mise à jour."
-}
 }
 },
 "Landing": {
@@ -868,6 +868,7 @@
 "cta": "S’abonner",
 "privacyPrefix": "Vous pouvez vous désabonner à tout moment. En savoir plus sur notre",
 "privacyLink": "Politique de confidentialité"
+}
 }
 }
 }
