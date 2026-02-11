@@ -125,6 +125,29 @@ const Page = () => {
         }
     };
 
+
+    const handleConfirm = async (data: Planning) => {
+        try {
+            await planningService.confirmPlanning(data.id);
+            toast.success(t('toasts.confirmed'));
+            loadPlannings(); // Recharger la liste
+        } catch (error) {
+            toast.error(t('toasts.confirmError'));
+        }
+    };
+    
+    const handleTerminate = async (data: Planning) => {
+        if (!confirm(t('confirmTerminate'))) return;
+        
+        try {
+            await planningService.terminatePlanning(data.id);
+            toast.success(t('toasts.terminated'));
+            loadPlannings(); // Recharger la liste
+        } catch (error) {
+            toast.error(t('toasts.terminateError'));
+        }
+    };
+
     return (
         <div className="p-4 md:p-6 max-w-7xl mx-auto">
             <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
@@ -183,6 +206,8 @@ const Page = () => {
                             onModify={handleModify}
                             onPublish={handlePublish}
                             onDelete={handleDelete}
+                            onConfirm={handleConfirm}
+                            onTerminate={handleTerminate}
                         />
                     ))}
                 </div>

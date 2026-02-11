@@ -499,7 +499,9 @@
                     "edit": "Edit",
                     "publish": "Publish",
                     "unpublish": "Unpublish",
-                    "delete": "Delete"
+                    "delete": "Delete",
+                    "confirm": "Confirm",
+                    "terminate": "Terminate"
                 }
             },
             "vehicleCard": {
@@ -774,6 +776,7 @@
                     "title": "Portfolio",
                     "experience": "Experience"
                 },
+                "wallet": "Wallet",
                 "reviews": "Reviews",
                 "support": "Support",
                 "settings": "Settings",
