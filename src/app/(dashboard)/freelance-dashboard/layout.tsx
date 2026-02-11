@@ -101,6 +101,7 @@ export default function RootLayout({
         {link:'/freelance-dashboard/business/orders',title:t('nav.business.orders')},
       ]
     },
+    {link:'https://ugate-frontend-bon.vercel.app/',title:t('nav.syndicate'),icon:GlobeAltIcon},
     {link:'/freelance-dashboard/finance/wallet',title:t('nav.wallet'),icon:BanknotesIcon},
     
     {link:'/freelance-dashboard/ratings',title:t('nav.reviews'),icon:ChartBarIcon},
@@ -127,6 +128,10 @@ export default function RootLayout({
     } else {
       setOpenSubMenu(null);
       if (navItem.link && navItem.link !== '#') {
+        if (typeof navItem.link === 'string' && /^https?:\/\//i.test(navItem.link)) {
+          window.open(navItem.link, '_blank', 'noopener,noreferrer');
+          return;
+        }
         router.push(navItem.link);
       }
     }

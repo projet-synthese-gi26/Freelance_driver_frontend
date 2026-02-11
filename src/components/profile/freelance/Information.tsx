@@ -77,13 +77,32 @@ interface InformationProps{
         driver_certifications:string [],
     };
 
+    complianceProfile?: {
+        firstName?: string;
+        lastName?: string;
+        photoUrl?: string;
+        licenseNumber?: string;
+        isVerified?: boolean;
+    } | null;
+    complianceCheck?: {
+        globalStatus?: string;
+        details?: {
+            membershipCurrent?: boolean;
+        };
+    } | null;
 }
-const Information = ({ driverData}: InformationProps) => {
+const Information = ({ driverData, complianceProfile, complianceCheck }: InformationProps) => {
     const [isShareModalOpen, setIsShareModalOpen] = useState(false);
     const [isReportModalOpen, setIsReportModalOpen] = useState(false);
     const [reportReason, setReportReason] = useState('');
     const [reportComment, setReportComment] = useState('');
     const [isSubmittingReport, setIsSubmittingReport] = useState(false);
+
+    const isSyndicated = Boolean(
+        (complianceCheck && String(complianceCheck.globalStatus || '').toUpperCase() === 'AUTHORIZED') ||
+        (complianceCheck && complianceCheck.details && complianceCheck.details.membershipCurrent === true) ||
+        (complianceProfile && complianceProfile.isVerified)
+    );
 
     const openShareModal = () => {
         setIsShareModalOpen(true);
@@ -139,9 +158,38 @@ const Information = ({ driverData}: InformationProps) => {
                 className="w-32 h-32 text border overflow-hidden border-[var(--primary)] rounded-full bg-white p-4 grid place-content-center relative mx-auto mb-2">
                 <Image width={130} height={130} src={driverData.driver_profile_image} alt="image"
                        className="rounded-full w-full h-full"/>
+
+                {isSyndicated ? (
+                    <span
+                        className="absolute bottom-2 right-2 inline-flex h-7 w-7 items-center justify-center rounded-full bg-emerald-50 text-emerald-700"
+                        title="Chauffeur syndiqué"
+                    >
+                        <svg viewBox="0 0 20 20" fill="currentColor" className="h-5 w-5">
+                            <path
+                                fillRule="evenodd"
+                                d="M16.704 5.29a1 1 0 010 1.415l-7.5 7.5a1 1 0 01-1.415 0l-3.5-3.5a1 1 0 011.415-1.415l2.793 2.793 6.793-6.793a1 1 0 011.414 0z"
+                                clipRule="evenodd"
+                            />
+                        </svg>
+                    </span>
+                ) : null}
             </div>
             <h4 className="text-center title font-semibold mb-1">
                 Mr {driverData.driver_last_name} {driverData.driver_first_name}
+                {isSyndicated ? (
+                    <span
+                        className="ml-2 inline-flex h-5 w-5 items-center justify-center rounded-full bg-emerald-50 text-emerald-700 align-middle"
+                        title="Chauffeur syndiqué"
+                    >
+                        <svg viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4">
+                            <path
+                                fillRule="evenodd"
+                                d="M16.704 5.29a1 1 0 010 1.415l-7.5 7.5a1 1 0 01-1.415 0l-3.5-3.5a1 1 0 011.415-1.415l2.793 2.793 6.793-6.793a1 1 0 011.414 0z"
+                                clipRule="evenodd"
+                            />
+                        </svg>
+                    </span>
+                ) : null}
             </h4>
 
             <div className="flex items-center justify-center flex-wrap mb-2">

@@ -34,6 +34,16 @@ export default function  FreelanceDetailsComponent ({ data,isModal = false })   
 
     let vehicleData = data.vehicleData;
     let driverData = data.driverData;
+    const complianceProfile = data?.complianceProfile;
+    const complianceCheck = data?.complianceCheck;
+    const isSyndicated = Boolean(
+        (complianceCheck && String(complianceCheck.globalStatus || '').toUpperCase() === 'AUTHORIZED') ||
+        (complianceCheck && complianceCheck.details && complianceCheck.details.membershipCurrent === true) ||
+        (complianceProfile && complianceProfile.isVerified)
+    );
+    const officialName = complianceProfile
+        ? [complianceProfile.firstName, complianceProfile.lastName].filter(Boolean).join(' ').trim()
+        : '';
     if (vehicleData && !Array.isArray(vehicleData.illustration_images)) {
         vehicleData.illustration_images = [];
     }
@@ -271,7 +281,37 @@ export default function  FreelanceDetailsComponent ({ data,isModal = false })   
 
 
                             <div className="bg-white rounded-2xl p-3 sm:p-4 lg:py-6 lg:px-6 mb-2">
-                                <Information driverData={driverData}/>
+                                <Information
+                                    driverData={driverData}
+                                    complianceProfile={complianceProfile}
+                                    complianceCheck={complianceCheck}
+                                />
+
+                                {isSyndicated ? (
+                                    <>
+                                        <div className="border border-dashed my-2"></div>
+                                        <div>
+                                            <span className="block text font-semibold clr-neutral-600 mb-1">Syndicat</span>
+                                            <div className="flex items-center gap-3">
+                                                {complianceProfile?.photoUrl ? (
+                                                    <img
+                                                        src={complianceProfile.photoUrl}
+                                                        alt={officialName || 'Photo officielle'}
+                                                        className="h-12 w-12 rounded-full object-cover"
+                                                    />
+                                                ) : null}
+                                                <div className="min-w-0">
+                                                    {officialName ? (
+                                                        <div className="text-sm font-semibold text-slate-900 truncate">{officialName}</div>
+                                                    ) : null}
+                                                    {complianceProfile?.licenseNumber ? (
+                                                        <div className="text-xs font-semibold text-slate-600">Permis: {complianceProfile.licenseNumber}</div>
+                                                    ) : null}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </>
+                                ) : null}
                                 <div className="border border-dashed my-2"></div>
                                 <div>
                                     {driverData.driver_availability_table.length > 0 && driverData.driver_availability_table.some(entry => entry.is_available) && (

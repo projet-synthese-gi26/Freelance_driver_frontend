@@ -21,6 +21,7 @@ import { vehicleService } from '@/service/vehicleService';
 import { addressService } from '@/service/addressService';
 import { reviewService } from '@/service/reviewService';
 import { reactionService } from '@/service/reactionService';
+import { complianceService } from '@/service/complianceService';
 
 const CURRENCY = "XAF";
 
@@ -28,6 +29,8 @@ const SearchCardFreelance = ({ planning }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isLoadingDetails, setIsLoadingDetails] = useState(false);
     const [detailedData, setDetailedData] = useState(null);
+    const [syndicateProfile, setSyndicateProfile] = useState(null);
+    const [syndicateCheck, setSyndicateCheck] = useState(null);
     const router = useRouter();
 
     // --- CORRECTION ICI : Utilisation de useMemo pour stabiliser l'objet ---
@@ -82,14 +85,16 @@ const SearchCardFreelance = ({ planning }) => {
                 const reactableType = typeof reactableTypeRaw === 'string' ? reactableTypeRaw.toUpperCase() : undefined;
 
                 // Utilisation de Promise.all pour paralléliser et accélérer
-                const [profile, vehicles, addresses, reviews, reactions] = await Promise.all([
+                const [profile, vehicles, addresses, reviews, reactions, complianceDetails, complianceCheck] = await Promise.all([
                     profileService.getPublicDriverProfile(planning.authorId),
                     vehicleService.getVehiclesByDriver(planning.authorId),
                     addressService.getDriverAddressesByUserId(planning.authorId),
                     reviewService.getReviewsForUser(planning.authorId),
                     reactableId && reactableType
                         ? reactionService.getReactionsByTarget(reactableId, reactableType)
-                        : Promise.resolve([])
+                        : Promise.resolve([]),
+                    complianceService.getDetails(planning.authorId).catch(() => null),
+                    complianceService.check(planning.authorId).catch(() => null)
                 ]);
 
                 const mainVehicle = vehicles.length > 0 ? vehicles[0] : null;
@@ -195,10 +200,14 @@ const SearchCardFreelance = ({ planning }) => {
 
                 if (isMounted) {
                     setDetailedData({ driverData: mappedDriverData, vehicleData: mappedVehicleData });
+                    setSyndicateProfile(complianceDetails);
+                    setSyndicateCheck(complianceCheck);
                 }
             } catch (error) {
                 if (isMounted) {
                     setDetailedData(null);
+                    setSyndicateProfile(null);
+                    setSyndicateCheck(null);
                 }
                 console.error("Erreur chargement détails:", error);
             } finally {
@@ -209,6 +218,15 @@ const SearchCardFreelance = ({ planning }) => {
         fetchCardDetails();
         return () => { isMounted = false; };
     }, [planning.authorId, initialDriverData, initialVehicleData]); // Dépendances stables grâce à useMemo
+
+    const isSyndicated = Boolean(
+        (syndicateCheck && String(syndicateCheck.globalStatus || '').toUpperCase() === 'AUTHORIZED') ||
+        (syndicateCheck && syndicateCheck.details && syndicateCheck.details.membershipCurrent === true) ||
+        (syndicateProfile && syndicateProfile.isVerified)
+    );
+    const syndicateDisplayName = syndicateProfile
+        ? [syndicateProfile.firstName, syndicateProfile.lastName].filter(Boolean).join(' ').trim()
+        : '';
 
     // Si on a déjà chargé les détails, on les utilise, sinon on utilise les données initiales
     const driverData = detailedData?.driverData || initialDriverData;
@@ -396,7 +414,39 @@ const SearchCardFreelance = ({ planning }) => {
                             <div className="min-w-0">
                                 <h2 className="truncate text-xl font-extrabold tracking-tight text-slate-900">
                                     {driverDisplayName}
+                                    {isSyndicated ? (
+                                        <span
+                                            className="ml-2 inline-flex h-5 w-5 items-center justify-center rounded-full bg-emerald-50 text-emerald-700"
+                                            title="Chauffeur syndiqué"
+                                        >
+                                            <svg viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4">
+                                                <path
+                                                    fillRule="evenodd"
+                                                    d="M16.704 5.29a1 1 0 010 1.415l-7.5 7.5a1 1 0 01-1.415 0l-3.5-3.5a1 1 0 011.415-1.415l2.793 2.793 6.793-6.793a1 1 0 011.414 0z"
+                                                    clipRule="evenodd"
+                                                />
+                                            </svg>
+                                        </span>
+                                    ) : null}
                                 </h2>
+
+                                {isSyndicated ? (
+                                    <div className="mt-1 flex flex-wrap items-center gap-2">
+                                        <span className="inline-flex items-center rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-700">
+                                            Syndicat
+                                        </span>
+                                        {syndicateDisplayName ? (
+                                            <span className="text-xs font-semibold text-slate-600">
+                                                {syndicateDisplayName}
+                                            </span>
+                                        ) : null}
+                                        {syndicateProfile?.licenseNumber ? (
+                                            <span className="text-xs font-semibold text-slate-600">
+                                                Permis: {syndicateProfile.licenseNumber}
+                                            </span>
+                                        ) : null}
+                                    </div>
+                                ) : null}
 
                                 <div className="mt-1 flex flex-wrap items-center gap-2">
                                     <span className="inline-flex items-center rounded-full bg-indigo-50 px-2.5 py-1 text-xs font-bold text-indigo-700">
@@ -553,7 +603,12 @@ const SearchCardFreelance = ({ planning }) => {
                 </div>
             </div>
             
-            <RightModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} pageContent={true} data={{ driverData, vehicleData }} />
+            <RightModal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                pageContent={true}
+                data={{ driverData, vehicleData, complianceProfile: syndicateProfile, complianceCheck: syndicateCheck }}
+            />
         </div>
     );
 };
