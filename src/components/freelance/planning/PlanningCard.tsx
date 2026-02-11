@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { 
   MapPinIcon, CalendarIcon, FlagIcon, PencilSquareIcon, 
-  TrashIcon, CloudArrowUpIcon, CloudArrowDownIcon 
+  TrashIcon, CloudArrowUpIcon, CloudArrowDownIcon ,CheckIcon, StopIcon
 } from '@heroicons/react/24/outline';
 import { Planning } from '@/type/planning';
 
@@ -11,6 +11,8 @@ interface PlanningCardProps {
   onModify: (data: Planning) => void;
   onPublish: (data: Planning, action: 'publish' | 'unpublish') => void;
   onDelete: (data: Planning) => void;
+  onConfirm: (data: Planning) => void;   // <--- AJOUT
+  onTerminate: (data: Planning) => void;
 }
 
 const getStatusStyle = (status: string) => {
@@ -80,9 +82,15 @@ const PlanningTimer = ({ startDate, startTime, endDate, endTime }: Planning) => 
   );
 };
 
-const PlanningCard: React.FC<PlanningCardProps> = ({ data, onModify, onPublish, onDelete }) => {
+const PlanningCard: React.FC<PlanningCardProps> = ({ data, onModify, onPublish, onDelete, onConfirm, onTerminate }) => {
   const t = useTranslations('Dashboard.shared.planningCard');
   const locale = useLocale();
+
+  // DEBUG - À RETIRER APRÈS
+  console.log('Terminate translation:', t('actions.terminate'));
+  console.log('Confirm translation:', t('actions.confirm'));
+
+  
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex flex-col gap-4 hover:shadow-lg transition-shadow">
       <div className="flex items-start justify-between gap-4">
@@ -129,6 +137,7 @@ const PlanningCard: React.FC<PlanningCardProps> = ({ data, onModify, onPublish, 
       </div>
 
       <div className="flex flex-wrap justify-end gap-2 pt-2 border-t border-gray-100">
+        {/* Bouton Edit */}
         <button
           onClick={() => onModify(data)}
           className="flex items-center px-3 py-1.5 text-blue-600 hover:bg-blue-50 rounded-md transition"
@@ -136,6 +145,7 @@ const PlanningCard: React.FC<PlanningCardProps> = ({ data, onModify, onPublish, 
           <PencilSquareIcon className="w-4 h-4 mr-1" /> {t('actions.edit')}
         </button>
 
+        {/* Bouton Publish/Unpublish */}
         {data.status !== 'Published' ? (
           <button
             onClick={() => onPublish(data, 'publish')}
@@ -152,6 +162,27 @@ const PlanningCard: React.FC<PlanningCardProps> = ({ data, onModify, onPublish, 
           </button>
         )}
 
+        {/* Bouton Confirm - uniquement pour statuts en attente */}
+        {(data.status === 'PendingDriverConfirmation' || data.status === 'PendingConfirmation') && (
+          <button
+            onClick={() => onConfirm(data)}
+            className="flex items-center px-3 py-1.5 bg-green-600 text-white hover:bg-green-700 rounded-md transition shadow-sm"
+          >
+            <CheckIcon className="w-4 h-4 mr-1" /> {t('actions.confirm')}
+          </button>
+        )}
+
+        {/* Bouton Terminate - uniquement pour courses confirmées ou en cours */}
+        {(data.status === 'Confirmed' || data.status === 'Ongoing') && (
+          <button
+            onClick={() => onTerminate(data)}
+            className="flex items-center px-3 py-1.5 bg-gray-800 text-white hover:bg-black rounded-md transition shadow-sm"
+          >
+            <StopIcon className="w-4 h-4 mr-1" /> {t('actions.terminate')}
+          </button>
+        )}
+
+        {/* Bouton Delete */}
         <button
           onClick={() => onDelete(data)}
           className="flex items-center px-3 py-1.5 text-red-600 hover:bg-red-50 rounded-md transition"
