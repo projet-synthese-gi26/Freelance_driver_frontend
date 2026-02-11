@@ -113,6 +113,16 @@ export const planningService = {
     const response = await apiClient.put(`/api/v1/driver/plannings/${id}`, payload);
     return mapBackendPlanning(response.data);
   },
+ //Ajout pour la confirmation et pour terminer le planning
+  confirmPlanning: async (id: string): Promise<Planning> => {
+    const response = await apiClient.put(`/api/v1/driver/plannings/${id}`, { status: 'Confirmed' });
+    return mapBackendPlanning(response.data);
+  },
+
+  terminatePlanning: async (id: string): Promise<Planning> => {
+    const response = await apiClient.put(`/api/v1/driver/plannings/${id}`, { status: 'Terminated' });
+    return mapBackendPlanning(response.data);
+  },
 
   deletePlanning: async (id: string): Promise<void> => {
     await apiClient.delete(`/api/v1/driver/plannings/${id}`);

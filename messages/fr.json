@@ -499,7 +499,9 @@
 "edit": "Modifier",
 "publish": "Publier",
 "unpublish": "Retirer",
-"delete": "Supprimer"
+"delete": "Supprimer",
+"confirm": "Confirmer",
+"terminate": "Terminer"
 }
 },
 "vehicleCard": {
@@ -624,8 +626,13 @@
 "unpublished": "Planning retiré.",
 "updateError": "Erreur lors de la mise à jour.",
 "deleted": "Planning supprimé.",
-"deleteError": "Erreur lors de la suppression."
-}
+"deleteError": "Erreur lors de la suppression.",
+"confirmed": "Planning confirmé avec succès",
+"confirmError": "Erreur lors de la confirmation",
+"terminated": "Planning terminé avec succès",
+"terminateError": "Erreur lors de la terminaison"
+},
+"confirmTerminate": "Êtes-vous sûr de vouloir terminer ce planning ?"
 },
 "rides": {
 "title": "Mes courses (acceptées)",
