@@ -26,19 +26,6 @@ ARG NEXT_PUBLIC_API_URL
 ARG NEXT_PUBLIC_SOCKET_URL
 ARG NEXT_PUBLIC_COMPLIANCE_API_URL
 
-GEMINI_API_KEY = AIzaSyCJwFZZojgfQO6X2gJLNCA3U4aUkoSYp1M
-# DRIVER_SERVICE_URL=http://localhost:8080/driver-service
-DRIVER_SERVICE_URL=http://localhost:8080/driver-service
-REVIEW_SERVICE_URL=http://localhost:8080/review-service
-SEARCH_SERVICE_URL=http://localhost:8080/search-service
-SUBSCRIPTION_SERVICE_URL=http://localhost:8080/subscription-service
-PAYEMENT_SERVICE_URL=http://localhost:8080/payement-service
-BOOKING_SERVICE_URL=http://localhost:8080/booking-service
-
-NEXT_PUBLIC_API_URL=https://traefikdev.yowyob.com/freelance-driver
-NEXT_PUBLIC_SOCKET_URL=https://traefikdev.yowyob.com/freelance-driver
-NEXT_PUBLIC_COMPLIANCE_API_URL=https://ugate.pynfi.com
-
 RUN printf "GEMINI_API_KEY=AIzaSyCJwFZZojgfQO6X2gJLNCA3U4aUkoSYp1M \
 DRIVER_SERVICE_URL=https://traefikdev.yowyob.com/freelance-driver\
 PAYEMENT_SERVICE_URL=https://traefikdev.yowyob.com/payment \
