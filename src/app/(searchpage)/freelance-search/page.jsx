@@ -119,7 +119,7 @@ const Search = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-sky-200 to-blue-300">
+        <div className="min-h-screen bg-gray-50">
             <div className="container mx-auto px-4 py-8 font-inter">
                 <div className="mb-6 rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
                     <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
@@ -133,13 +133,6 @@ const Search = () => {
                         >
                             Go to client search
                         </button>
-                    </div>
-                </div>
-
-                {/* Hero Section */}
-                <div className="mb-8 flex flex-col items-center gap-2 text-center">
-                    <div className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-white/80 shadow-sm ring-1 ring-slate-200">
-                        <MagnifyingGlassIcon className="h-7 w-7 text-slate-700" />
                     </div>
                 </div>
 
@@ -202,7 +195,7 @@ const Search = () => {
                             <button 
                                 type="submit"
                                 disabled={isLoading}
-                                className="px-8 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-medium hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 shadow-lg hover:shadow-xl flex items-center justify-center gap-2 disabled:opacity-50"
+                                className="px-8 py-3 bg-slate-900 text-white rounded-xl font-medium hover:bg-slate-800 transition-all duration-200 shadow-lg hover:shadow-xl flex items-center justify-center gap-2 disabled:opacity-50"
                             >
                                 {isLoading ? (
                                     <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
@@ -235,7 +228,7 @@ const Search = () => {
                             onClick={() => setViewMode('map')}
                             className={`flex items-center gap-2 px-5 py-2.5 rounded-lg font-medium transition-all duration-200 ${
                                 viewMode === 'map' 
-                                    ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md' 
+                                    ? 'bg-slate-900 text-white shadow-md' 
                                     : 'text-gray-600 hover:bg-gray-100'
                             }`}
                         >
@@ -246,7 +239,7 @@ const Search = () => {
                             onClick={() => setViewMode('list')}
                             className={`flex items-center gap-2 px-5 py-2.5 rounded-lg font-medium transition-all duration-200 ${
                                 viewMode === 'list' 
-                                    ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md' 
+                                    ? 'bg-slate-900 text-white shadow-md' 
                                     : 'text-gray-600 hover:bg-gray-100'
                             }`}
                         >
@@ -275,7 +268,7 @@ const Search = () => {
                                     }}
                                     className="h-[500px]"
                                 />
-                                <div className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-t border-gray-100">
+                                <div className="p-4 bg-gray-100 border-t border-gray-100">
                                     <p className="text-sm text-gray-600 text-center">
                                         <span className="inline-flex items-center justify-center gap-2">
                                             <LightBulbIcon className="h-4 w-4 text-slate-500" />
@@ -307,7 +300,7 @@ const Search = () => {
                                 </p>
                                 <button
                                     onClick={handleFindAll}
-                                    className="px-6 py-3 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 transition-colors"
+                                    className="px-6 py-3 bg-slate-900 text-white rounded-xl font-medium hover:bg-slate-800 transition-colors"
                                 >
                                     Voir tous les chauffeurs
                                 </button>

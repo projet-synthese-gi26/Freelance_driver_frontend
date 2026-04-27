@@ -224,7 +224,7 @@ export default function ClientSearchPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-emerald-50 to-green-50">
+    <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-8 font-inter">
         <div className="mb-6 rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
@@ -241,12 +241,7 @@ export default function ClientSearchPage() {
           </div>
         </div>
 
-        <div className="mb-8 flex flex-col items-center gap-2 text-center">
-          <div className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-white/80 shadow-sm ring-1 ring-slate-200">
-            <MagnifyingGlassIcon className="h-7 w-7 text-slate-700" />
-          </div>
-        </div>
-
+        {/* Search Card */}
         <div className="bg-white rounded-2xl shadow-xl p-6 mb-8 border border-gray-100">
           <form onSubmit={handleSearch}>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
@@ -293,7 +288,7 @@ export default function ClientSearchPage() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="flex-1 bg-emerald-600 text-white py-3 px-6 rounded-xl font-semibold hover:bg-emerald-700 disabled:bg-emerald-400 transition-colors duration-200"
+                className="flex-1 bg-slate-900 text-white py-3 px-6 rounded-xl font-semibold hover:bg-slate-800 disabled:bg-gray-400 transition-colors duration-200"
               >
                 {isLoading ? "Recherche..." : "Rechercher"}
               </button>
@@ -304,7 +299,7 @@ export default function ClientSearchPage() {
                   onClick={() => setViewMode("map")}
                   className={`px-4 py-3 rounded-xl font-medium transition-colors duration-200 flex items-center gap-2 ${
                     viewMode === "map"
-                      ? "bg-emerald-100 text-emerald-700"
+                      ? "bg-gray-200 text-gray-800"
                       : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                   }`}
                 >
@@ -316,7 +311,7 @@ export default function ClientSearchPage() {
                   onClick={() => setViewMode("list")}
                   className={`px-4 py-3 rounded-xl font-medium transition-colors duration-200 flex items-center gap-2 ${
                     viewMode === "list"
-                      ? "bg-emerald-100 text-emerald-700"
+                      ? "bg-gray-200 text-gray-800"
                       : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                   }`}
                 >
@@ -441,7 +436,7 @@ export default function ClientSearchPage() {
                         onAnnouncementSelect={handleAnnouncementSelect}
                         className="h-[500px]"
                       />
-                      <div className="p-4 bg-gradient-to-r from-emerald-50 to-green-50 border-t border-gray-100">
+                      <div className="p-4 bg-gray-100 border-t border-gray-100">
                         <p className="text-sm text-gray-600 text-center">
                           <span className="inline-flex items-center justify-center gap-2">
                             <LightBulbIcon className="h-4 w-4 text-slate-500" />
@@ -488,7 +483,7 @@ export default function ClientSearchPage() {
                     </p>
                     <button
                       onClick={handleFindAll}
-                      className="px-6 py-3 bg-emerald-600 text-white rounded-xl font-medium hover:bg-emerald-700 transition-colors"
+                      className="px-6 py-3 bg-slate-900 text-white rounded-xl font-medium hover:bg-slate-800 transition-colors"
                     >
                       Voir toutes les annonces
                     </button>
