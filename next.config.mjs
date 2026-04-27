@@ -13,6 +13,14 @@ const nextConfig = {
       },
     ],
   },
+  async rewrites() {
+    return [
+      {
+        source: '/api/:path*',
+        destination: 'https://traefikdev.yowyob.com/freelance-driver/api/:path*',
+      },
+    ];
+  },
 };
 
 export default withNextIntl(nextConfig);

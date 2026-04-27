@@ -12,7 +12,6 @@ COPY tsconfig.json .
 COPY tailwind.config.ts .
 COPY next.config.mjs .
 COPY next-env.d.ts .
-COPY .env .
 # Install dependencies
 RUN npm install --loglevel=error
 
