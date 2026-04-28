@@ -12,7 +12,6 @@ import LocaleSwitcher from "@/components/lang/LocalSwitcher";
 import { useAuthContext } from "@/components/context/authContext";
 import { MyAccountAvatar } from "@/components/general/MyAccountAvatar";
 import { usePathname, useRouter } from "next/navigation";
-import Header from "../landingpage/Header";
 import ThemeToggle from "@/components/theme/ThemeToggle";
 import { useLocale } from "next-intl";
 import { useTransition } from "react";
@@ -239,8 +238,8 @@ const NewHeader = ({ locale }: { locale?: string }) => {
 
   return (
     <>
-      {pathname === "/" && <Header />}
-      {(isDrivers ||
+      {(pathname === "/" ||
+        isDrivers ||
         isFreelance ||
         isAgencies ||
         isPassengers ||
