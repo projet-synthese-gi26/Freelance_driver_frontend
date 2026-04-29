@@ -142,6 +142,8 @@ const MenuItems: React.FC<MenuItemsProps> = ({ items, depthLevel }) => {
               >
                 {items.title}
               </button>
+            ) : String(items.url).startsWith('http') ? (
+              <a href={`${items.url}`} target="_blank" rel="noopener noreferrer" className="font-bold text-[#243757]">{items.title}</a>
             ) : (
               <Link href={`${items.url}`} className="font-bold text-[#243757]">{items.title}</Link>
             )

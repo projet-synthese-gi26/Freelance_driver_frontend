@@ -1,6 +1,5 @@
 "use client"
-import React, { useState, useEffect } from "react";
-import { IoCaretUpOutline } from "react-icons/io5";
+import React from "react";
 
 type linkProps = {
     title?: string | JSX.Element;
@@ -8,9 +7,12 @@ type linkProps = {
     items?: any;
 };
 
-const NavHor = ({ title, reference, items }: linkProps) => {
+const NavVer = ({ title, reference, items }: linkProps) => {
+    const url = items?.url ?? `#${reference}`;
+    const isExternal = String(url).startsWith('http');
+
     return (
-        <li className="group  ">
+        <li className="group">
             {items?.action ? (
               <button
                 type="button"
@@ -18,14 +20,23 @@ const NavHor = ({ title, reference, items }: linkProps) => {
                   e.preventDefault();
                   items.action?.();
                 }}
-                className={`text font-bold text-[#243757]`}
+                className={`text font-bold text-[#243757] w-full text-left`}
               >
                 {title}
               </button>
+            ) : isExternal ? (
+              <a
+                  href={url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`text font-bold text-[#243757] block w-full`}
+              >
+                  {title}
+              </a>
             ) : (
               <a
-                  href={`#${reference}`}
-                  className={`text font-bold text-[#243757]`}
+                  href={url}
+                  className={`text font-bold text-[#243757] block w-full`}
               >
                   {title}
               </a>
@@ -34,4 +45,4 @@ const NavHor = ({ title, reference, items }: linkProps) => {
     );
 };
 
-export default NavHor;
+export default NavVer;

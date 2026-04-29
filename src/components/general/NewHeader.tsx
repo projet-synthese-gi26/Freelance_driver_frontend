@@ -141,9 +141,9 @@ const NewHeader = ({ locale }: { locale?: string }) => {
       url: "#",
       reference: "",
       submenu: [
-        { title: t("Travel Agency"), url: "#" },
-        { title: t("Rental Agency"), url: "#" },
-        { title: t("Car Pooling"), url: "#" },
+        { title: t("Travel Agency"), url: "https://busstation-dev.yowyob.com" },
+        { title: t("Rental Agency"), url: "https://rental-dev.yowyob.com" },
+        { title: t("Car Pooling"), url: "https://ridngo-dev.yowyob.com" },
       ],
     },
     {
@@ -351,20 +351,34 @@ const NewHeader = ({ locale }: { locale?: string }) => {
             <div className="lg:hidden">
               <ul className="px-2 pt-2 pb-3 list-none">
                 {nav.map((item, index) => (
-                  <div key={index} className="pb-">
-                    <NavVer title={item.title} reference={item.reference} />
+                  <div key={index} className="pb-2">
+                    <NavVer title={item.title} reference={item.reference} items={item} />
                     {item.submenu && (
-                      <ul className="pl-4 list-none">
-                        {item.submenu.map((subItem, subIndex) => (
-                          <li key={subIndex}>
-                            <Link
-                              href={subItem.url}
-                              className="block  text text-gray-500 hover:text-gray-900 hover:bg-gray-50"
-                            >
-                              {subItem.title}
-                            </Link>
-                          </li>
-                        ))}
+                      <ul className="pl-4 list-none space-y-1 mt-1">
+                        {item.submenu.map((subItem: any, subIndex: number) => {
+                          const isExternal = String(subItem.url).startsWith('http');
+                          return (
+                            <li key={subIndex}>
+                              {isExternal ? (
+                                <a
+                                  href={subItem.url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="block text-sm text-gray-500 hover:text-gray-900 hover:bg-gray-50 py-1"
+                                >
+                                  {subItem.title}
+                                </a>
+                              ) : (
+                                <Link
+                                  href={subItem.url}
+                                  className="block text-sm text-gray-500 hover:text-gray-900 hover:bg-gray-50 py-1"
+                                >
+                                  {subItem.title}
+                                </Link>
+                              )}
+                            </li>
+                          );
+                        })}
                       </ul>
                     )}
                   </div>
