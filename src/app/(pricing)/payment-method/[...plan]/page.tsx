@@ -6,6 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ChangeEvent, useEffect, useState } from "react";
+import { billingService } from "@/service/billingService";
 
 const Page = ({ params }: { params: { plan: string[] } }) => {
   ;
@@ -54,24 +55,6 @@ const Page = ({ params }: { params: { plan: string[] } }) => {
   const [startDate,setStartDate]=useState("")
   const [payId,setPaymentId]=useState("")
 
-  const data={
-    userId: "ec9e4f82-f7d9-4624-aed6-34ad54e795c9",
-    startDate: startDate,
-    endDate :endDate,
-    status: status,
-    paymentDate:paymentDate,
-    category:category,
-    amount:amount,
-    duration:duration,
-    methodType:methodType,
-    cardNumber:cardNumber,
-    expirationDate:expirationDate,
-    cvc:cvc,
-    provider:provider,
-    phoneNumber:phoneNumber,
-    paypalEmail:paypalEmail,
-    paymentMethodId:payId
-  }
   const handleData=()=>{
     confirmCredential(!credentialConfirmed);
     setAmount(total_payable_amount)
@@ -114,20 +97,8 @@ const Page = ({ params }: { params: { plan: string[] } }) => {
 
 
   const validate=async()=>{
-    await axios.post("http://localhost:5000/subscription/create",data,
-        {
-          headers: {
-            'Content-Type': 'application/json',
-          }
-        }
-    ).then((response)=>{
-      console.log(response.status);
-      handleApply()
-    })
-        .catch((error)=>{
-          console.log(error);
-
-        })
+    const planCode = String(choice.title ?? "").toUpperCase();
+    await billingService.subscribe(planCode);
   }
 
   async function  proceedToPayment() : Promise<Boolean> {

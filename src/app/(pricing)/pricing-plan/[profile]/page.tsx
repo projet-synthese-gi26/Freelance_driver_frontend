@@ -6,13 +6,15 @@ import SubHeadingBtn from "../../components/SubHeadingBtn";
 import _features from "@/app/(pricing)/components/datas/features";
 import profiles from "@/app/(pricing)/components/datas/profiles";
 import { ArrowRightIcon } from "@heroicons/react/24/outline";
-import axios from "axios";
-import { log, profile } from "console";
-import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { use, useEffect, useState } from "react";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
+import { billingService } from "@/service/billingService";
+import type { BillingPlan } from "@/type/billing";
+import { sessionService } from "@/service/sessionService";
+import PlanCard from "../../components/PlanCard";
 
 interface PlanData {
   id: String;
@@ -23,12 +25,24 @@ interface PlanData {
   amount: Number;
 }
 
-const Page = ({ params }: { params: { profile: number } }) => {
+const Page = ({
+  params,
+}: {
+  params: Promise<{ profile: string }>;
+}) => {
+  const { profile } = use(params);
+  const profileId = Number(profile);
+  const router = useRouter();
   const [activeButton, setActiveButton] = useState(1);
+  const [subscribing, setSubscribing] = useState<string | null>(null);
+  const [activePlanId, setActivePlanId] = useState<string | null>(null);
+  const [selectedPlanCode, setSelectedPlanCode] = useState<string>("PRO");
+  const [loading, setLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   //const profile = 1;
   // console.log(params.profile);
 
-  const features = _features[params.profile];
+  const features = _features[profileId];
   // console.log(_features[params.profile])
   const basic = features["basic"];
   const standart = features["standart"];
@@ -60,6 +74,7 @@ const Page = ({ params }: { params: { profile: number } }) => {
   const [descriptionBasic, SetDescriptionBasic] = useState([]);
   const [descriptionStandard, SetDescriptionStandard] = useState([]);
   const [descriptionPremium, SetDescriptionPremium] = useState([]);
+  const [planIdByCode, setPlanIdByCode] = useState<Record<string, string>>({});
 
   const handleButtonClick = (index: number) => {
     setActiveButton(index);
@@ -74,80 +89,102 @@ const Page = ({ params }: { params: { profile: number } }) => {
   };
 
   useEffect(() => {
-    axios
-        .get("http://localhost:5000/find_plan")
-        .then((response) => {
-          const results = response.data;
-          if (activeButton === 1) {
-            const result = results.filter(
-                (responseItem: any) => responseItem.type === "monthly"
-            );
-            const plan1 = result.find(
-                (responseItem: any) => responseItem.title == "basic"
-            );
-            SetBasic(plan1);
-            SetDescriptionBasic(plan1.description);
-            const plan2 = result.find(
-                (responseItem: any) => responseItem.title == "standard"
-            );
-            SetStandard(plan2);
-            SetDescriptionStandard(plan2.description);
-            const plan3 = result.find(
-                (responseItem: any) => responseItem.title == "premium"
-            );
-            SetPremium(plan3);
-            SetDescriptionPremium(plan3.description);
-            console.log(result);
-          }
-          if (activeButton === 3) {
-            const result = results.filter(
-                (responseItem: any) => responseItem.type === "quarterly"
-            );
-            const plan1 = result.find(
-                (responseItem: any) => responseItem.title == "basic"
-            );
-            SetBasic(plan1);
-            SetDescriptionBasic(plan1.description);
-            const plan2 = result.find(
-                (responseItem: any) => responseItem.title == "standard"
-            );
-            SetStandard(plan2);
-            SetDescriptionStandard(plan2.description);
-            const plan3 = result.find(
-                (responseItem: any) => responseItem.title == "premium"
-            );
-            SetPremium(plan3);
-            SetDescriptionPremium(plan3.description);
-            console.log(result);
-          }
-          if (activeButton === 12) {
-            const result = results.filter(
-                (responseItem: any) => responseItem.type === "annually"
-            );
-            const plan1 = result.find(
-                (responseItem: any) => responseItem.title == "basic"
-            );
-            SetBasic(plan1);
-            SetDescriptionBasic(plan1.description);
-            const plan2 = result.find(
-                (responseItem: any) => responseItem.title == "standard"
-            );
-            SetStandard(plan2);
-            SetDescriptionStandard(plan2.description);
-            const plan3 = result.find(
-                (responseItem: any) => responseItem.title == "premium"
-            );
-            SetPremium(plan3);
-            SetDescriptionPremium(plan3.description);
-            console.log(result);
-          }
-        })
-        .catch((error) => {
-          console.log(error);
+    const run = async () => {
+      setLoading(true);
+      setErrorMessage(null);
+      try {
+        const plans: BillingPlan[] = await billingService.listPlans();
+        const free = plans.find((p) => p.code === "FREE");
+        const pro = plans.find((p) => p.code === "PRO");
+        const premiumPlan = plans.find((p) => p.code === "PREMIUM");
+
+        const byCode: Record<string, string> = {};
+        plans.forEach((p) => {
+          byCode[p.code] = p.id;
         });
+        setPlanIdByCode(byCode);
+
+        if (free) {
+          SetBasic({
+            id: free.id,
+            type: free.period,
+            title: "basic",
+            description: [],
+            content: free.name,
+            amount: free.price,
+          });
+        }
+
+        if (pro) {
+          SetStandard({
+            id: pro.id,
+            type: pro.period,
+            title: "standard",
+            description: [],
+            content: pro.name,
+            amount: pro.price,
+          });
+        }
+
+        if (premiumPlan) {
+          SetPremium({
+            id: premiumPlan.id,
+            type: premiumPlan.period,
+            title: "premium",
+            description: [],
+            content: premiumPlan.name,
+            amount: premiumPlan.price,
+          });
+        }
+
+        // Descriptions restent celles définies localement par profil.
+        SetDescriptionBasic(basic?.description ?? []);
+        SetDescriptionStandard(standart?.description ?? []);
+        SetDescriptionPremium(premium?.description ?? []);
+
+        const token = sessionService.getAuthToken();
+        if (token) {
+          try {
+            const sub = await billingService.getMySubscription();
+            setActivePlanId(sub.planId);
+
+            const activeCode = Object.entries(byCode).find(([, id]) => id === sub.planId)?.[0];
+            if (activeCode) setSelectedPlanCode(activeCode);
+          } catch (e) {
+            // ignore
+          }
+        }
+      } catch (error) {
+        console.log(error);
+        setErrorMessage("Unable to load plans. Please retry.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    run();
   }, [activeButton]);
 
-  const terms = profiles[params.profile - 1].url.replaceAll("-", " ");
+  const handleSubscribe = async (planCode: string) => {
+    const token = sessionService.getAuthToken();
+    if (!token) {
+      router.push("/auth/login");
+      return;
+    }
+    try {
+      setSubscribing(planCode);
+      const sub = await billingService.subscribe(planCode);
+      setActivePlanId(sub.planId);
+      router.push("/freelance-search");
+    } catch (e) {
+      console.log(e);
+      setErrorMessage("Subscription failed. Please retry.");
+    } finally {
+      setSubscribing(null);
+    }
+  };
+
+  const terms = profiles[profileId - 1]?.url?.replaceAll("-", " ") ?? "";
 
   return (
       <main>
@@ -168,6 +205,13 @@ const Page = ({ params }: { params: { profile: number } }) => {
               fits you the most... Feel free and explore the terms
             </p>
           </div>
+          {errorMessage ? (
+            <div className="container mb-4">
+              <div className="rounded-xl border border-red-200 bg-red-50 text-red-700 px-4 py-3">
+                {errorMessage}
+              </div>
+            </div>
+          ) : null}
           <div className="mb-2">
             <div className="container">
               <div className="row">
@@ -199,115 +243,79 @@ const Page = ({ params }: { params: { profile: number } }) => {
             </div>
           </div>
           <div className="container">
-            <div className="grid grid-cols-12 g-3 md:gap-0 overflow-hidden">
-              <div className="col-span-12 md:col-span-6 lg:col-span-4 mx-3 h-full">
-                <div className="bg-white py-2 px-6 h-full">
-                  <div className="text-center">
-                    <p className="mb-0 font-medium text-primary">
-                      Basic
-                    </p>
-                    <div className="border border-dashed mt-2 mb-1"></div>
-                    <h1 className="h2 clr-primary-400 mb-2 text">
-                      {" "}
-                      {Basic.amount.toString()} FCFA / {activeButton} month{" "}
-                    </h1>
-                    <p className="m-1">{Basic.content}</p>
-                    <div className="border border-dashed mt-1 mb-2"></div>
-                    <ul className="flex flex-col gap-4 max-text-30 mx-auto mb-3">
-                      {descriptionBasic.map((description,key) => (
-                          <li className="flex items-center text-2xl gap-2" key=''>
-                            <i className="las la-check-circle text-primary"></i>
-                            <p className="mb-0 text text-start">{description}</p>
-                          </li>
-                      ))}
-                    </ul>
-                    <Link
-                        href={
-                            "/payment-method/" +
-                            params.profile +
-                            "/basic/" +
-                            activeButton
-                        }
-                        className="w-full rounded-lg btn-outline transition-colors duration-500 bg-primary text-white hover:bg-[#575fa0]  justify-center  font-semibold"
-                    >
-                      Choose Plan
-                    </Link>
-                  </div>
+            {loading ? (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="h-[360px] rounded-2xl bg-white/60 animate-pulse"></div>
+                <div className="h-[360px] rounded-2xl bg-white/60 animate-pulse"></div>
+                <div className="h-[360px] rounded-2xl bg-white/60 animate-pulse"></div>
+              </div>
+            ) : (
+              <div className="grid grid-cols-12 g-3 md:gap-0 overflow-hidden">
+                <div className="col-span-12 md:col-span-6 lg:col-span-4 mx-3 h-full">
+                  <PlanCard
+                    label="Basic"
+                    price={Number(Basic.amount)}
+                    currency="FCFA"
+                    periodLabel={`${activeButton} month`}
+                    description={descriptionBasic as string[]}
+                    highlighted={selectedPlanCode === "FREE"}
+                    active={activePlanId === planIdByCode["FREE"]}
+                    disabled={subscribing !== null || activePlanId === planIdByCode["FREE"]}
+                    buttonLabel={
+                      activePlanId === planIdByCode["FREE"]
+                        ? "Current plan"
+                        : subscribing === "FREE"
+                          ? "Subscribing..."
+                          : "Choose Plan"
+                    }
+                    onSelect={() => handleSubscribe("FREE")}
+                    onCardClick={() => setSelectedPlanCode("FREE")}
+                  />
+                </div>
+                <div className="col-span-12 md:col-span-6 lg:col-span-4 mx-3 h-full">
+                  <PlanCard
+                    label="Standard"
+                    price={Number(Standard.amount)}
+                    currency="FCFA"
+                    periodLabel={`${activeButton} month`}
+                    description={descriptionStandard as string[]}
+                    highlighted={selectedPlanCode === "PRO"}
+                    active={activePlanId === planIdByCode["PRO"]}
+                    disabled={subscribing !== null || activePlanId === planIdByCode["PRO"]}
+                    buttonLabel={
+                      activePlanId === planIdByCode["PRO"]
+                        ? "Current plan"
+                        : subscribing === "PRO"
+                          ? "Subscribing..."
+                          : "Choose Plan"
+                    }
+                    onSelect={() => handleSubscribe("PRO")}
+                    onCardClick={() => setSelectedPlanCode("PRO")}
+                  />
+                </div>
+                <div className="col-span-12 md:col-span-6 lg:col-span-4 mx-3 h-full">
+                  <PlanCard
+                    label="Premium"
+                    price={Number(Premium.amount)}
+                    currency="FCFA"
+                    periodLabel={`${activeButton} month`}
+                    description={descriptionPremium as string[]}
+                    highlighted={selectedPlanCode === "PREMIUM"}
+                    active={activePlanId === planIdByCode["PREMIUM"]}
+                    disabled={subscribing !== null || activePlanId === planIdByCode["PREMIUM"]}
+                    buttonLabel={
+                      activePlanId === planIdByCode["PREMIUM"]
+                        ? "Current plan"
+                        : subscribing === "PREMIUM"
+                          ? "Subscribing..."
+                          : "Choose Plan"
+                    }
+                    onSelect={() => handleSubscribe("PREMIUM")}
+                    onCardClick={() => setSelectedPlanCode("PREMIUM")}
+                  />
                 </div>
               </div>
-              <div className="col-span-12 md:col-span-6 lg:col-span-4 mx-3 h-full">
-                <div className="bg-primary px-6 py-2 h-full">
-                  <div className="text-center">
-                    <p className="mb-0 font-medium text-white">
-                      Standard
-                    </p>
-                    <div className="border border-dashed mt-2 mb-1"></div>
-                    <h1 className="h2 text-white mb-2 text">
-                      {Standard.amount.toString()} FCFA / {activeButton} month{" "}
-                    </h1>
-                    <p className="m-1 text-white">{Standard.content} </p>
-                    <div className="border border-dashed mt-1 mb-2"></div>
-                    <ul className="flex flex-col gap-4 max-text-30 mx-auto mb-3">
-                      {descriptionStandard.map((description,key) => (
-                          <li className="flex items-center text-2xl gap-2" key='' >
-                            <i className="las la-check-circle text-white"></i>
-                            <p className="mb-0 text-white text-start">
-                              {description}
-                            </p>
-                          </li>
-                      ))}
-                    </ul>
-                    <Link
-                        href={
-                            "/payment-method/" +
-                            params.profile +
-                            "/standart/" +
-                            activeButton
-                        }
-                        className="btn-outline  bg-white hover:bg-white  hover:text-primary text-primary w-full rounded-lg justify-center"
-                    >
-                      Choose Plan
-                    </Link>
-                  </div>
-                </div>
-              </div>
-              <div className="col-span-12 md:col-span-6 lg:col-span-4 mx-3 h-full">
-                <div className="p-2 bg-white h-full">
-                  <div className="text-center text-black relative">
-                    <p className="mb-0 font-medium text-primary">
-                      Premium
-                    </p>
-                    <div className="border border-dashed mt-2 mb-2"></div>
-                    <h1 className="h2  mb-1 text">
-                      {" "}
-                      {Premium.amount.toString()} FCFA / {activeButton} month{" "}
-                    </h1>
-                    <p className="m-1">{Premium.content}</p>
-                    <div className="border border-dashed mt-2 mb-2"></div>
-                    <ul className="flex flex-col gap-4 max-text-30 mx-auto mb-3">
-                      {descriptionPremium.map((description,key) => (
-                          <li className="flex items-center text-2xl gap-2 " key=''>
-                            <i className="las la-check-circle text-primary"></i>
-                            <p className="mb-0 text-lg text-start">{description}</p>
-                          </li>
-                      ))}
-
-                    </ul>
-                    <Link
-                        href={
-                            "/payment-method/" +
-                            params.profile +
-                            "/premium/" +
-                            activeButton
-                        }
-                        className="btn-outline bg-primary hover:bg-[#575fa0] transition-colors duration-500  font-semibold text-white w-full rounded-lg justify-center  bottom-10"
-                    >
-                      Choose Plan
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            </div>
+            )}
           </div>
           <div className="pt-[60px] lg:pt-[120px]">
             <div className="container">
