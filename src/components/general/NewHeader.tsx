@@ -162,7 +162,7 @@ const NewHeader = ({ locale }: { locale?: string }) => {
       reference: "",
       submenu: [
         { title: t("Driving School"), url: "#" },
-        { title: t("Syndicate"), url: "#" },
+        { title: t("Syndicate"), url: "https://ugate-dev.yowyob.com/fr" },
         { title: t("Educator"), url: "#" },
         { title: t("Administration"), url: "#" },
         { title: t("Sponsor"), url: "#" },
