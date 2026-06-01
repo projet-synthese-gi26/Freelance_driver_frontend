@@ -26,25 +26,31 @@ export default function LoginForm({
           {t("divider")}
         </div>
       </div>
-      <div className="flex justify-center space-x-4 mb-4">
-        <button
-          type="button"
-          className={`px-4 py-2 rounded ${
-            loginMethod === "email" ? "bg-indigo-600 text-white" : "bg-gray-200"
-          }`}
-          onClick={() => setLoginMethod("email")}
-        >
-          {t("methods.email")}
-        </button>
-        <button
-          type="button"
-          className={`px-4 py-2 rounded ${
-            loginMethod === "phone" ? "bg-indigo-600 text-white" : "bg-gray-200"
-          }`}
-          onClick={() => setLoginMethod("phone")}
-        >
-          {t("methods.phone")}
-        </button>
+      <div className="flex justify-center mb-5">
+        <div className="flex bg-gray-100 rounded-xl p-1 gap-1">
+          <button
+            type="button"
+            className={`px-5 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+              loginMethod === "email"
+                ? "bg-white text-primary-500 shadow-sm"
+                : "text-gray-500 hover:text-gray-700"
+            }`}
+            onClick={() => setLoginMethod("email")}
+          >
+            {t("methods.email")}
+          </button>
+          <button
+            type="button"
+            className={`px-5 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+              loginMethod === "phone"
+                ? "bg-white text-primary-500 shadow-sm"
+                : "text-gray-500 hover:text-gray-700"
+            }`}
+            onClick={() => setLoginMethod("phone")}
+          >
+            {t("methods.phone")}
+          </button>
+        </div>
       </div>
       {loginMethod === "email" ? (
         <LoginFormEmail

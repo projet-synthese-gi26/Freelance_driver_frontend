@@ -17,7 +17,7 @@ const Newsletter: React.FC = () => {
   };
 
   return (
-    <section className="flex flex-col justify-center items-center py-36 px-4 md:px-8 lg:px-16 w-full max-w-[1729px] mx-auto bg-white rounded-2xl">
+    <section className="flex flex-col justify-center items-center py-16 md:py-24 lg:py-36 px-4 md:px-8 lg:px-16 w-full max-w-[1729px] mx-auto bg-white rounded-2xl">
       <div className="flex flex-col items-center gap-12 w-full">
         <div className="flex flex-col justify-center items-center gap-3 w-full">
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-semibold text-center text-black-500 leading-tight tracking-tight">

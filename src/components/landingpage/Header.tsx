@@ -102,17 +102,16 @@ const Header = () => {
   ];
 
   const authenticationSystem = (
-    <div className="hidden lg:flex items-center space-x-4">
-      {/*<LocaleSwitcher status="dark"/>*/}
+    <div className="hidden lg:flex items-center gap-2">
       <button
-        className="transition-colors rounded-md hover:bg-gray-800 hover:text-white px-2 py-2"
+        className="text-sm font-medium text-gray-700 hover:text-primary transition-colors px-3 py-2 rounded-lg hover:bg-primary-50"
         onClick={openLoginModal}
       >
         {t("headerlogin")}
       </button>
       <button
         onClick={openRegisterModal}
-        className="bg-[#243757] text-white px-3 py-2 rounded-md hover:bg-gray-800 transition-colors"
+        className="text-sm font-semibold bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary-600 transition-colors"
       >
         {t("headersign")}
       </button>
@@ -120,130 +119,139 @@ const Header = () => {
   );
 
   const authenticationSystemRespo = (
-    <>
-      <li>
-        <button
-          onClick={openLoginModal}
-          className="w-full text-left block text-[#243757] py-1 px-2 text  hover:text-gray-900 hover:bg-gray-50"
-        >
-          {t("headerlogin")}
-        </button>
-      </li>
-      <li className="space-y-5">
-        <button
-          onClick={openRegisterModal}
-          className="text-left block py-1 px-2 text text-white bg-[#243757] rounded-3xl hover:bg-gray-800"
-        >
-          {t("headersign")}
-        </button>
-      </li>
-    </>
+    <div className="flex flex-col gap-2">
+      <button
+        onClick={openLoginModal}
+        className="w-full text-left text-sm font-medium text-gray-700 py-2 px-3 rounded-lg hover:text-primary hover:bg-primary-50 transition-colors"
+      >
+        {t("headerlogin")}
+      </button>
+      <button
+        onClick={openRegisterModal}
+        className="w-full text-left text-sm font-semibold text-white bg-primary py-2 px-3 rounded-lg hover:bg-primary-600 transition-colors"
+      >
+        {t("headersign")}
+      </button>
+    </div>
   );
   return (
     <header
-    className={`bg-white  font-inter w-full text-black z-10 ${
-      dark ? "nav-color backdrop-blur-sm shadow-md" : ""
-    } border-b`}
-  >
-    <nav
-      className="container mx-auto px-4 py-1 text flex items-center justify-between"
-      aria-label="Global"
+      className={`bg-white font-inter w-full text-black z-50 sticky top-0 transition-shadow duration-300 ${
+        dark ? "shadow-md" : "border-b border-gray-100"
+      }`}
     >
-      <div className="items-center">
-        <Link href="/" className="items-center">
-          <Image src={logo} alt="logo" width={120} height={40} />
-        </Link>
-      </div>
-
-      <div className="hidden lg:flex items-center space-x-4">
-        <ul className="flex space-x-4 list-none">
-          {nav.map((item, index) => (
-            <div key={index} className="relative group">
-              <NavHor
-                title={item.title}
-                reference={item.reference}
-                items={item}
-                key={index}
-                id={index}
-              />
-              {item.submenu && (
-                <ul className="absolute left-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg hidden group-hover:block">
-                  {item.submenu.map((subItem, subIndex) => (
-                    <li key={subIndex}>
-                      <Link
-                        href={subItem.url}
-                        className="block px-4 py-2  text-gray-700 hover:bg-gray-100"
-                      >
-                        {subItem.title}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-          ))}
-        </ul>
-      </div>
-
-      <div className=" hidden lg:flex">
-        <LocaleSwitcher status="dark" />
-      </div>
-      {(!user && !authLoading) ? (
-        authenticationSystem
-      ) : user ? (
-        <div className=" hidden lg:flex">
-          <MyAccountAvatar />
+      <nav
+        className="container mx-auto px-6 py-3 flex items-center justify-between"
+        aria-label="Global"
+      >
+        <div className="flex items-center">
+          <Link href="/" className="flex items-center">
+            <Image src={logo} alt="logo" width={140} height={46} />
+          </Link>
         </div>
-      ) : null}
 
-      <div className="lg:hidden">
-        <button
-          onClick={() => setMenuOpen(!menuOpen)}
-          className="p-2 text-gray-600 hover:text-gray-900 focus:outline-none focus:ring"
-        >
-          {menuOpen ? (
-            <HiX className="h-6 w-6" aria-hidden="true" />
-          ) : (
-            <HiOutlineMenu className="h-6 w-6" aria-hidden="true" />
-          )}
-        </button>
-      </div>
-    </nav>
+        <div className="hidden lg:flex items-center gap-1">
+          <ul className="flex gap-1 list-none">
+            {nav.map((item, index) => {
+              const isActive =
+                item.url !== "#" &&
+                (pathname === item.url || pathname.startsWith(item.url + "/"));
+              return (
+                <div key={index} className="relative group">
+                  <NavHor
+                    title={item.title}
+                    reference={item.reference}
+                    items={item}
+                    key={index}
+                    id={index}
+                  />
+                  {isActive && (
+                    <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-4/5 h-0.5 bg-primary rounded-full" />
+                  )}
+                  {item.submenu && (
+                    <ul className="absolute left-0 mt-2 w-52 bg-white border border-gray-100 rounded-xl shadow-lg hidden group-hover:block z-50">
+                      {item.submenu.map((subItem, subIndex) => (
+                        <li key={subIndex}>
+                          <Link
+                            href={subItem.url}
+                            className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-primary-50 hover:text-primary rounded-lg mx-1 my-0.5 transition-colors"
+                          >
+                            {subItem.title}
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              );
+            })}
+          </ul>
+        </div>
 
-    {/* Mobile menu */}
-    {menuOpen && (
-      <div className="lg:hidden">
-        <ul className="px-2 pt-2 pb-3 list-none">
-          {nav.map((item, index) => (
-            <div key={index} className="pb-">
-              <NavVer title={item.title} reference={item.reference} />
-              {item.submenu && (
-                <ul className="pl-4 list-none">
-                  {item.submenu.map((subItem, subIndex) => (
-                    <li key={subIndex}>
-                      <Link
-                        href={subItem.url}
-                        className="block  text text-gray-500 hover:text-gray-900 hover:bg-gray-50"
-                      >
-                        {subItem.title}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-          ))}
-
-          {(!user && !authLoading) ? authenticationSystemRespo : user ? (
-            <li className="py-2 border-t border-gray-100 mt-2">
-              <MyAccountAvatar />
-            </li>
-          ) : null}
+        <div className="hidden lg:flex items-center gap-3">
           <LocaleSwitcher status="dark" />
-        </ul>
-      </div>
-    )}
-  </header>
+          {(!user && !authLoading) ? (
+            authenticationSystem
+          ) : user ? (
+            <MyAccountAvatar />
+          ) : null}
+        </div>
+
+        <div className="lg:hidden">
+          <button
+            onClick={() => setMenuOpen(!menuOpen)}
+            className="p-2 text-gray-600 hover:text-primary focus:outline-none transition-colors"
+          >
+            {menuOpen ? (
+              <HiX className="h-6 w-6" aria-hidden="true" />
+            ) : (
+              <HiOutlineMenu className="h-6 w-6" aria-hidden="true" />
+            )}
+          </button>
+        </div>
+      </nav>
+
+      {/* Mobile menu */}
+      {menuOpen && (
+        <div className="lg:hidden border-t border-gray-100 bg-white">
+          <ul className="px-4 pt-3 pb-5 list-none flex flex-col gap-1">
+            {nav.map((item, index) => {
+              const isActive =
+                item.url !== "#" &&
+                (pathname === item.url || pathname.startsWith(item.url + "/"));
+              return (
+                <div key={index}>
+                  <div className={`rounded-lg ${isActive ? "bg-primary-50" : ""}`}>
+                    <NavVer title={item.title} reference={item.reference} />
+                  </div>
+                  {item.submenu && (
+                    <ul className="pl-4 list-none">
+                      {item.submenu.map((subItem, subIndex) => (
+                        <li key={subIndex}>
+                          <Link
+                            href={subItem.url}
+                            className="block text-sm text-gray-500 hover:text-primary hover:bg-primary-50 py-2 px-3 rounded-lg transition-colors"
+                          >
+                            {subItem.title}
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              );
+            })}
+
+            <div className="mt-2 pt-3 border-t border-gray-100 flex flex-col gap-2">
+              {(!user && !authLoading) ? authenticationSystemRespo : user ? (
+                <MyAccountAvatar />
+              ) : null}
+              <LocaleSwitcher status="dark" />
+            </div>
+          </ul>
+        </div>
+      )}
+    </header>
   )
 }
 

@@ -16,18 +16,17 @@
 }
 
 .title{
-  font-size: 1.1rem;
-  margin-bottom: 1;
-
+  font-size: 1.25rem;
+  margin-bottom: 0.5rem;
 }
 
 .bigtitle{
-  font-size: 1.5rem;
-  margin-bottom: 1;
+  font-size: 1.875rem;
+  margin-bottom: 0.5rem;
 }
 
 .text{
-  font-size: 0.83rem;
+  font-size: 0.95rem;
 }
 
 .menu-items {
@@ -73,9 +72,6 @@
   }
   .btn-primary {
     @apply btn py-3 px-6 text-white;
-  }
-  .btn-tertiary {
-    @apply btn bg-[var(--tertiary)] py-3 px-6 text-white;
   }
   .btn-secondary {
     @apply btn-primary bg-[var(--secondary)];

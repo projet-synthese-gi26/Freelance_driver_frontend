@@ -175,9 +175,10 @@ const NewHeader = ({ locale }: { locale?: string }) => {
       url: "#",
       reference: "",
       submenu: [
-        { title: t("Driver"), url: "#" },
-        { title: t("Passenger"), url: "#" },
-        { title: t("Agency"), url: "#" },
+        { title: t("Driver"), url: "/driver" },
+        { title: t("Passenger"), url: "/passenger" },
+        { title: t("Agency"), url: "/agency" },
+        { title: t("Institutions"), url: "/institution" },
       ],
     },
     {
@@ -199,16 +200,16 @@ const NewHeader = ({ locale }: { locale?: string }) => {
   ];
 
   const authenticationSystem = (
-    <div className="hidden lg:flex items-center space-x-4">
+    <div className="hidden lg:flex items-center gap-2">
       <button
-        className="transition-colors rounded-md hover:bg-gray-800 hover:text-white px-2 py-2"
+        className="text-sm font-medium text-gray-700 hover:text-primary transition-colors px-3 py-2 rounded-lg hover:bg-primary-50"
         onClick={openLoginModal}
       >
         {t("headerlogin")}
       </button>
       <button
         onClick={openRegisterModal}
-        className="bg-[#243757] text-white px-3 py-2 rounded-md hover:bg-gray-800 transition-colors"
+        className="text-sm font-semibold bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary-600 transition-colors"
       >
         {t("headersign")}
       </button>
@@ -216,24 +217,20 @@ const NewHeader = ({ locale }: { locale?: string }) => {
   );
 
   const authenticationSystemRespo = (
-    <>
-      <li>
-        <button
-          onClick={openLoginModal}
-          className="w-full text-left block text-[#243757] py-1 px-2 text  hover:text-gray-900 hover:bg-gray-50"
-        >
-          {t("headerlogin")}
-        </button>
-      </li>
-      <li className="space-y-5">
-        <button
-          onClick={openRegisterModal}
-          className="text-left block py-1 px-2 text text-white bg-[#243757] rounded-3xl hover:bg-gray-800"
-        >
-          {t("headersign")}
-        </button>
-      </li>
-    </>
+    <div className="flex flex-col gap-2 mt-2 pt-3 border-t border-gray-100">
+      <button
+        onClick={openLoginModal}
+        className="w-full text-left text-sm font-medium text-gray-700 py-2 px-3 rounded-lg hover:text-primary hover:bg-primary-50 transition-colors"
+      >
+        {t("headerlogin")}
+      </button>
+      <button
+        onClick={openRegisterModal}
+        className="w-full text-left text-sm font-semibold text-white bg-primary py-2 px-3 rounded-lg hover:bg-primary-600 transition-colors"
+      >
+        {t("headersign")}
+      </button>
+    </div>
   );
 
   return (
@@ -250,49 +247,80 @@ const NewHeader = ({ locale }: { locale?: string }) => {
         isBookingPage ||
         isNotificationsPage) && (
         <header
-          className={`bg-white  font-inter w-full text-black z-10 ${dark ? "nav-color backdrop-blur-sm shadow-md" : ""
-            } border-b`}
+          className={`bg-white font-inter w-full text-black z-50 sticky top-0 transition-shadow duration-300 ${
+            dark ? "shadow-md" : "border-b border-gray-100"
+          }`}
         >
           <nav
-            className="container mx-auto px-4 py-1 text flex items-center justify-between"
+            className="container mx-auto px-6 py-3 flex items-center justify-between"
             aria-label="Global"
           >
-            <div className="items-center">
-              <Link href={logoLink} className="items-center">
-                <Image src={logo} alt="logo" width={120} height={40} />
+            <div className="flex items-center">
+              <Link href={logoLink} className="flex items-center">
+                <Image src={logo} alt="logo" width={140} height={46} />
               </Link>
             </div>
-            <div className="hidden lg:flex items-center space-x-4">
-              <ul className="flex space-x-4 list-none">
-                {nav.map((item, index) => (
-                  <div key={index} className="relative group">
-                    <NavHor
-                      title={item.title}
-                      reference={item.reference}
-                      items={item}
-                      key={index}
-                      id={index}
-                    />
-                    {item.submenu && (
-                      <ul className="absolute left-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg hidden group-hover:block">
-                        {item.submenu.map((subItem, subIndex) => (
-                          <li key={subIndex}>
-                            <Link
-                              href={subItem.url}
-                              className="block px-4 py-2  text-gray-700 hover:bg-gray-100"
-                            >
-                              {subItem.title}
-                            </Link>
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-                  </div>
-                ))}
+            <div className="hidden lg:flex items-center gap-1">
+              <ul className="flex gap-1 list-none">
+                {nav.map((item, index) => {
+                  const isActive =
+                    typeof item.url === "string" &&
+                    item.url !== "#" &&
+                    (pathname === item.url || pathname.startsWith(item.url + "/"));
+                  return (
+                    <div key={index} className="relative group">
+                      <NavHor
+                        title={item.title}
+                        reference={item.reference}
+                        items={item}
+                        key={index}
+                        id={index}
+                      />
+                      {isActive && (
+                        <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-4/5 h-0.5 bg-primary rounded-full" />
+                      )}
+                      {item.submenu && (
+                        <ul className="absolute left-0 mt-2 w-52 bg-white border border-gray-100 rounded-xl shadow-lg hidden group-hover:block z-50">
+                          {item.submenu.map((subItem: any, subIndex: number) => {
+                            const isExternal = String(subItem.url).startsWith("http");
+                            return (
+                              <li key={subIndex}>
+                                {isExternal ? (
+                                  <a
+                                    href={subItem.url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-primary-50 hover:text-primary rounded-lg mx-1 my-0.5 transition-colors"
+                                  >
+                                    {subItem.title}
+                                  </a>
+                                ) : subItem.action ? (
+                                  <button
+                                    onClick={subItem.action}
+                                    className="w-full text-left block px-4 py-2.5 text-sm text-gray-700 hover:bg-primary-50 hover:text-primary rounded-lg mx-1 my-0.5 transition-colors"
+                                  >
+                                    {subItem.title}
+                                  </button>
+                                ) : (
+                                  <Link
+                                    href={subItem.url}
+                                    className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-primary-50 hover:text-primary rounded-lg mx-1 my-0.5 transition-colors"
+                                  >
+                                    {subItem.title}
+                                  </Link>
+                                )}
+                              </li>
+                            );
+                          })}
+                        </ul>
+                      )}
+                    </div>
+                  );
+                })}
               </ul>
             </div>
 
-            <div className=" hidden lg:flex">
+            <div className="hidden lg:flex">
               <LocaleSwitcher status="dark" />
             </div>
             {/* Afficher avatar si connecté, sinon boutons de connexion */}
@@ -385,9 +413,9 @@ const NewHeader = ({ locale }: { locale?: string }) => {
                 ))}
 
                 {(!user && !authLoading) ? authenticationSystemRespo : user ? (
-                  <li className="py-2 border-t border-gray-100 mt-2">
+                  <div className="py-2 border-t border-gray-100 mt-2">
                     <MyAccountAvatar />
-                  </li>
+                  </div>
                 ) : null}
                 <LocaleSwitcher status="dark" />
               </ul>
