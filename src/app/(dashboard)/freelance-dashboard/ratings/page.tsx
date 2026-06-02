@@ -38,7 +38,7 @@ const getReviewCreatedAt = (review: Review) => {
 
 // --- COMPOSANT HEADER STATISTIQUES ---
 const StatsHeader = ({ average, count }: { average: number; count: number }) => (
-    <div className="bg-gradient-to-r from-blue-600 to-blue-400 rounded-xl p-6 mb-8 text-white shadow-lg flex justify-around items-center">
+    <div className="bg-gradient-to-r from-primary to-primary/70 rounded-xl p-6 mb-8 text-white shadow-lg flex justify-around items-center">
         <div className="text-center">
             <p className="text-4xl font-bold">{average.toFixed(1)}</p>
             <p className="text-sm text-blue-100 uppercase tracking-wide mt-1">Note Moyenne</p>

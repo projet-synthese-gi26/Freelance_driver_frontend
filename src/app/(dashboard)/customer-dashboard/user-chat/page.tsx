@@ -66,7 +66,7 @@ const Page = () => {
   }
 
   return (
-      <div className={`flex flex-col bg-white lg:flex-row ${contacts.length>6? ("lg:h-[40rem]"):("lg:h-full")} bg-gray-100 pb-20 mb-[15%]`}>
+      <div className={`flex flex-col bg-white lg:flex-row ${contacts.length>6? ("lg:h-[40rem]"):("lg:h-full")} bg-gray-100 pb-20`}>
         <div className={`${isChatting ? "lg:block hidden" : ""}`}>
           <ChatSideBar contacts={contacts} onSelectContact={handleContactSelect} setSearchResult={setSearchResult} searchResult={searchResult} />
         </div>

@@ -10,7 +10,7 @@ import React from "react";
 const page = () => {
   return (
     <div>
-      <section className="bg-[var(--bg-1)] px-3 lg:px-6 py-4 lg:py-6">
+      <section className="bg-gray-50 px-3 lg:px-6 py-4 lg:py-6">
         <div className="bg-white p-3 sm:p-4  md:py-6 lg:py-8 md:px-8 lg:px-10 border rounded-2xl">
           <div className="flex justify-between mb-7">
             <h3 className="h3">Recent Bookings</h3>

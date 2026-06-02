@@ -111,7 +111,7 @@ const RateAppPage = () => {
 
   return (
     <div className="max-w-2xl mx-auto p-4 md:p-6">
-      <div className="bg-gradient-to-r from-purple-600 to-indigo-600 rounded-2xl p-8 mb-8 text-white text-center shadow-lg">
+      <div className="bg-gradient-to-r from-primary to-primary/80 rounded-2xl p-8 mb-8 text-white text-center shadow-lg">
         <StarIcon className="w-12 h-12 text-yellow-300 mx-auto mb-3" />
         <h1 className="text-3xl font-bold mb-2">Évaluez Votre Expérience</h1>
         <p className="text-purple-100">Vos retours détaillés sont précieux pour nous !</p>
@@ -151,7 +151,7 @@ const RateAppPage = () => {
             <button
                 type="submit"
                 disabled={isLoading || Object.keys(ratings).length === 0}
-                className="bg-green-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow-md"
+                className="bg-primary text-white px-8 py-3 rounded-xl font-bold hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow-md"
             >
                 {isLoading ? 'Envoi en cours...' : 'Envoyer mon évaluation'}
             </button>

@@ -110,7 +110,7 @@ const Page = () => {
                 const updatedContext = await profileService.updateProfilePicture(file);
                 sessionService.saveSessionContext(updatedContext);
                 await checkAuth();
-                toast.success("Photo de profil mise à jour !", { id: loadingToast });
+                toast.success("Profile photo updated!", { id: loadingToast });
             } catch (error) {
                 console.error(error);
                 toast.error("Échec du changement de photo.", { id: loadingToast });
@@ -144,7 +144,7 @@ const Page = () => {
                             <Image src={avatarUrl} alt="avatar" fill sizes="64px" unoptimized className="object-cover" />
                         </div>
                         <div>
-                            <p className="text-sm font-semibold text-gray-800">Photo de profil</p>
+                            <p className="text-sm font-semibold text-gray-800">Profile photo</p>
                             <p className="text-xs text-gray-500">PNG/JPG · max 10MB</p>
                         </div>
                     </div>
@@ -157,13 +157,15 @@ const Page = () => {
                             onChange={handleAvatarChange}
                             className="hidden"
                         />
-                        <button
-                            type="button"
-                            onClick={() => inputFileRef.current?.click()}
-                            className="px-4 py-2 rounded-lg bg-primary/10 text-primary font-semibold"
-                        >
-                            Changer la photo
-                        </button>
+                        {editable && (
+                          <button
+                              type="button"
+                              onClick={() => inputFileRef.current?.click()}
+                              className="px-4 py-2 rounded-lg bg-primary/10 text-primary font-semibold"
+                          >
+                              Change photo
+                          </button>
+                        )}
                     </div>
                 </div>
 

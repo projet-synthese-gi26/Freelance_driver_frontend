@@ -255,7 +255,7 @@ export default function RootLayout({
 
         <div className="flex-grow">
           {/* Header du Dashboard */}
-          <div className="flex items-center w-full justify-between flex-wrap gap-4 pl-4 py-3 bg-[#E0D9FD]">
+          <div className="flex items-center w-full justify-between flex-wrap gap-4 pl-4 py-3 bg-primary/10">
             <div className="flex gap-3 items-center">
               <button onClick={handleOpen} className="lg:hidden text-gray-500 hover:text-gray-700">
                 <Bars3Icon className="w-6 h-6" />
@@ -273,7 +273,8 @@ export default function RootLayout({
 
               <div
                 onClick={handlePencilClick}
-                className="cursor-pointer border-2 border-white overflow-hidden w-[40px] h-[40px] rounded-full bg-white relative mx-auto shadow-sm"
+                className="group cursor-pointer border-2 border-white overflow-hidden w-[40px] h-[40px] rounded-full bg-white relative mx-auto shadow-sm"
+                title="Change profile photo"
               >
                 <Image
                   src={avatarUrl}
@@ -281,8 +282,13 @@ export default function RootLayout({
                   fill
                   sizes="40px"
                   unoptimized
-                  className="rounded-full h-full w-full object-cover"
+                  className="rounded-full h-full w-full object-cover group-hover:opacity-70 transition-opacity"
                 />
+                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                  <svg className="w-4 h-4 text-white drop-shadow" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536M9 13l6.586-6.586a2 2 0 012.828 0l.172.172a2 2 0 010 2.828L12 16H9v-3z" />
+                  </svg>
+                </div>
               </div>
 
               <div className="font-medium text-sm">
