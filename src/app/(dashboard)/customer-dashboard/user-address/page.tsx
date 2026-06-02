@@ -86,7 +86,7 @@ const Page = () => {
     }
     
     return (
-      <div className="p-4 md:p-6 text rounded-2xl bg-white shadow-lg mb-[20%]">
+      <div className="p-4 md:p-6 text rounded-2xl bg-white shadow-lg mb-20">
         <h3 className="mb-4 title font-bold text-2xl flex-grow border-b pb-4"> My Addresses </h3>
         
         <p className="text-sm text-gray-500 mb-6">

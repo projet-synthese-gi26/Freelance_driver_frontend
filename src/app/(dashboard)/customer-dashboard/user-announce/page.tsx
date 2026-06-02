@@ -294,6 +294,8 @@ export default function AnnouncementsPage() {
                 isNegotiable: false,
                 paymentMethod: 'cash',
             });
+            setDepartureRegion(''); setDepartureDepartment(''); setDepartureArrondissement('');
+            setArrivalRegion(''); setArrivalDepartment(''); setArrivalArrondissement('');
             fetchData();
         } catch (err) { 
             toast.error("Server error", { id: toastId }); 
@@ -647,23 +649,113 @@ export default function AnnouncementsPage() {
                             <div className="grid grid-cols-1 gap-4">
                                 <div>
                                     <p className="text-[11px] uppercase font-bold text-gray-400 mb-2">Departure</p>
-                                    <input
-                                        required
-                                        placeholder="Ex: Melen / Yaoundé"
-                                        className="w-full p-3.5 rounded-xl bg-gray-50 border-none outline-none focus:ring-2 focus:ring-primary/20 font-semibold"
-                                        value={formData.departureLocation}
-                                        onChange={(e) => setFormData({ ...formData, departureLocation: e.target.value })}
-                                    />
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                        <select
+                                            className="p-3.5 rounded-xl bg-gray-50 border-none font-semibold outline-none"
+                                            value={departureRegion}
+                                            onChange={(e) => {
+                                                const region = e.target.value;
+                                                setDepartureRegion(region);
+                                                setDepartureDepartment('');
+                                                setDepartureArrondissement('');
+                                                setDepartureLocation(region, '', '');
+                                            }}
+                                            required
+                                        >
+                                            <option value="">Select region</option>
+                                            {CAMEROON_REGIONS.map(region => (
+                                                <option key={region.name} value={region.name}>{region.name}</option>
+                                            ))}
+                                        </select>
+                                        <select
+                                            className="p-3.5 rounded-xl bg-gray-50 border-none font-semibold outline-none"
+                                            value={departureDepartment}
+                                            onChange={(e) => {
+                                                const department = e.target.value;
+                                                setDepartureDepartment(department);
+                                                setDepartureArrondissement('');
+                                                setDepartureLocation(departureRegion, department, '');
+                                            }}
+                                            disabled={!departureRegion}
+                                            required
+                                        >
+                                            <option value="">Select department</option>
+                                            {getDepartments(departureRegion).map(dep => (
+                                                <option key={dep.name} value={dep.name}>{dep.name}</option>
+                                            ))}
+                                        </select>
+                                        <select
+                                            className="p-3.5 rounded-xl bg-gray-50 border-none font-semibold outline-none"
+                                            value={departureArrondissement}
+                                            onChange={(e) => {
+                                                const arrondissement = e.target.value;
+                                                setDepartureArrondissement(arrondissement);
+                                                setDepartureLocation(departureRegion, departureDepartment, arrondissement);
+                                            }}
+                                            disabled={!departureDepartment}
+                                            required
+                                        >
+                                            <option value="">Select arrondissement</option>
+                                            {getArrondissements(departureRegion, departureDepartment).map(arr => (
+                                                <option key={arr} value={arr}>{arr}</option>
+                                            ))}
+                                        </select>
+                                    </div>
                                 </div>
                                 <div>
                                     <p className="text-[11px] uppercase font-bold text-gray-400 mb-2">Arrival</p>
-                                    <input
-                                        required
-                                        placeholder="Ex: Mvan / Yaoundé"
-                                        className="w-full p-3.5 rounded-xl bg-gray-50 border-none outline-none focus:ring-2 focus:ring-primary/20 font-semibold"
-                                        value={formData.dropoffLocation}
-                                        onChange={(e) => setFormData({ ...formData, dropoffLocation: e.target.value })}
-                                    />
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                        <select
+                                            className="p-3.5 rounded-xl bg-gray-50 border-none font-semibold outline-none"
+                                            value={arrivalRegion}
+                                            onChange={(e) => {
+                                                const region = e.target.value;
+                                                setArrivalRegion(region);
+                                                setArrivalDepartment('');
+                                                setArrivalArrondissement('');
+                                                setArrivalLocation(region, '', '');
+                                            }}
+                                            required
+                                        >
+                                            <option value="">Select region</option>
+                                            {CAMEROON_REGIONS.map(region => (
+                                                <option key={region.name} value={region.name}>{region.name}</option>
+                                            ))}
+                                        </select>
+                                        <select
+                                            className="p-3.5 rounded-xl bg-gray-50 border-none font-semibold outline-none"
+                                            value={arrivalDepartment}
+                                            onChange={(e) => {
+                                                const department = e.target.value;
+                                                setArrivalDepartment(department);
+                                                setArrivalArrondissement('');
+                                                setArrivalLocation(arrivalRegion, department, '');
+                                            }}
+                                            disabled={!arrivalRegion}
+                                            required
+                                        >
+                                            <option value="">Select department</option>
+                                            {getDepartments(arrivalRegion).map(dep => (
+                                                <option key={dep.name} value={dep.name}>{dep.name}</option>
+                                            ))}
+                                        </select>
+                                        <select
+                                            className="p-3.5 rounded-xl bg-gray-50 border-none font-semibold outline-none"
+                                            value={arrivalArrondissement}
+                                            onChange={(e) => {
+                                                const arrondissement = e.target.value;
+                                                setArrivalArrondissement(arrondissement);
+                                                setArrivalLocation(arrivalRegion, arrivalDepartment, arrondissement);
+                                            }}
+                                            disabled={!arrivalDepartment}
+                                            required
+                                        >
+                                            <option value="">Select arrondissement</option>
+                                            {getArrondissements(arrivalRegion, arrivalDepartment).map(arr => (
+                                                <option key={arr} value={arr}>{arr}</option>
+                                            ))}
+                                        </select>
+                                    </div>
                                 </div>
                             </div>
                             <div className="grid grid-cols-2 gap-4">

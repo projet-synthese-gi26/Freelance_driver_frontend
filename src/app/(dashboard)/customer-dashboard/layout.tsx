@@ -21,9 +21,7 @@ import {
   BellIcon, ClipboardDocumentListIcon, Cog6ToothIcon, BellAlertIcon,
   ChatBubbleLeftRightIcon, CreditCardIcon, MapPinIcon, ShieldCheckIcon, UserCircleIcon,
   ArrowRightStartOnRectangleIcon, Bars3Icon, XMarkIcon, MagnifyingGlassIcon,
-  ChartBarIcon,
-  StarIcon,
-  GlobeAltIcon
+  ChartBarIcon, StarIcon, GlobeAltIcon, UsersIcon
 } from "@heroicons/react/24/outline";
 
 export default function RootLayout({
@@ -84,7 +82,7 @@ export default function RootLayout({
     { link: '/customer-dashboard', title: t('nav.personalInfo'), icon: UserCircleIcon },
     { link: '/customer-dashboard/user-chat', title: t('nav.chat'), icon: ChatBubbleLeftRightIcon },
     { link: '/customer-dashboard/user-announce', title: t('nav.announcement'), icon: BellAlertIcon },
-    { link: '/customer-dashboard/user-contacts', title: t('nav.contacts'), icon: UserCircleIcon },
+    { link: '/customer-dashboard/user-contacts', title: t('nav.contacts'), icon: UsersIcon },
     { link: '/customer-dashboard/user-security', title: t('nav.security'), icon: ShieldCheckIcon },
     { link: '/customer-dashboard/user-wishlist', title: t('nav.nextRide'), icon: MagnifyingGlassIcon },
     { link: '/customer-dashboard/user-vehicles', title: t('nav.vehicles'), icon: MapPinIcon },
@@ -123,7 +121,7 @@ export default function RootLayout({
             <XMarkIcon className="w-6 h-6" />
           </button>
           <div className="grow text">
-            <div className="w-full bg-blue-500 text-white title font-bold p-3 rounded-xl flex items-center justify-center hover:shadow-lg cursor-pointer">
+            <div className="w-full bg-primary text-white title font-bold p-3 rounded-xl flex items-center justify-center hover:shadow-lg cursor-pointer">
               {t('upgrade')}
             </div>
             <ul className="py-5 space-y-3">
@@ -150,7 +148,7 @@ export default function RootLayout({
         
         {/* Contenu principal */}
         <div className="flex-grow">
-          <div className="flex items-center w-full justify-between flex-wrap pl-4 py-3 bg-[#E0D9FD]">
+          <div className="flex items-center w-full justify-between flex-wrap pl-4 py-3 bg-primary/10">
             <div className="flex gap-3 items-center">
               <button onClick={handleOpen} className="lg:hidden text-gray-500 hover:text-gray-700">
                 <Bars3Icon className="w-6 h-6" />
@@ -160,8 +158,13 @@ export default function RootLayout({
                 <input type="file" id="imageUpload" accept=".png, .jpg, .jpeg" ref={inputFileRef} onChange={handleFileChange} />
               </div>
               
-              <div onClick={handlePencilClick} className="cursor-pointer border-2 border-white overflow-hidden w-[40px] h-[40px] rounded-full bg-white relative mx-auto shadow-sm">
-                <Image src={avatarUrl} alt="avatar" fill sizes="40px" unoptimized className="rounded-full h-full w-full object-cover" />
+              <div onClick={handlePencilClick} className="group cursor-pointer border-2 border-white overflow-hidden w-[40px] h-[40px] rounded-full bg-white relative mx-auto shadow-sm" title="Change profile photo">
+                <Image src={avatarUrl} alt="avatar" fill sizes="40px" unoptimized className="rounded-full h-full w-full object-cover group-hover:opacity-70 transition-opacity" />
+                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                  <svg className="w-4 h-4 text-white drop-shadow" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536M9 13l6.586-6.586a2 2 0 012.828 0l.172.172a2 2 0 010 2.828L12 16H9v-3z" />
+                  </svg>
+                </div>
               </div>
 
               <div className="font-medium text">

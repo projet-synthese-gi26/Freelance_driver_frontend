@@ -7,7 +7,7 @@ const Page = () => {
   const router = useRouter();
 
   useEffect(() => {
-    router.replace('/freelance-dashboard/finance/wallet');
+    router.replace('/freelance-dashboard/business');
   }, [router]);
 
   return null;
