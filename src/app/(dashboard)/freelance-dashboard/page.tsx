@@ -233,7 +233,7 @@ export default function PersonalInfoPage() {
                 {!editable && (
                     <button
                         onClick={() => setEditable(true)}
-                        className="flex items-center gap-2 bg-blue-600/10 text-blue-600 px-4 py-2 rounded-lg hover:bg-blue-600/20 transition" // Client-like button style
+                        className="flex items-center gap-2 bg-primary-50 text-primary-500 px-4 py-2 rounded-lg hover:bg-primary-100 transition"
                     >
                         <PencilSquareIcon className="w-5 h-5" />
                         <span className="font-medium">Modifier le profil</span>
@@ -253,7 +253,7 @@ export default function PersonalInfoPage() {
                         className="rounded-full object-cover border-4 border-white shadow-md"
                     />
                     {editable && (
-                        <label className="absolute bottom-0 right-0 bg-blue-600 p-2 rounded-full cursor-pointer hover:bg-blue-700 transition shadow-md">
+                        <label className="absolute bottom-0 right-0 bg-primary-500 p-2 rounded-full cursor-pointer hover:bg-primary-600 transition shadow-md">
                             <PencilSquareIcon className="w-4 h-4 text-white" />
                             <input type="file" className="hidden" accept="image/*" onChange={handleAvatarChange} />
                         </label>
@@ -278,7 +278,7 @@ export default function PersonalInfoPage() {
                                     <>
                                         {item.type === 'select' ? (
                                             <select
-                                                className="w-full p-2.5 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500/20 bg-white" // Couleur primaire ajustée
+                                                className="w-full p-2.5 border rounded-lg outline-none focus:ring-2 focus:ring-primary-500/20 bg-white" // Couleur primaire ajustée
                                                 value={formData[item.field] || ''}
                                                 onChange={(e) => handleInputChange(item.field, e.target.value)}
                                             >
@@ -289,14 +289,14 @@ export default function PersonalInfoPage() {
                                             <textarea
                                                 rows={item.field === 'biography' ? 4 : 3} // Rows specific to biography vs vehicleDetails
                                                 placeholder={item.field === 'vehicleDetails' ? "Marque, Modèle, Année..." : ""}
-                                                className="w-full p-2.5 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500/20" // Couleur primaire ajustée
+                                                className="w-full p-2.5 border rounded-lg outline-none focus:ring-2 focus:ring-primary-500/20" // Couleur primaire ajustée
                                                 value={formData[item.field] || ''}
                                                 onChange={(e) => handleInputChange(item.field, e.target.value)}
                                             />
                                         ) : (
                                             <input
                                                 type={item.type}
-                                                className="w-full p-2.5 border rounded-lg outline-none focus:ring-2 focus:ring-blue-500/20" // Couleur primaire ajustée
+                                                className="w-full p-2.5 border rounded-lg outline-none focus:ring-2 focus:ring-primary-500/20" // Couleur primaire ajustée
                                                 value={formData[item.field] || ''}
                                                 onChange={(e) => handleInputChange(item.field, e.target.value)}
                                             />
@@ -316,7 +316,7 @@ export default function PersonalInfoPage() {
                             <button
                                 type="button"
                                 onClick={handleSave}
-                                className="bg-blue-600 text-white px-8 py-2.5 rounded-lg font-bold shadow-md hover:bg-blue-700 transition" // Couleur primaire ajustée
+                                className="bg-primary-500 text-white px-8 py-2.5 rounded-lg font-bold shadow-md hover:bg-primary-600 transition" // Couleur primaire ajustée
                                 disabled={loading}
                             >
                                 {loading ? (

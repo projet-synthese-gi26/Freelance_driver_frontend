@@ -92,12 +92,12 @@ export default function RegisterForm({ onSignInClick, onSuccess }: { onSignInCli
     return (
         <div className="w-full max-w-lg mx-auto">
             {/* Sélecteur de Rôle */}
-            <div className="flex bg-gray-100 p-1.5 rounded-xl mb-6 shadow-sm border border-gray-200">
+            <div className="flex bg-gray-100 p-1 rounded-xl mb-6">
                 <button
                     type="button"
                     onClick={() => setRole('driver')}
-                    className={`flex-1 py-2.5 rounded-lg text-sm font-bold transition-all duration-200 ${
-                        role === 'driver' ? 'bg-blue-600 text-white shadow-md' : 'text-gray-500 hover:text-gray-700'
+                    className={`flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 ${
+                        role === 'driver' ? 'bg-white text-primary-500 shadow-sm' : 'text-gray-500 hover:text-gray-700'
                     }`}
                 >
                     {t("role.driver")}
@@ -105,8 +105,8 @@ export default function RegisterForm({ onSignInClick, onSuccess }: { onSignInCli
                 <button
                     type="button"
                     onClick={() => setRole('client')}
-                    className={`flex-1 py-2.5 rounded-lg text-sm font-bold transition-all duration-200 ${
-                        role === 'client' ? 'bg-green-500 text-white shadow-md' : 'text-gray-500 hover:text-gray-700'
+                    className={`flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 ${
+                        role === 'client' ? 'bg-white text-primary-500 shadow-sm' : 'text-gray-500 hover:text-gray-700'
                     }`}
                 >
                     {t("role.passenger")}
@@ -156,7 +156,7 @@ export default function RegisterForm({ onSignInClick, onSuccess }: { onSignInCli
                 <input className="input-field w-full" placeholder={t("fields.address")} value={address} onChange={e => setAddress(e.target.value)} />
 
                 {/* Bouton de validation */}
-                <button disabled={loading} className={`w-full text-white py-3.5 rounded-xl font-bold transition-all active:scale-[0.98] disabled:opacity-50 mt-4 shadow-lg ${role === 'driver' ? 'bg-blue-600 hover:bg-blue-700' : 'bg-green-600 hover:bg-green-700'}`}>
+                <button disabled={loading} className="w-full bg-primary-500 hover:bg-primary-600 text-white py-3.5 rounded-xl font-bold transition-all active:scale-[0.98] disabled:opacity-50 mt-4 shadow-lg">
                     {loading ? (
                         <span className="flex items-center justify-center gap-2">
                             <svg className="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
@@ -167,12 +167,12 @@ export default function RegisterForm({ onSignInClick, onSuccess }: { onSignInCli
             </form>
 
             <p className="text-center mt-6 text-sm text-gray-600">
-                {t("alreadyHaveAccount")} <button onClick={onSignInClick} className="text-blue-600 font-bold hover:underline">{t("signIn")}</button>
+                {t("alreadyHaveAccount")} <button onClick={onSignInClick} className="text-primary-500 font-semibold hover:underline">{t("signIn")}</button>
             </p>
 
             <style jsx>{`
                 .input-field {
-                    @apply px-4 py-3.5 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm bg-gray-50/50;
+                    @apply px-4 py-3.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all text-sm bg-gray-50;
                 }
             `}</style>
         </div>
