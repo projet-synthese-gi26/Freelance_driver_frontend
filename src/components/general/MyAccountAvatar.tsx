@@ -1,5 +1,5 @@
 // Composant d'avatar utilisateur moderne avec actions rapides
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useAuthContext } from '@/components/context/authContext';
@@ -127,9 +127,42 @@ export const MyAccountAvatar = () => {
         user?.actor?.avatarUrl ||
         driverProfile?.profileImageUrl ||
         clientProfile?.profileImageUrl ||
-        "/dark_avatar.svg";
+        null;
     const userName = [user?.user?.firstName, user?.user?.lastName].filter(Boolean).join(' ').trim() || 'Mon Compte';
     const userEmail = user?.user?.email || '';
+
+    const initials = userName
+        .split(' ')
+        .slice(0, 2)
+        .map((n: string) => n[0])
+        .join('')
+        .toUpperCase();
+
+    const [imgError, setImgError] = useState(false);
+    const showFallback = !avatarSrc || imgError;
+
+    const AvatarImage = useCallback(({ size, borderClass }: { size: number; borderClass: string }) => (
+        showFallback ? (
+            <div
+                className={`flex items-center justify-center rounded-full bg-primary text-white font-semibold ${borderClass}`}
+                style={{ width: size, height: size, fontSize: size * 0.35 }}
+            >
+                {initials || <span style={{ fontSize: size * 0.5 }}>?</span>}
+            </div>
+        ) : (
+            <div className={`rounded-full overflow-hidden flex-shrink-0 ${borderClass}`} style={{ width: size, height: size }}>
+                <Image
+                    src={avatarSrc!}
+                    alt={userName}
+                    width={size}
+                    height={size}
+                    unoptimized
+                    onError={() => setImgError(true)}
+                    className="w-full h-full object-cover"
+                />
+            </div>
+        )
+    ), [showFallback, avatarSrc, initials, userName]);
 
     return (
         <div className="flex items-center">
@@ -138,19 +171,12 @@ export const MyAccountAvatar = () => {
                 <button
                     ref={buttonRef}
                     onClick={toggleDropdown}
-                    className="flex items-center gap-2 p-1 rounded-full hover:bg-gray-100 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                    className="flex items-center gap-2 p-1 rounded-full hover:bg-white/10 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-white/50 focus:ring-offset-1"
                     aria-expanded={isOpen}
                     aria-haspopup="true"
                 >
                     <div className="relative">
-                        <Image
-                            src={avatarSrc}
-                            alt="User Avatar"
-                            width={40}
-                            height={40}
-                            unoptimized
-                            className="rounded-full border-2 border-gray-200 object-cover"
-                        />
+                        <AvatarImage size={40} borderClass="border-2 border-white/70 shadow-sm" />
                         {/* Indicateur de statut en ligne */}
                         <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></span>
                     </div>
@@ -165,14 +191,7 @@ export const MyAccountAvatar = () => {
                         {/* En-tête du profil */}
                         <div className="px-4 py-4 bg-gradient-to-r from-[#243757] to-[#3a5a8a] text-white">
                             <div className="flex items-center gap-3">
-                                <Image
-                                    src={avatarSrc}
-                                    alt="User Avatar"
-                                    width={48}
-                                    height={48}
-                                    unoptimized
-                                    className="rounded-full border-2 border-white/30 object-cover"
-                                />
+                                <AvatarImage size={48} borderClass="border-2 border-white/50" />
                                 <div className="flex-1 min-w-0">
                                     <p className="font-semibold text-white truncate">{userName}</p>
                                     <p className="text-sm text-white/70 truncate">{userEmail}</p>
