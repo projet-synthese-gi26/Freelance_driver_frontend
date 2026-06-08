@@ -12,6 +12,8 @@ type Props = {
   active?: boolean;
   disabled?: boolean;
   buttonLabel: string;
+  badge?: string;
+  isFree?: boolean;
   onSelect: () => void;
   onCardClick?: () => void;
 };
@@ -26,6 +28,8 @@ const PlanCard: React.FC<Props> = ({
   active,
   disabled,
   buttonLabel,
+  badge,
+  isFree,
   onSelect,
   onCardClick,
 }) => {
@@ -39,7 +43,9 @@ const PlanCard: React.FC<Props> = ({
 
   const buttonClass = highlighted
     ? "btn-outline bg-white hover:bg-white hover:text-primary text-primary"
-    : "btn-outline transition-colors duration-500 bg-primary text-white hover:bg-[#575fa0]";
+    : isFree
+      ? "btn-outline transition-colors duration-500 border border-primary text-primary bg-transparent hover:bg-primary hover:text-white"
+      : "btn-outline transition-colors duration-500 bg-primary text-white hover:bg-[#575fa0]";
 
   return (
     <div
@@ -53,6 +59,13 @@ const PlanCard: React.FC<Props> = ({
       className={`rounded-2xl p-6 h-full shadow-sm border border-neutral-100 ${containerClass} ${onCardClick ? "cursor-pointer" : ""}`}
     >
       <div className="text-center">
+        {badge ? (
+          <div className="flex justify-center mb-2">
+            <span className={`text-xs font-semibold px-3 py-1 rounded-full ${highlighted ? "bg-white/20 text-white" : "bg-amber-100 text-amber-700"}`}>
+              {badge}
+            </span>
+          </div>
+        ) : null}
         <div className="flex items-center justify-center gap-2">
           <p className={`mb-0 font-medium ${titleClass}`}>{label}</p>
           {active ? (
