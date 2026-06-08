@@ -113,15 +113,22 @@ export default function RegisterForm({ onSignInClick, onSuccess }: { onSignInCli
                 </button>
             </div>
 
+            <p className="text-sm text-gray-500 mb-2">
+                {role === 'driver'
+                    ? 'Welcome, driver! Fill in your details to get started on the platform.'
+                    : 'Welcome! Create your passenger account in a few steps.'}
+                {' '}<span className="text-red-500">*</span> Required fields.
+            </p>
+
             <form onSubmit={handleSubmit} className="space-y-4">
                 {/* 1. Identité */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <input className="input-field" placeholder={t("fields.firstName")} value={firstName} onChange={e => setFirstName(e.target.value)} />
-                    <input className="input-field" placeholder={t("fields.lastName")} value={lastName} onChange={e => setLastName(e.target.value)} />
+                    <input className="input-field" placeholder={`${t("fields.firstName")} *`} value={firstName} onChange={e => setFirstName(e.target.value)} />
+                    <input className="input-field" placeholder={`${t("fields.lastName")} *`} value={lastName} onChange={e => setLastName(e.target.value)} />
                 </div>
 
                 {/* 2. Email */}
-                <input className="input-field w-full" type="email" placeholder={t("fields.email")} value={email} onChange={e => setEmail(e.target.value)} />
+                <input className="input-field w-full" type="email" placeholder={`${t("fields.email")} *`} value={email} onChange={e => setEmail(e.target.value)} />
                 
                 {/* 3. Téléphone */}
                 <div className="flex gap-2">
@@ -146,13 +153,17 @@ export default function RegisterForm({ onSignInClick, onSuccess }: { onSignInCli
                     </button>
                 </div>
 
-                {/* 5. Détails Organisation */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-gray-100">
-                    <input className="input-field" placeholder={t("fields.organisationName")} value={organisationName} onChange={e => setOrganisationName(e.target.value)} />
-                    <input className="input-field" placeholder={t("fields.title")} value={title} onChange={e => setTitle(e.target.value)} />
-                </div>
-                
-                <input className="input-field w-full" placeholder={t("fields.organisationDescription")} value={organisationDescription} onChange={e => setOrganisationDescription(e.target.value)} />
+                {/* 5. Détails Organisation — driver only */}
+                {role === 'driver' && (
+                    <>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-gray-100">
+                            <input className="input-field" placeholder={t("fields.organisationName")} value={organisationName} onChange={e => setOrganisationName(e.target.value)} />
+                            <input className="input-field" placeholder={t("fields.title")} value={title} onChange={e => setTitle(e.target.value)} />
+                        </div>
+                        <input className="input-field w-full" placeholder={t("fields.organisationDescription")} value={organisationDescription} onChange={e => setOrganisationDescription(e.target.value)} />
+                    </>
+                )}
+
                 <input className="input-field w-full" placeholder={t("fields.address")} value={address} onChange={e => setAddress(e.target.value)} />
 
                 {/* Bouton de validation */}

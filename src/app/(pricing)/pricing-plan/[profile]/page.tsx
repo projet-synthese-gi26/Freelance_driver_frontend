@@ -191,7 +191,7 @@ const Page = ({
         <div className="py-[5px] lg:py-[20px] text bg-[var(--bg-2)] overflow-hidden px-3">
           <div className="mx-5 p-2">
             <h1 className="text-center title text-[var(--neutral-700)] font-bold leading-tight tracking-tight font-inter">
-              GENERIC PLANS FOR {terms.toLocaleUpperCase()}
+              Plans designed for {terms}
             </h1>
           </div>
           <div className="max-w-[570px] mx-auto flex flex-col items-center text-center">
@@ -199,10 +199,9 @@ const Page = ({
                 text="Pricing Plan"
                 classes="bg-[var(--primary-light)]"
             />
-            <h2 className="h2 text">Choose Our Pricing Plan</h2>
+            <h2 className="h2 text">Choose the plan that fits your pace</h2>
             <p className="text-neutral-600 pb-2">
-              Here you have our differents pricing plan choose the option that
-              fits you the most... Feel free and explore the terms
+              Select the plan that matches your working rhythm. You can upgrade or change at any time.
             </p>
           </div>
           {errorMessage ? (
@@ -225,7 +224,7 @@ const Page = ({
                             isActive={activeButton === 1}
                         />
                         <PaySwitch
-                            label="Quarterly"
+                            label="quarterly"
                             onClick={() => handleButtonClick(3)}
                             isActive={activeButton === 3}
                         />
@@ -261,12 +260,14 @@ const Page = ({
                     highlighted={selectedPlanCode === "FREE"}
                     active={activePlanId === planIdByCode["FREE"]}
                     disabled={subscribing !== null || activePlanId === planIdByCode["FREE"]}
+                    badge="Free"
+                    isFree={true}
                     buttonLabel={
                       activePlanId === planIdByCode["FREE"]
                         ? "Current plan"
                         : subscribing === "FREE"
                           ? "Subscribing..."
-                          : "Choose Plan"
+                          : "Get started free"
                     }
                     onSelect={() => handleSubscribe("FREE")}
                     onCardClick={() => setSelectedPlanCode("FREE")}
@@ -282,6 +283,7 @@ const Page = ({
                     highlighted={selectedPlanCode === "PRO"}
                     active={activePlanId === planIdByCode["PRO"]}
                     disabled={subscribing !== null || activePlanId === planIdByCode["PRO"]}
+                    badge="Most popular"
                     buttonLabel={
                       activePlanId === planIdByCode["PRO"]
                         ? "Current plan"

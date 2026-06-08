@@ -75,7 +75,7 @@ export default function MyPage() {
                                         <div className="flex items-center gap-2 text-sm text-neutral-600">
                                             <span className="inline-flex items-center gap-2 rounded-full px-3 py-1 bg-neutral-50 border border-neutral-100">
                                                 <span className="w-2 h-2 rounded-full bg-primary"></span>
-                                                Pricing plans available
+                                                3 plans available · from 0 FCFA
                                             </span>
                                         </div>
 
