@@ -219,18 +219,17 @@ const Page = ({
                     <div className="flex items-center gap-2">
                       <div className="flex bg-[var(--primary-light)] rounded">
                         <PaySwitch
-                            label="monthly"
+                            label="Monthly"
                             onClick={() => handleButtonClick(1)}
                             isActive={activeButton === 1}
                         />
                         <PaySwitch
-                            label="quarterly"
+                            label="Quarterly"
                             onClick={() => handleButtonClick(3)}
                             isActive={activeButton === 3}
                         />
-
                         <PaySwitch
-                            label="annually"
+                            label="Annually"
                             onClick={() => handleButtonClick(12)}
                             isActive={activeButton === 12}
                         />

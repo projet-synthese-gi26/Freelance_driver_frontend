@@ -6,8 +6,8 @@ export function createAutocomplete(inputId, onSelect){
         howManyCharacters: 2,
 
         onSearch: ({ currentValue }) => {
-            const api = `https://photon.komoot.io/api/?q=${encodeURI(currentValue)}&lang=fr`;
-        
+            const api = `https://photon.komoot.io/api/?q=${encodeURI(currentValue)}&lang=fr&countrycodes=cm&limit=10`;
+
             return new Promise((resolve) => {
                 fetch(api)
                     .then((response) => response.json())
@@ -19,11 +19,22 @@ export function createAutocomplete(inputId, onSelect){
                     });
             });
         },
-        
+
         onResults: ({ matches }) => {
+            const seen = new Set();
             return matches
-                .filter((feature)=> feature.properties.type === "city" || feature.properties.city !== undefined)
-                .filter((feature, index) => index < 5)
+                .filter((feature) => feature.properties.country === "Cameroon")
+                .filter((feature) => {
+                    const { type } = feature.properties;
+                    return type === "city" || type === "town" || type === "village" || feature.properties.city !== undefined;
+                })
+                .filter((feature) => {
+                    const key = feature.properties.name;
+                    if (seen.has(key)) return false;
+                    seen.add(key);
+                    return true;
+                })
+                .slice(0, 5)
                 .map((feature) => {
                     let text = feature.properties.state || feature.properties.county || "";
                     if(text !== "") text += ", ";

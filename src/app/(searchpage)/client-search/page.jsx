@@ -397,7 +397,7 @@ export default function ClientSearchPage() {
 
                     <div className="flex items-center justify-between gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
                       <div>
-                        <p className="text-sm font-semibold text-slate-900">Has car</p>
+                        <p className="text-sm font-semibold text-slate-900">Avec véhicule</p>
                         <p className="text-[11px] font-medium text-slate-500">Clients disposant d'une voiture</p>
                       </div>
                       <input

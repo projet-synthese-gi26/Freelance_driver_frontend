@@ -414,7 +414,7 @@ export default function SearchCardClientAnnouncement({
                 {display.hasCar ? (
                   <span className="inline-flex items-center gap-1 rounded-full bg-slate-50 px-2.5 py-1 text-xs font-bold text-slate-700">
                     <CheckBadgeIcon className="h-4 w-4 text-slate-600" />
-                    Has car
+                    Avec véhicule
                   </span>
                 ) : null}
                 <span
@@ -440,7 +440,7 @@ export default function SearchCardClientAnnouncement({
                   handleOpenModal();
                   onSeeMore?.(announcement);
                 }}
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-slate-800"
+                className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-bold text-slate-700 transition hover:bg-slate-50"
               >
                 Voir plus
                 <ArrowRightIcon className="h-4 w-4" />
@@ -482,20 +482,11 @@ export default function SearchCardClientAnnouncement({
             </div>
           </div>
 
-          {(hasMeaningfulValue(display.authorPhoneNumber) || hasMeaningfulValue(display.baggageInfo)) && (
+          {hasMeaningfulValue(display.baggageInfo) && (
             <div className="mt-4 flex flex-wrap gap-2">
-              {hasMeaningfulValue(display.authorPhoneNumber) ? (
-                <span className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-700">
-                  <PhoneIcon className="h-4 w-4 text-slate-500" />
-                  {display.authorPhoneNumber}
-                </span>
-              ) : null}
-
-              {hasMeaningfulValue(display.baggageInfo) ? (
-                <span className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-700">
-                  {String(display.baggageInfo)}
-                </span>
-              ) : null}
+              <span className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-semibold text-slate-700">
+                {String(display.baggageInfo)}
+              </span>
             </div>
           )}
         </div>
@@ -530,14 +521,8 @@ export default function SearchCardClientAnnouncement({
                       </div>
                       <h4 className="text-center title font-semibold mb-1">{modalProfile.name}</h4>
                       <div className="flex items-center justify-center flex-wrap mb-2">
-                        <p className="mb-0 flex flex-col w-full text-center relative group">
-                          Contact:
-                          <span className="text-primary truncate overflow-hidden text-ellipsis inline-block max-w-full cursor-pointer">
-                            {modalProfile.phone || "N/A"}
-                          </span>
-                          <span className="text-primary truncate overflow-hidden text-ellipsis inline-block max-w-full cursor-pointer">
-                            {modalProfile.email || "N/A"}
-                          </span>
+                        <p className="mb-0 flex flex-col w-full text-center relative group text-sm text-slate-500 italic">
+                          Coordonnées disponibles après confirmation de réservation
                         </p>
                       </div>
                       <div className="flex items-center justify-center flex-wrap mb-2">

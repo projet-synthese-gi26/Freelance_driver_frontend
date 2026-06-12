@@ -70,21 +70,27 @@ const vehicleSize = [
 
   const testimonials = [
     {
-      text: "Ce produit a révolutionné notre façon de travailler. Nous sommes plus productifs que jamais!",
-      author: "Marie Dupont",
-      title: "CEO",
+      text: "LetsGo completely changed how I manage my schedule. I get more clients, work on my own terms, and my income has grown significantly since joining the platform.",
+      author: "Emmanuel Ngassa",
+      title: "Professional Driver · Yaoundé",
+      company: "Independent",
+      rating: 5,
       imageUrl: "/img/bafou1.jpg"
     },
     {
-      text: "Le service client est exceptionnel. Ils ont résolu notre problème en un rien de temps.",
-      author: "Jean Martin",
-      title: "Directeur technique",
+      text: "Finding a reliable driver used to take hours of phone calls. With LetsGo, I book a trusted professional in minutes. The process is seamless and the drivers are always on time.",
+      author: "Isabelle Tchamba",
+      title: "Operations Manager · Douala",
+      company: "Solaris Logistics",
+      rating: 5,
       imageUrl: "/img/bafou6.jpg"
     },
     {
-      text: "Je recommande vivement cette solution à toute entreprise cherchant à améliorer ses processus.",
-      author: "Sophie Lefebvre",
-      title: "Manager",
+      text: "The platform gave our drivers real visibility and helped our syndicate members find steady work. A genuine tool built for the Cameroonian transport sector.",
+      author: "Paul Mbianda",
+      title: "President · Transport Syndicate",
+      company: "STCM Cameroun",
+      rating: 5,
       imageUrl: "/img/bafou4.jpg"
     }
   ];

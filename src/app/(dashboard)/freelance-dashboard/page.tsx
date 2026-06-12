@@ -228,40 +228,39 @@ export default function PersonalInfoPage() {
 
     return (
         <div className="p-4 max-w-6xl mx-auto mb-10">
-            <div className="flex justify-between items-center mb-6">
-                <h1 className="text-2xl font-bold text-gray-800">Informations Personnelles</h1>
+            {/* En-tête compact : avatar à gauche + nom + bouton modifier */}
+            <div className="flex items-center gap-4 mb-6">
+                <div className="relative w-16 h-16 shrink-0">
+                    <Image
+                        src={formData.profileImageUrl || "/white-silhouette-avatar.png"}
+                        alt="Profile"
+                        fill
+                        sizes="64px"
+                        unoptimized
+                        className="rounded-full object-cover border-2 border-white shadow-md"
+                    />
+                    {editable && (
+                        <label className="absolute bottom-0 right-0 bg-primary-500 p-1.5 rounded-full cursor-pointer hover:bg-primary-600 transition shadow-md">
+                            <PencilSquareIcon className="w-3 h-3 text-white" />
+                            <input type="file" className="hidden" accept="image/*" onChange={handleAvatarChange} />
+                        </label>
+                    )}
+                </div>
+                <div className="flex-1 min-w-0">
+                    <h1 className="text-xl font-bold text-gray-800 truncate">
+                        {formData.firstName} {formData.lastName}
+                    </h1>
+                    <p className="text-sm text-gray-500">Informations Personnelles</p>
+                </div>
                 {!editable && (
                     <button
                         onClick={() => setEditable(true)}
-                        className="flex items-center gap-2 bg-primary-50 text-primary-500 px-4 py-2 rounded-lg hover:bg-primary-100 transition"
+                        className="flex items-center gap-2 bg-primary-50 text-primary-500 px-4 py-2 rounded-lg hover:bg-primary-100 transition shrink-0"
                     >
                         <PencilSquareIcon className="w-5 h-5" />
                         <span className="font-medium">Modifier le profil</span>
                     </button>
                 )}
-            </div>
-
-            {/* Photo de Profil */}
-            <div className="flex flex-col items-center mb-8">
-                <div className="relative w-32 h-32">
-                    <Image
-                        src={formData.profileImageUrl || "/white-silhouette-avatar.png"}
-                        alt="Profile"
-                        fill
-                        sizes="128px"
-                        unoptimized
-                        className="rounded-full object-cover border-4 border-white shadow-md"
-                    />
-                    {editable && (
-                        <label className="absolute bottom-0 right-0 bg-primary-500 p-2 rounded-full cursor-pointer hover:bg-primary-600 transition shadow-md">
-                            <PencilSquareIcon className="w-4 h-4 text-white" />
-                            <input type="file" className="hidden" accept="image/*" onChange={handleAvatarChange} />
-                        </label>
-                    )}
-                </div>
-                <p className="mt-2 text-gray-500 font-medium">
-                    {formData.firstName} {formData.lastName}
-                </p>
             </div>
 
             {/* Formulaire */}
@@ -304,7 +303,14 @@ export default function PersonalInfoPage() {
                                     </>
                                 ) : (
                                     <div className="py-2.5 px-3 border-b border-gray-100 text-gray-700 min-h-[45px] bg-gray-50/40 rounded-t-md">
-                                        {formData[item.field] || <span className="text-gray-400 italic text-sm">Non renseigné</span>}
+                                        {formData[item.field] || (
+                                            <button
+                                                onClick={() => setEditable(true)}
+                                                className="text-primary-500 text-sm font-medium hover:underline focus:outline-none"
+                                            >
+                                                + Ajouter
+                                            </button>
+                                        )}
                                     </div>
                                 )}
                             </div>

@@ -35,6 +35,7 @@ export default function Page() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [bookingData, setBookingData] = useState(null);
+  const [bookingSent, setBookingSent] = useState(false);
 
   useEffect(() => {
     const id = searchParams.get("id");
@@ -107,6 +108,7 @@ export default function Page() {
         }
       }
 
+      setBookingSent(true);
       alert("Demande envoyée avec succès. Veuillez attendre la confirmation.");
     } catch (e) {
       console.error("booking failed", e);
@@ -121,7 +123,7 @@ export default function Page() {
           <div className="col-span-12 lg:col-span-7">
             <div className="bg-white rounded-md p-3 sm:p-4 lg:p-6 mb-6">
               <div className="flex items-center justify-between gap-3 pb-4">
-                <h3 className="h3 title">Booking resume Informations</h3>
+                <h3 className="h3 title">Récapitulatif de la réservation</h3>
               </div>
 
               <Tab.Group>
@@ -217,7 +219,11 @@ export default function Page() {
                           <p className="text-sm font-bold text-slate-900 truncate">{display.authorName}</p>
                           <p className="mt-1 text-sm text-slate-600 flex items-center gap-2">
                             <PhoneIcon className="h-4 w-4" />
-                            <span>{display.authorPhoneNumber || "Non renseigné"}</span>
+                            {bookingSent ? (
+                              <span>{display.authorPhoneNumber || "Non renseigné"}</span>
+                            ) : (
+                              <span className="italic text-slate-400">Disponible après confirmation de la réservation</span>
+                            )}
                           </p>
                         </div>
                       </div>
@@ -248,7 +254,7 @@ export default function Page() {
               onProtectedClick={handleProceed}
               className="link inline-flex items-center gap-2 lg:mt-8 py-3 px-6 rounded-md bg-primary text-white hover:bg-blue-700 font-semibold w-full text-xl justify-center"
             >
-              <span className="inline-block text"> Proceed Booking </span>
+              <span className="inline-block text">Confirmer et envoyer la demande</span>
             </ProtectedButton>
           </div>
         </div>

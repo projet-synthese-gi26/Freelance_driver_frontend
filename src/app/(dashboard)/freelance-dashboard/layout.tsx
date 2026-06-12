@@ -1,7 +1,8 @@
 "use client";
+import React from "react";
 import { usePathname, useRouter } from "next/navigation";
 import Image from "next/image";
-import Link from "next/link"; 
+import Link from "next/link";
 import { toast } from 'react-hot-toast';
 import { useState, MouseEvent, ChangeEvent, useMemo, useEffect, useCallback, useRef } from "react";
 
@@ -85,14 +86,13 @@ export default function RootLayout({
   ], []);
   */
    const NavItems = useMemo(() => [
-    {link:'/freelance-dashboard',title:t('nav.personalInfo'),icon:UserCircleIcon},
-    {link:'/freelance-dashboard/security',title:t('nav.security'),icon:ShieldCheckIcon},
-    
+    {link:'/freelance-dashboard',title:t('nav.personalInfo'),icon:UserCircleIcon,group:'account'},
+    {link:'/freelance-dashboard/security',title:t('nav.security'),icon:ShieldCheckIcon,group:'account'},
     {
       title:t('nav.business.title'),
       icon:BriefcaseIcon,
+      group:'organisation',
       subItems: [
-        
         {link:'/freelance-dashboard/business/address',title:t('nav.business.address')},
         {link:'/freelance-dashboard/business/contacts',title:t('nav.business.contacts')},
         {link:'/freelance-dashboard/business/planning',title:t('nav.business.planning')},
@@ -101,15 +101,14 @@ export default function RootLayout({
         {link:'/freelance-dashboard/business/orders',title:t('nav.business.orders')},
       ]
     },
-    {link:'https://ugate-frontend-bon.vercel.app/',title:t('nav.syndicate'),icon:GlobeAltIcon},
-    {link:'/freelance-dashboard/finance/wallet',title:t('nav.wallet'),icon:BanknotesIcon},
-    
-    {link:'/freelance-dashboard/ratings',title:t('nav.reviews'),icon:ChartBarIcon},
-    {title:t('nav.support'),icon:support,link:'/freelance-dashboard/support'},
-    {link:'/freelance-dashboard/settings',title:t('nav.settings'),icon:Cog8ToothIcon},
-    {link:'/freelance-dashboard/chat',title:t('nav.chat'),icon:ChatBubbleLeftRightIcon},
-    {link:'/freelance-dashboard/rate_app',title:t('nav.rateApp'),icon:StarIcon},
-    {link:'#',title:t('nav.logout'),icon:ArrowRightStartOnRectangleIcon},
+    {link:'https://ugate-frontend-bon.vercel.app/',title:t('nav.syndicate'),icon:GlobeAltIcon,group:'organisation'},
+    {link:'/freelance-dashboard/finance/wallet',title:t('nav.wallet'),icon:BanknotesIcon,group:'finance'},
+    {link:'/freelance-dashboard/ratings',title:t('nav.reviews'),icon:ChartBarIcon,group:'community'},
+    {title:t('nav.support'),icon:support,link:'/freelance-dashboard/support',group:'system'},
+    {link:'/freelance-dashboard/settings',title:t('nav.settings'),icon:Cog8ToothIcon,group:'system'},
+    {link:'/freelance-dashboard/chat',title:t('nav.chat'),icon:ChatBubbleLeftRightIcon,group:'system'},
+    {link:'/freelance-dashboard/rate_app',title:t('nav.rateApp'),icon:StarIcon,group:'other'},
+    {link:'#',title:t('nav.logout'),icon:ArrowRightStartOnRectangleIcon,group:'other'},
   ], [t]);
 
   const toggleSubMenu = useCallback((navItem: any) => {
@@ -196,12 +195,33 @@ export default function RootLayout({
             <XMarkIcon className="w-6 h-6" />
           </button>
           <div className="grow text">
-            <div className="w-full border-primary-500 text-primary border title font-bold p-3 rounded-md flex items-center justify-center cursor-pointer">
-              {t('basicPlan')}
+            <div className="w-full flex items-center justify-center py-2">
+              <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-primary/10 text-primary border border-primary/20">
+                {t('basicPlan')}
+              </span>
             </div>
-            <ul className="py-5 space-y-3">
-              {NavItems.map((navItem, key) => (
-                <li key={key}>
+            <ul className="py-3 space-y-1">
+              {NavItems.map((navItem, key) => {
+                const groupLabels: Record<string, string> = {
+                  account: 'Compte',
+                  organisation: 'Organisation',
+                  finance: 'Finance',
+                  community: 'Communauté',
+                  system: 'Système',
+                  other: '',
+                };
+                const prevGroup = key > 0 ? NavItems[key - 1].group : null;
+                const showGroupLabel = navItem.group !== prevGroup && groupLabels[navItem.group ?? ''];
+                return (
+                <React.Fragment key={key}>
+                  {showGroupLabel && (
+                    <li className="px-3 pt-3 pb-1">
+                      <span className="text-[10px] font-semibold uppercase tracking-widest text-gray-400">
+                        {groupLabels[navItem.group ?? '']}
+                      </span>
+                    </li>
+                  )}
+                  <li>
                   {navItem.subItems ? (
                     <div>
                       <button
@@ -248,7 +268,9 @@ export default function RootLayout({
                     </button>
                   )}
                 </li>
-              ))}
+                </React.Fragment>
+                );
+              })}
             </ul>
           </div>
         </nav>
